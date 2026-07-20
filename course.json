@@ -1,0 +1,240 @@
+{
+    "id" : "fec1cc00-b345-434e-b853-2753c1fe787d",
+    "title" : "Python Foundations",
+    "description" : "Part A of the AI Native Engineering programme. The programming baseline for the whole programme, delivered entirely in Google Colab. Covers Modules I-V of the standard Python syllabus plus Git and professional tooling. 30 hours, Weeks 1-8.",
+    "prerequisites" : {
+        "url" : "README.md",
+        "title" : "Prerequisites and Learning Objectives",
+        "tooltip" : "Prerequisites and Learning Objectives"
+    },
+    "studyGuide" : {
+        "url" : "python-foundations-study-guide.md",
+        "title" : "Study Guide",
+        "tooltip" : "Study Guide"
+    },
+    "references" : [
+        {
+            "url" : "reference-materials/python-additional-resources.md",
+            "title" : "Additional Resources",
+            "tooltip" : "Additional Resources"
+        }
+    ],
+    "modules" : [
+        {
+            "id" : "5485c528-21dd-4571-b33b-05485f0a890c",
+            "title" : "P1 . Module I . Introduction",
+            "description" : "The on-ramp for learners who know how to use a computer but have never programmed. Everything runs in Google Colab in the browser, no installation needed. Confident, correct use of Python's most basic building blocks: variables, types, operators, and output.",
+            "url" : "modules/p1-introduction",
+            "prerequisites" : {
+                "url" : "",
+                "title" : "",
+                "tooltip" : ""
+            },
+            "tooltip" : "Week 1 . 4 hrs . Colab, variables, types, operators, conversion, f-strings, type hints, match-case",
+            "topics" : [
+                {
+                    "id" : "9ac73bbb-9280-4975-a311-3079a78c38c4",
+                    "title" : "Unit 1.1 - The Python Environment",
+                    "tooltip" : "Why Python for AI work, the interpreter, Google Colab, running your first program",
+                    "url" : "modules/p1-introduction/unit-1-1-python-environment.md"
+                },
+                {
+                    "id" : "44580fc5-261e-4a0a-bc9b-22972428f96e",
+                    "title" : "Unit 1.2 - Variables, Identifiers & Types",
+                    "tooltip" : "Variables and assignment, identifiers, values and types, inspecting types",
+                    "url" : "modules/p1-introduction/unit-1-2-variables-identifiers-types.md"
+                },
+                {
+                    "id" : "1792db9e-4427-4ba3-b2b3-619b7a559105",
+                    "title" : "Unit 1.3 - Operators & Expressions",
+                    "tooltip" : "Arithmetic, precedence, comparison, logical operators, truthiness",
+                    "url" : "modules/p1-introduction/unit-1-3-operators-expressions.md"
+                },
+                {
+                    "id" : "3c04d4c0-e9ca-4a4a-9d5e-368effd5d162",
+                    "title" : "Unit 1.4 - Statements, Conversion & Output",
+                    "tooltip" : "Statements, type conversion, string basics, f-strings, type hints, match-case, comments",
+                    "url" : "modules/p1-introduction/unit-1-4-statements-conversion-output.md"
+                }
+            ]
+        },
+        {
+            "id" : "aeed459a-b5fe-4038-bd6c-9d954724aa2f",
+            "title" : "P2 . Module II . Control Structures, Functions & Tooling",
+            "description" : "Learners move from single statements to programs that make decisions, repeat work, and are organised into reusable functions and modules. The module closes with the professional tooling - virtual environments, pip, Poetry, and Pytest - that every later module assumes.",
+            "url" : "modules/p2-control-structures-functions-tooling",
+            "prerequisites" : {
+                "url" : "",
+                "title" : "",
+                "tooltip" : ""
+            },
+            "tooltip" : "Weeks 2-3 . 8 hrs . Builds on P1 - syntax, variables, types, operators, output",
+            "topics" : [
+                {
+                    "id" : "c9feb41c-1aee-404d-b359-d468df334892",
+                    "title" : "Unit 2.1 - Conditionals",
+                    "tooltip" : "if/elif/else, nested conditionals, boolean expressions in conditions, conditional (ternary) expression",
+                    "url" : "modules/p2-control-structures-functions-tooling/unit-2-1-conditionals.md"
+                },
+                {
+                    "id" : "0ef5b1c5-43be-4f7a-8e00-ac4ab29451e5",
+                    "title" : "Unit 2.2 - Loops",
+                    "tooltip" : "while loop, for loop, range(), enumerate() and zip(), break and continue, nested loops",
+                    "url" : "modules/p2-control-structures-functions-tooling/unit-2-2-loops.md"
+                },
+                {
+                    "id" : "ed4fbf1a-b7e5-4df2-b368-1ecd21e1c99c",
+                    "title" : "Unit 2.3 - Functions",
+                    "tooltip" : "Defining and calling functions, parameters, scope, recursion, documentation",
+                    "url" : "modules/p2-control-structures-functions-tooling/unit-2-3-functions.md"
+                },
+                {
+                    "id" : "07a78e31-727b-4c0d-95aa-4e7712dceda2",
+                    "title" : "Unit 2.4 - Functional Constructs",
+                    "tooltip" : "Lambda functions, higher-order functions, decorators, generators",
+                    "url" : "modules/p2-control-structures-functions-tooling/unit-2-4-functional-constructs.md"
+                },
+                {
+                    "id" : "cb1b0d0b-dc25-433d-8bce-01f583eb93c7",
+                    "title" : "Unit 2.5 - Modules, Packaging & Professional Tooling",
+                    "tooltip" : "Modules and imports, standard library, pip, virtual environments, Poetry, Pytest",
+                    "url" : "modules/p2-control-structures-functions-tooling/unit-2-5-modules-packaging-tooling.md"
+                }
+            ]
+        },
+        {
+            "id" : "e0a25d6a-da4d-476b-8121-396082414f5d",
+            "title" : "P3 . Module III . Data Structures",
+            "description" : "The four core collections - lists, tuples, sets, and dictionaries - plus comprehensions, iterators, and the collections module. These are the structures every AI lab in Part B relies on to store prompts, results, scores, and records.",
+            "url" : "modules/p3-data-structures",
+            "prerequisites" : {
+                "url" : "",
+                "title" : "",
+                "tooltip" : ""
+            },
+            "tooltip" : "Weeks 4-5 . 8 hrs . Builds on P2 - loops, functions, and iteration",
+            "topics" : [
+                {
+                    "id" : "fe27250e-c2c2-491c-afd7-57d9b533deab",
+                    "title" : "Unit 3.1 - Lists",
+                    "tooltip" : "Creating and indexing, slicing with step, mutability, list methods, sorting, nested lists, list comprehension",
+                    "url" : "modules/p3-data-structures/unit-3-1-lists.md"
+                },
+                {
+                    "id" : "18ffde38-766c-4912-bd6a-bfd0e238a750",
+                    "title" : "Unit 3.2 - Tuples",
+                    "tooltip" : "Creating and accessing, tuple assignment and unpacking, nested tuples, immutability, basic operations",
+                    "url" : "modules/p3-data-structures/unit-3-2-tuples.md"
+                },
+                {
+                    "id" : "7cb62f0c-485f-4798-a6bb-390a3f1a8542",
+                    "title" : "Unit 3.3 - Sets",
+                    "tooltip" : "Creating sets, set operations, membership and mutation, set comprehension",
+                    "url" : "modules/p3-data-structures/unit-3-3-sets.md"
+                },
+                {
+                    "id" : "3695f9f8-f7e3-4f7e-933d-95006fced9d1",
+                    "title" : "Unit 3.4 - Dictionaries",
+                    "tooltip" : "Creating and accessing, adding/modifying/deleting, looping, sorting, nested dictionaries, built-in functions, dictionary comprehension",
+                    "url" : "modules/p3-data-structures/unit-3-4-dictionaries.md"
+                },
+                {
+                    "id" : "e982ff05-b296-4d16-b191-80078c70898a",
+                    "title" : "Unit 3.5 - Iterators, Generators & Collections",
+                    "tooltip" : "Iterables vs iterators, generators recap, the collections module (Counter, defaultdict, namedtuple)",
+                    "url" : "modules/p3-data-structures/unit-3-5-iterators-generators-collections.md"
+                }
+            ]
+        },
+        {
+            "id" : "df869190-e8d4-4db7-af64-3d25aa365553",
+            "title" : "P4 . Module IV . Classes & Objects",
+            "description" : "Object-oriented thinking: modelling domain concepts as classes with attributes and behaviour, extending them with inheritance, and reducing boilerplate with dataclasses. This is how learners will structure their capstone tools.",
+            "url" : "modules/p4-classes-objects",
+            "prerequisites" : {
+                "url" : "",
+                "title" : "",
+                "tooltip" : ""
+            },
+            "tooltip" : "Week 6 . 4 hrs . Builds on P3 - collections; P2 - functions and scope",
+            "topics" : [
+                {
+                    "id" : "e92e9967-9d4c-4992-a8f3-5681762aaeaa",
+                    "title" : "Unit 4.1 - Object-Oriented Foundations",
+                    "tooltip" : "Abstract data types, classes and objects, the constructor, methods",
+                    "url" : "modules/p4-classes-objects/unit-4-1-object-oriented-foundations.md"
+                },
+                {
+                    "id" : "b626a741-e204-40ec-9d6a-85ca553262f9",
+                    "title" : "Unit 4.2 - Inheritance & Encapsulation",
+                    "tooltip" : "Single-level inheritance, multiple levels of inheritance, multiple inheritance (MRO), encapsulation",
+                    "url" : "modules/p4-classes-objects/unit-4-2-inheritance-encapsulation.md"
+                },
+                {
+                    "id" : "5c3d6c3e-8443-48e6-8568-b6fd236d1bea",
+                    "title" : "Unit 4.3 - Special Methods & Dataclasses",
+                    "tooltip" : "Operator overloading/dunder methods, dataclasses, libraries and packages in OOP",
+                    "url" : "modules/p4-classes-objects/unit-4-3-special-methods-dataclasses.md"
+                }
+            ]
+        },
+        {
+            "id" : "d5f6fd42-d35d-4331-923f-49fb78c69208",
+            "title" : "P5 . Module V . Files & Exception Handling",
+            "description" : "Reading and writing files (including CSV and JSON) and handling the errors that real data always produces. Culminates in a robust file reader - the pattern behind every data-driven AI tool the learner will build.",
+            "url" : "modules/p5-files-exception-handling",
+            "prerequisites" : {
+                "url" : "",
+                "title" : "",
+                "tooltip" : ""
+            },
+            "tooltip" : "Week 7 . 4 hrs . Builds on P4 - objects; P3 - collections",
+            "topics" : [
+                {
+                    "id" : "24960c98-315e-402d-9539-10ed668e7a80",
+                    "title" : "Unit 5.1 - File Handling",
+                    "tooltip" : "Introduction to files, file operations, context managers, reading CSVs, working with JSON",
+                    "url" : "modules/p5-files-exception-handling/unit-5-1-file-handling.md"
+                },
+                {
+                    "id" : "9c02fab8-78bc-45e9-bce7-a8fcf1522422",
+                    "title" : "Unit 5.2 - Errors & Exceptions",
+                    "tooltip" : "Errors vs exceptions, exception handling, handling multiple exceptions, common exceptions, raising exceptions",
+                    "url" : "modules/p5-files-exception-handling/unit-5-2-errors-exceptions.md"
+                },
+                {
+                    "id" : "a902447a-e5e3-4ff5-b531-fc737c1fc624",
+                    "title" : "Unit 5.3 - Case Study",
+                    "tooltip" : "Building a robust file reader - logging bad rows and continuing, separating valid from invalid data",
+                    "url" : "modules/p5-files-exception-handling/unit-5-3-case-study.md"
+                }
+            ]
+        },
+        {
+            "id" : "c1d1f68d-4163-4c37-b996-3d910c61e9f0",
+            "title" : "P6 . Git, GitHub & Portfolio",
+            "description" : "The professional habit of version control and the setup of the personal portfolio repository used across the whole programme. Delivered through the GitHub web interface - no command line required - and closed with the Part A diagnostic that gates entry to Part B.",
+            "url" : "modules/p6-git-github-portfolio",
+            "prerequisites" : {
+                "url" : "",
+                "title" : "",
+                "tooltip" : ""
+            },
+            "tooltip" : "Week 8 (first half) . 2 hrs . Builds on P1-P5 - a body of Python work worth committing",
+            "topics" : [
+                {
+                    "id" : "3dd1881f-f6ac-41d2-b529-d4cd278d5498",
+                    "title" : "Unit 6.1 - Version Control Basics",
+                    "tooltip" : "What Git is and why it matters, the basic loop, GitHub Classroom, working via the web interface, good habits",
+                    "url" : "modules/p6-git-github-portfolio/unit-6-1-version-control-basics.md"
+                },
+                {
+                    "id" : "586c0ed1-3d2a-43da-bb9d-50585d9e8cdb",
+                    "title" : "Unit 6.2 - Portfolio & Diagnostic",
+                    "tooltip" : "Personal portfolio repository, end-of-Part-A diagnostic",
+                    "url" : "modules/p6-git-github-portfolio/unit-6-2-portfolio-diagnostic.md"
+                }
+            ]
+        }
+    ]
+}
