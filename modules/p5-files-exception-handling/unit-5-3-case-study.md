@@ -23,7 +23,7 @@ Unit 5.1 taught you how to open, read, and write files — plain text, CSV, and 
 
 Real data is messy. A CSV of railway bookings will have a row where the fare is blank. A file of UPI transactions will have one row where the amount is spelled out as text instead of a number. A spreadsheet of student marks will have a stray row where someone typed "eighty" instead of `80`. This isn't a rare edge case — it is the normal, expected condition of any data a real system receives from the outside world.
 
-A program that crashes on the very first bad row is not "correct" — it's fragile. It throws away every good row that came after the bad one, just because one row happened to misbehave. A **robust file reader** does something more professional: it processes every row it can, sets aside every row it can't, and keeps an honest, reviewable record of what was rejected and why — never crashing, and never silently losing data either.
+A program that crashes on the first bad row isn't working correctly — it's just fragile. One bad row shouldn't cost you every good row that came after it, but that's exactly what happens when the whole program stops. A **robust file reader** handles this the professional way instead: it keeps processing every row it can, sets aside every row it can't, and keeps a clear, honest record of what got rejected and why. Nothing crashes, and nothing quietly disappears.
 
 This unit builds exactly that reader, end to end, using nothing but syntax you already know from Units 5.1 and 5.2. There is no new syntax here — only a new, more disciplined way of combining what you've already learned.
 
