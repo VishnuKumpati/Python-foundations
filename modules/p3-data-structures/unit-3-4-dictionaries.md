@@ -80,21 +80,104 @@ Because so much real-world data — user profiles, product catalogs, API respons
 
 ### 3.4 Syntax
 
+**Creating a dictionary:**
+
 ```python
-d = {key1: value1, key2: value2}   # dict literal
-value = d[key]                     # access — raises KeyError if key is missing
-value = d.get(key, default)        # safe access — returns default instead of raising
-d[key] = value                     # add a new key, or modify an existing one
-del d[key]                         # delete a key-value pair
+d = {key1: value1, key2: value2}
 ```
 
-| Part | What it is | Why it's there |
-|---|---|---|
-| `{key1: value1, key2: value2}` | A **dict literal** — curly braces holding comma-separated `key: value` pairs. | This is how you write a dictionary directly in code. |
-| `d[key]` | **Bracket access** — the same brackets used for list indexing, but the "index" is now a key. | Retrieves the value tied to `key`; raises `KeyError` if `key` isn't in `d`. |
-| `d.get(key, default)` | The **`.get()`** method. | Retrieves the value tied to `key`, or `default` (or `None` if you omit it) if the key is absent — never raises an error. |
-| `d[key] = value` | **Assignment** into a dictionary. | If `key` is new, it is added; if `key` already exists, its value is overwritten. There is no separate "insert" syntax. |
-| `del d[key]` | The **`del`** statement. | Removes a key and its value entirely; raises `KeyError` if the key does not exist. |
+Example:
+
+```python
+student = {"name": "Ananya", "roll_no": 101, "marks": 87}
+print(student)
+```
+
+Output:
+```
+{'name': 'Ananya', 'roll_no': 101, 'marks': 87}
+```
+
+Curly braces `{}` hold comma-separated `key: value` pairs — this is how you write a dictionary directly in code.
+
+**Accessing a value:**
+
+```python
+value = d[key]
+```
+
+Example:
+
+```python
+print(student["name"])
+```
+
+Output:
+```
+Ananya
+```
+
+Square brackets — the same brackets used for list indexing — retrieve the value tied to a key instead of a position. If the key doesn't exist, Python raises `KeyError`.
+
+**Accessing a value safely with `.get()`:**
+
+```python
+value = d.get(key, default)
+```
+
+Example:
+
+```python
+print(student.get("grade", "not available"))
+```
+
+Output:
+```
+not available
+```
+
+`.get()` retrieves the value tied to a key, or returns `default` (or `None` if you omit it) when the key is absent — it never raises an error, unlike bracket access.
+
+**Adding or modifying a key:**
+
+```python
+d[key] = value
+```
+
+Example:
+
+```python
+student["grade"] = "A"
+student["marks"] = 90
+print(student)
+```
+
+Output:
+```
+{'name': 'Ananya', 'roll_no': 101, 'marks': 90, 'grade': 'A'}
+```
+
+If `key` is new, it is added; if `key` already exists, its value is simply overwritten. There is no separate "insert" syntax — assignment handles both cases.
+
+**Deleting a key:**
+
+```python
+del d[key]
+```
+
+Example:
+
+```python
+del student["grade"]
+print(student)
+```
+
+Output:
+```
+{'name': 'Ananya', 'roll_no': 101, 'marks': 90}
+```
+
+`del` removes a key and its value entirely; it raises `KeyError` if the key does not exist.
 
 **Comparison Table: List vs Set vs Dict**
 
