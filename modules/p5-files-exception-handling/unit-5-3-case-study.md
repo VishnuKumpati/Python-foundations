@@ -1,4 +1,4 @@
-﻿# Case Study — Building a Robust File Reader
+﻿﻿# Case Study — Building a Robust File Reader
 
 ---
 
@@ -19,13 +19,17 @@ By the end of this unit, you will be able to:
 
 ## 2. Overview
 
-Unit 5.1 taught you how to open, read, and write files — plain text, CSV, and JSON. Unit 5.2 taught you how to catch exceptions with `try`/`except` instead of letting your program crash. Each of those skills, on its own, only tells half the story. This unit is where they finally meet, because that's exactly what happens the moment you point either skill at real data.
+In Unit 5.1, you learned how to open, read, and write different types of files such as text files, CSV files, and JSON files. In Unit 5.2, you learned how to use **try/except** to handle errors so that a program does not crash.
 
-Real data is messy. A CSV of railway bookings will have a row where the fare is blank. A file of UPI transactions will have one row where the amount is spelled out as text instead of a number. A spreadsheet of student marks will have a stray row where someone typed "eighty" instead of `80`. This isn't a rare edge case — it is the normal, expected condition of any data a real system receives from the outside world.
+In this unit, you will combine both of these skills to work with **real-world data**.
 
-A program that crashes on the first bad row isn't working correctly — it's just fragile. One bad row shouldn't cost you every good row that came after it, but that's exactly what happens when the whole program stops. A **robust file reader** handles this the professional way instead: it keeps processing every row it can, sets aside every row it can't, and keeps a clear, honest record of what got rejected and why. Nothing crashes, and nothing quietly disappears.
+Real-world data is often messy. For example, a CSV file may have a missing value, a UPI transaction file may contain text instead of a number, or a student marks file may have **"eighty"** written instead of **80**. These kinds of mistakes are common and should be expected.
 
-This unit builds exactly that reader, end to end, using nothing but syntax you already know from Units 5.1 and 5.2. There is no new syntax here — only a new, more disciplined way of combining what you've already learned.
+If a program crashes when it finds the first incorrect row, it stops processing the remaining data. This means that even the correct data after that row will not be processed. Such a program is not reliable.
+
+A better approach is to use **try/except** while reading the file. The program should process all the valid rows, skip the invalid ones, and keep a record of the rows that could not be processed along with the reason for the error. This makes the program more reliable and easier to debug.
+
+In this unit, you will learn how to build such a robust file reader by combining the file handling concepts from Unit 5.1 with the exception handling concepts from Unit 5.2. No new syntax is introduced—only a practical way of using the concepts you already know.
 
 ---
 
@@ -33,17 +37,49 @@ This unit builds exactly that reader, end to end, using nothing but syntax you a
 
 ### 3.1 Definition
 
-A **robust file reader** is a program that reads a data file (typically CSV) row by row, attempts to validate and convert each row's data, and — instead of stopping the moment one row fails — separates the rows into two groups: a **valid record** (a row that parsed and validated correctly, ready to be used) and an **invalid record**, also called a **malformed row** (a row that failed to parse or broke a validation rule, set aside instead of processed). The reader finishes the *entire* file no matter how many rows fail, and it reports what it rejected instead of hiding it.
+### Robust File Reader
 
-This is not a new Python feature. It is a design pattern — a standard, reusable way of structuring code — built entirely out of the `with open()`, `csv.reader`, and `try`/`except` syntax you already learned in Units 5.1 and 5.2. What's new is the discipline of combining them so that one bad row never takes down the rest of the file.
+A **robust file reader** is a program that reads a data file (usually a CSV file) **one row at a time**.
+
+For each row, the program checks whether the data is correct.
+
+- If the row is correct, it is treated as a **valid record** and is processed.
+- If the row contains an error (such as a missing value or incorrect data), it is treated as an **invalid record** or **malformed row**. The program skips that row and continues reading the rest of the file.
+
+This means that **one incorrect row does not stop the entire program**. All the remaining valid rows are still processed.
+
+After reading the complete file, the program can also show which rows were skipped and the reason for the error. This makes it easier to find and fix problems in the data.
+
+A robust file reader is **not a new Python feature**. It is simply a good way of writing programs by combining the concepts you already know:
+
+- `with open()` to open files
+- `csv.reader` to read CSV files
+- `try/except` to handle errors
+
+By using these together, you can build programs that are more reliable and can handle real-world data without crashing.
 
 ### 3.2 Why This Concept Exists
+A simple file reader assumes that **every row in a file is correct**. It expects the correct number of columns, the correct data type, and valid values.
 
-A naive reader assumes every row in a file is well-formed — the right number of columns, the right data type in each column, values that make sense. That assumption is almost always wrong the moment data comes from outside your own program: a person typed it, a different system exported it, a sensor recorded it. Somewhere in a file of a thousand rows, a few will be broken.
+In real life, data files often contain mistakes such as missing values or incorrect data.
 
-If your reader crashes on the first broken row, you lose two things at once: the 995 good rows you never got to process, and any record of what was wrong with the 5 bad ones (since the program died before it could report anything). Neither outcome is acceptable in a real system. A payroll system that stops processing salaries because one employee's row has a typo, or a training pipeline that halts an entire model run because one line of a dataset is malformed, is a system that isn't ready for production.
+#### Example
+Consider the following CSV file:
 
-**Graceful degradation** — continuing to do useful work even when part of the input is broken — is the standard professional response. This unit exists to turn that idea from a phrase you've heard into a program you can write.
+| Roll No | Name | Marks |
+|---------|------|------:|
+| 101 | Asha | 85 |
+| 102 | Ravi | 92 |
+| 103 | Meena | eighty |
+| 104 | Kiran | 78 |
+
+If the program tries to convert **"eighty"** into a number, it will crash and stop reading the file. As a result, **Kiran's** correct data is never processed.
+A better approach is to use **`try/except`**. The program:
+- Processes valid rows.
+- Skips rows with errors.
+- Continues reading the rest of the file.
+- Reports the skipped rows at the end.
+This approach is called **graceful degradation**. It allows the program to continue working even when some rows contain errors.
 
 ### 3.3 Key Terminology
 

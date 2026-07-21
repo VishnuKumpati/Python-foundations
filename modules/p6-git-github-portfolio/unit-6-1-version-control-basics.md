@@ -1,4 +1,4 @@
-﻿# Version Control Basics
+﻿﻿# Version Control Basics
 
 ---
 
@@ -18,24 +18,45 @@ By the end of this unit, you will be able to:
 ---
 
 ## 2. Overview
+Have you ever edited a file, saved it, and later realized that the new changes were wrong? Since you already saved the file, the old version is lost. This can happen to anyone while writing code.
 
-Every developer, at some point, has lived through this moment: you were editing a file, made a change, and it turned out to be wrong — but you had already saved over the old version, so the working copy is gone. There is no "undo" that reaches back that far. Every Python file you have written across Modules P1 to P5 carries that exact risk. Save over it once, and whatever was there before simply disappears.
+**Version control** is a way to solve this problem. It keeps a history of your project so that you can return to an earlier version whenever needed.
 
-**Version control** is the general name for tools that solve this problem, and **Git** is, by a huge margin, the version control tool the professional software industry has standardized on. Git does not stop you from editing files. Instead, it keeps a permanent, labeled snapshot of your project every time you tell it to, so an earlier version is never truly lost — even after you have changed the file a hundred times since. This is precisely why "I don't know why my code changed" stops being a real problem once Git is involved: you can always look back and see exactly what changed, when, and — on a team — who changed it and what they wrote as the reason.
+The most popular version control tool is **Git**. It saves snapshots of your project whenever you choose to save your progress. If you make a mistake later, you can go back to an earlier version instead of starting over.
 
-This matters far beyond this course. In any real engineering job, your code lives in a Git repository, your team reviews every change before it reaches production, and your own commit history is often the first thing a future employer or a code reviewer looks at. This unit introduces Git and GitHub conceptually, how your cohort's assignments flow through **GitHub Classroom**, how to do all of this through the GitHub website with no command line required, and the habits that separate a professional repository from a messy one.
+For example, imagine you wrote a Python program that worked correctly. Later, you made some changes, and the program stopped working. Without Git, you may have to rewrite the working code. With Git, you can simply restore the earlier version.
+
+When working in a team, Git also keeps track of **who made each change**, **when the change was made**, and **why it was made**. This makes teamwork much easier.
+
+In this unit, you will learn the basic concepts of **Git** and **GitHub**, how to use **GitHub Classroom** to submit assignments, and the good practices for managing your projects. No command-line knowledge is required—you will learn everything using the GitHub website.
 
 ---
 
 ## 3. Description
 
 ### 3.1 Definition
+Imagine you are writing a college assignment.
 
-**Git** is a **version control system** — a tool that keeps a permanent, ordered history of every saved change to a project's files. It runs wherever your work happens, tracking snapshots of your files over time so that no earlier version is ever silently lost, and so you can always answer "what did this file look like last week, and what changed since then?"
+- On **Monday**, you write the first draft.
+- On **Tuesday**, you improve it.
+- On **Wednesday**, you accidentally delete an important section and save the file.
 
-**GitHub** is a **hosting platform** for projects that use Git. It is a website (github.com) that stores a copy of your Git history online, so it survives even if your laptop is lost or damaged, and so other people — your instructor, your teammates, a future employer — can see it, review it, and contribute to it. GitHub also layers extra tools on top of plain Git, such as GitHub Classroom (covered in §3.3), pull requests for code review, and issue tracking.
+Without a backup, the original version is lost.
 
-The relationship in one line: **Git is the underlying save-checkpoint system; GitHub is a website that hosts and shares those checkpoints online.** Git works perfectly well on its own, on a single machine, with no internet connection at all. GitHub, on the other hand, has nothing to host without Git underneath it. This course teaches Git concepts entirely **through the GitHub web interface** — there is no command-line syntax to memorize in this unit or in this program's foundations track.
+**Git** solves this problem. It keeps different versions of your project, so you can return to an earlier version whenever you need.
+
+**GitHub** is a website that stores these versions online. This keeps your work safe even if your computer is lost or damaged, and it also makes it easy to share your work with your instructor or classmates.
+
+### Git vs GitHub
+
+| Git | GitHub |
+|------|---------|
+| A version control tool that tracks changes in your files. | A website that stores and shares Git projects online. |
+| Works on your computer, even without the internet. | Requires the internet to access online projects. |
+| Helps you save and restore different versions of your project. | Helps you back up, share, and collaborate on projects. |
+
+
+In this course, you will use the **GitHub website** to manage and submit your projects.
 
 ### 3.2 Why This Concept Exists
 
