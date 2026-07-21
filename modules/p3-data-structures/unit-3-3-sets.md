@@ -23,7 +23,7 @@ By now you have worked with lists (Unit 3.1) and tuples (Unit 3.2). Both remembe
 
 A **set** is Python's built-in answer to exactly this kind of question. Picture a set as a bag of unique items — you can drop things in, but the bag never lets a duplicate sit inside it, and it doesn't care in what order things went in.
 
-In the Indian IT industry, sets show up constantly and quietly: a banking system removing duplicate transaction IDs during reconciliation, a UPI app checking a payer's VPA (Virtual Payment Address — the `name@bank` ID behind a UPI payment) against a blacklist in a split second, an e-commerce recommendation engine comparing what two customers bought to find overlap, a college placement cell de-duplicating a messy Google Form export. Learning to reach for a set instead of writing a manual duplicate-checking loop is a small decision that consistently separates clean, fast code from slow, bug-prone code.
+Here's a simple, everyday example: when you sign up for a new app with your phone number, the app has to check whether that number is already registered. Behind the scenes, it is really just asking one question — "have I seen this value before?" — against a huge collection of existing phone numbers. A set answers that exact question instantly, no matter how many phone numbers it holds. Learning to reach for a set instead of writing a manual duplicate-checking loop is a small decision that consistently separates clean, fast code from slow, bug-prone code.
 
 This unit covers creating sets, the four set operations, membership testing, safe mutation, and set comprehensions.
 
