@@ -95,30 +95,102 @@ unique_numbers = set([1, 2, 2, 3, 3, 3])
 
 ### 3.4 Syntax
 
-| Syntax | What it does | Example |
-|---|---|---|
-| `{value1, value2, ...}` | Creates a set literal directly from listed values. | `{"red", "green", "blue"}` |
-| `set(iterable)` | Builds a set from any iterable (list, tuple, string), keeping only the distinct elements. | `set([1, 2, 2, 3])` → `{1, 2, 3}` |
-| `set()` | Creates an **empty set**. This is the only way to get an empty set — bare `{}` creates an empty dictionary instead. | `empty = set()` |
-| `value in my_set` | Checks membership — returns `True` or `False`. | `"red" in fruits` |
-| `a \| b` | **Union** — every element in `a` or `b` or both. | `{1,2} \| {2,3}` → `{1,2,3}` |
-| `a & b` | **Intersection** — only elements in both `a` and `b`. | `{1,2} & {2,3}` → `{2}` |
-| `a - b` | **Difference** — elements in `a` that are not in `b`. | `{1,2} - {2,3}` → `{1}` |
-| `a ^ b` | **Symmetric difference** — elements in exactly one of `a`, `b`. | `{1,2} ^ {2,3}` → `{1,3}` |
+**Creating a set:**
 
-**Set Operations**
-
-```mermaid
-flowchart TD
-    A["Set A: pincodes served by Restaurant X"] --> U["Union A | B<br/>everything served by X or Y"]
-    B["Set B: pincodes served by Restaurant Y"] --> U
-    A --> I["Intersection A & B<br/>pincodes both serve"]
-    B --> I
-    A --> D["Difference A - B<br/>pincodes only X serves"]
-    B --> D
-    A --> S["Symmetric Difference A ^ B<br/>pincodes served by exactly one"]
-    B --> S
+```python
+my_set = {value1, value2, value3}
 ```
+
+Example:
+
+```python
+your_friends = {"Aditi", "Rohan", "Meera"}
+print(your_friends)
+```
+
+Output:
+```
+{'Aditi', 'Rohan', 'Meera'}
+```
+
+Curly braces `{}` wrap comma-separated values to build a set directly. Just like a real friends list, it doesn't matter what order the names are stored in, and it wouldn't make sense to list the same friend twice — a set keeps only distinct values automatically.
+
+You can also build a set from something you already have — like a list with repeated values — using the `set()` constructor:
+
+```python
+set(iterable)
+```
+
+Example:
+
+```python
+numbers = [1, 2, 2, 3, 3, 3]
+unique_numbers = set(numbers)
+print(unique_numbers)
+```
+
+Output:
+```
+{1, 2, 3}
+```
+
+`set()` keeps only the distinct values from whatever iterable you pass it. To create an **empty set**, you must call `set()` with nothing inside — bare `{}` creates an empty *dictionary* instead, not an empty set:
+
+```python
+empty = set()
+```
+
+**Set operations:**
+
+Say you and a classmate each have your own set of friends:
+
+```python
+your_friends = {"Aditi", "Rohan", "Meera"}
+classmate_friends = {"Rohan", "Kabir", "Meera"}
+```
+
+Set operations let you compare the two directly, without writing a single loop:
+
+```python
+print(your_friends | classmate_friends)
+print(your_friends & classmate_friends)
+print(your_friends - classmate_friends)
+print(your_friends ^ classmate_friends)
+```
+
+Output:
+```
+{'Aditi', 'Rohan', 'Meera', 'Kabir'}
+{'Rohan', 'Meera'}
+{'Aditi'}
+{'Aditi', 'Kabir'}
+```
+
+- `your_friends | classmate_friends` is the **union** — everyone who is a friend of either of you, combined with no repeats.
+- `your_friends & classmate_friends` is the **intersection** — only the friends you both have in common.
+- `your_friends - classmate_friends` is the **difference** — friends you have that your classmate doesn't.
+- `your_friends ^ classmate_friends` is the **symmetric difference** — friends that belong to exactly one of you, not both.
+
+**Membership testing:**
+
+```python
+value in my_set
+```
+
+Example:
+
+```python
+print("Aditi" in your_friends)
+print("Kabir" in your_friends)
+```
+
+Output:
+```
+True
+False
+```
+
+`in` simply asks "is this value present in the set?" and answers with `True` or `False`.
 
 ### 3.5 Rules
 
