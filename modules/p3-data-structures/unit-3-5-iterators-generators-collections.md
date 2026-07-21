@@ -67,8 +67,6 @@ The `collections` module exists because three patterns are so common that Python
 
 ### 3.4 Syntax
 
-An **iterable** is any object you can loop over — a `list`, `tuple`, `set`, `dict`, or `str` — but you cannot call `next()` on it directly. An **iterator** is the object that actually produces one value at a time and can be exhausted after a single full pass; every iterator supports `next()` directly. Getting from one to the other is what `iter()` does.
-
 **Getting an iterator with `iter()`:**
 
 ```python
@@ -81,8 +79,6 @@ Example:
 numbers = [10, 20, 30]
 it = iter(numbers)
 ```
-
-`iter()` takes any iterable and hands back a fresh iterator for it, positioned at the very start.
 
 **Getting the next value with `next()`:**
 
@@ -104,8 +100,6 @@ Output:
 20
 30
 ```
-
-Each call to `next()` returns the next value and moves the iterator forward by one. Once every value has been returned, calling `next()` again raises `StopIteration`.
 
 **Defining a generator function:**
 
@@ -133,8 +127,6 @@ Output:
 1
 ```
 
-`yield` produces one value and pauses the function exactly where it is, remembering everything, until the next value is requested. Calling `countdown(3)` doesn't run the function body at all yet — it only creates a generator object; the body runs as each value is asked for, here by the `for` loop.
-
 **Generator expression:**
 
 ```python
@@ -154,8 +146,6 @@ Output:
 0
 1
 ```
-
-A generator expression looks like a list comprehension but with `()` instead of `[]` — it produces values lazily, one at a time, instead of building the whole list in memory up front.
 
 **`Counter`:**
 
@@ -178,8 +168,6 @@ Output:
 Counter({'A': 3, 'B': 2, 'C': 1})
 [('A', 3), ('B', 2)]
 ```
-
-`Counter` tallies how many times each item appears in one call; `.most_common(n)` returns the `n` most frequent items, highest count first.
 
 **`defaultdict`:**
 
@@ -205,8 +193,6 @@ Output:
 defaultdict(<class 'list'>, {'fruits': ['apple', 'banana'], 'veggies': ['carrot']})
 ```
 
-`defaultdict` takes a **factory function** — a callable with no arguments, such as `list` or `int` — and calls it automatically to create a default value the first time a new key is used, instead of raising `KeyError`.
-
 **`namedtuple`:**
 
 ```python
@@ -230,8 +216,6 @@ Output:
 3 4
 3 4
 ```
-
-`namedtuple` builds a tuple subclass whose positions also have readable field names — `p.x` and `p[0]` both reach the same value, so a reader never has to guess what position `0` means.
 
 **The Iterator Protocol**
 
