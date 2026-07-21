@@ -179,15 +179,7 @@ Output:
 
 `del` removes a key and its value entirely; it raises `KeyError` if the key does not exist.
 
-**Comparison Table: List vs Set vs Dict**
-
-| Aspect | List | Set | Dict |
-|---|---|---|---|
-| Access by | position, `lst[i]` | membership only (`in`) | **key**, `d[key]` |
-| Ordering | insertion order | unordered | insertion order (since Python 3.7) |
-| Duplicates | allowed | never | no duplicate **keys** (values may repeat) |
-| Written with | `[ ]` | `{ }` / `set()` | `{key: value}` |
-| Typical use case | an ordered sequence of items | unique items, fast membership tests | labelled records, lookup tables, counting |
+By now you've met all three collection types, so it helps to place them side by side in plain terms. A **list** is written with `[ ]` and accessed by position (`lst[i]`) — it keeps whatever order you added items in, and happily allows duplicates. A **set** is written with `{ }` or `set()` and only supports membership checks (`in`), not access by position — it has no reliable order, and never allows duplicates. A **dictionary** is written with `{key: value}` and accessed by key (`d[key]`), not position — like a set, it never allows duplicate **keys**, but unlike a set, it does remember insertion order (since Python 3.7). Reach for a list for an ordered sequence of items, a set for unique items and fast membership tests, and a dictionary for labelled records, lookup tables, and counting.
 
 **Key-Value Mapping**
 
