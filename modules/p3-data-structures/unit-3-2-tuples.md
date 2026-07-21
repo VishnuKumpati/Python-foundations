@@ -82,11 +82,13 @@ The tuple exists to solve exactly this problem. By refusing to support any opera
 name = (value1, value2, value3)
 ```
 
-| Part | What it is | Why it's there |
-|---|---|---|
-| `(` and `)` | The parentheses that visually mark a tuple. | Optional in most cases — the comma is what actually creates the tuple, not the parentheses — but parentheses are recommended for readability and are required in some contexts (e.g. as a function argument, or an empty tuple `()`). |
-| `value1, value2, ...` | The comma-separated values being packed together. | Each comma separates one element from the next; this is the mechanism that actually builds the tuple. |
-| `,` (trailing, single element) | A comma after the one value, e.g. `(42,)`. | Without it, `(42)` is just the number `42` in redundant parentheses, not a tuple at all — this is a genuine language quirk you must memorise. |
+Example:
+
+```python
+student = ("Priya", 21, "CSE")
+```
+
+The parentheses `(` and `)` visually mark this as a tuple, but they are optional in most cases — it is actually the **comma** between values that creates the tuple, not the parentheses. Each comma separates one packed value from the next. Parentheses are still recommended for readability, and are required in a few contexts, such as an empty tuple `()` or passing a tuple directly as a function argument. Here, `student` becomes a tuple holding three values: `"Priya"`, `21`, and `"CSE"`.
 
 **Unpacking a tuple:**
 
@@ -94,20 +96,30 @@ name = (value1, value2, value3)
 a, b, c = (10, 20, 30)
 ```
 
-| Part | What it is | Why it's there |
-|---|---|---|
-| `a, b, c` | Variable names on the left, one per value. | Python binds each name to the value in the same position on the right. |
-| `=` | The assignment operator. | Same operator you already know — it works on multiple names at once when the right side is a tuple (or any iterable) of matching length. |
-| `(10, 20, 30)` | The tuple being unpacked. | The number of names on the left must match the number of values on the right, or Python raises a `ValueError`. |
+Example:
+
+```python
+name, age, branch = ("Priya", 21, "CSE")
+print(name, age, branch)
+```
+
+Output:
+```
+Priya 21 CSE
+```
+
+The variable names on the left (`name, age, branch`) are matched one-to-one, in order, with the values on the right. The `=` here is the same assignment operator you already know — it simply works on multiple names at once when the right-hand side is a tuple (or any iterable) of matching length. The number of names on the left must exactly match the number of values on the right, or Python raises a `ValueError`.
 
 **Tuple Unpacking Flow**
 
 ```mermaid
 flowchart LR
-    A["Tuple on the right side<br/>('Priya', 21, 'CSE')"] --> B["Python checks:<br/>count matches variables?"]
-    B -->|Yes| C["Each value bound to the<br/>variable in the same position"]
-    B -->|No| D["ValueError:<br/>too many/few values to unpack"]
-    C --> E["name = 'Priya'<br/>age = 21<br/>branch = 'CSE'"]
+    A["Tuple<br/>('Priya', 21, 'CSE')"]
+    --> B["Does the number of<br/>values match the variables?"]
+
+    B -->|Yes| C["Assign values:<br/>name='Priya'<br/>age=21<br/>branch='CSE'"]
+
+    B -->|No| D["Error:<br/>Cannot unpack values"]
 ```
 
 ### 3.5 Rules
