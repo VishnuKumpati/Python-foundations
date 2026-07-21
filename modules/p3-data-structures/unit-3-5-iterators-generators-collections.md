@@ -67,25 +67,171 @@ The `collections` module exists because three patterns are so common that Python
 
 ### 3.4 Syntax
 
-**Comparison Table: Iterable vs Iterator**
+An **iterable** is any object you can loop over — a `list`, `tuple`, `set`, `dict`, or `str` — but you cannot call `next()` on it directly. An **iterator** is the object that actually produces one value at a time and can be exhausted after a single full pass; every iterator supports `next()` directly. Getting from one to the other is what `iter()` does.
 
-| Aspect | Iterable | Iterator |
-|---|---|---|
-| Definition | Any object you can loop over | The object that actually produces values one at a time |
-| Has `__next__`? | Not necessarily | Yes, always |
-| Can you call `next()` on it directly? | No — you must first call `iter()` on it | Yes, directly |
-| Reusable? | Yes — a fresh iterator is created each time you loop over it | No — exhausts after one full pass |
-| Examples | `list`, `tuple`, `set`, `dict`, `str` | The object returned by `iter(some_list)`, or any generator |
+**Getting an iterator with `iter()`:**
 
-| Syntax | Purpose | Example |
-|---|---|---|
-| `iter(obj)` | Get a fresh iterator from an iterable. | `it = iter([10, 20, 30])` |
-| `next(it)` | Get the iterator's next value; raises `StopIteration` once exhausted. | `next(it)` |
-| `def f(...):` … `yield value` | Define a generator function. | `def countdown(n):`<br>`    while n > 0:`<br>`        yield n`<br>`        n -= 1` |
-| `(expr for item in iterable)` | Write a generator expression — the lazy sibling of a list comprehension. | `(n * n for n in range(10))` |
-| `Counter(iterable)` | Tally occurrences of every item in one call. | `Counter(["A", "B", "A"])` |
-| `defaultdict(factory)` | Create a dict that auto-fills missing keys using `factory()`. | `defaultdict(list)` |
-| `namedtuple(typename, [fields])` | Create a tuple subclass with named, readable fields. | `namedtuple("Point", ["x", "y"])` |
+```python
+it = iter(iterable)
+```
+
+Example:
+
+```python
+numbers = [10, 20, 30]
+it = iter(numbers)
+```
+
+`iter()` takes any iterable and hands back a fresh iterator for it, positioned at the very start.
+
+**Getting the next value with `next()`:**
+
+```python
+value = next(it)
+```
+
+Example:
+
+```python
+print(next(it))
+print(next(it))
+print(next(it))
+```
+
+Output:
+```
+10
+20
+30
+```
+
+Each call to `next()` returns the next value and moves the iterator forward by one. Once every value has been returned, calling `next()` again raises `StopIteration`.
+
+**Defining a generator function:**
+
+```python
+def generator_name(...):
+    yield value
+```
+
+Example:
+
+```python
+def countdown(n):
+    while n > 0:
+        yield n
+        n -= 1
+
+for number in countdown(3):
+    print(number)
+```
+
+Output:
+```
+3
+2
+1
+```
+
+`yield` produces one value and pauses the function exactly where it is, remembering everything, until the next value is requested. Calling `countdown(3)` doesn't run the function body at all yet — it only creates a generator object; the body runs as each value is asked for, here by the `for` loop.
+
+**Generator expression:**
+
+```python
+(expr for item in iterable)
+```
+
+Example:
+
+```python
+squares = (n * n for n in range(5))
+print(next(squares))
+print(next(squares))
+```
+
+Output:
+```
+0
+1
+```
+
+A generator expression looks like a list comprehension but with `()` instead of `[]` — it produces values lazily, one at a time, instead of building the whole list in memory up front.
+
+**`Counter`:**
+
+```python
+Counter(iterable)
+```
+
+Example:
+
+```python
+from collections import Counter
+
+tally = Counter(["A", "B", "A", "C", "B", "A"])
+print(tally)
+print(tally.most_common(2))
+```
+
+Output:
+```
+Counter({'A': 3, 'B': 2, 'C': 1})
+[('A', 3), ('B', 2)]
+```
+
+`Counter` tallies how many times each item appears in one call; `.most_common(n)` returns the `n` most frequent items, highest count first.
+
+**`defaultdict`:**
+
+```python
+defaultdict(factory)
+```
+
+Example:
+
+```python
+from collections import defaultdict
+
+groups = defaultdict(list)
+groups["fruits"].append("apple")
+groups["fruits"].append("banana")
+groups["veggies"].append("carrot")
+
+print(groups)
+```
+
+Output:
+```
+defaultdict(<class 'list'>, {'fruits': ['apple', 'banana'], 'veggies': ['carrot']})
+```
+
+`defaultdict` takes a **factory function** — a callable with no arguments, such as `list` or `int` — and calls it automatically to create a default value the first time a new key is used, instead of raising `KeyError`.
+
+**`namedtuple`:**
+
+```python
+namedtuple(typename, [fields])
+```
+
+Example:
+
+```python
+from collections import namedtuple
+
+Point = namedtuple("Point", ["x", "y"])
+p = Point(3, 4)
+
+print(p.x, p.y)
+print(p[0], p[1])
+```
+
+Output:
+```
+3 4
+3 4
+```
+
+`namedtuple` builds a tuple subclass whose positions also have readable field names — `p.x` and `p[0]` both reach the same value, so a reader never has to guess what position `0` means.
 
 **The Iterator Protocol**
 
