@@ -67,7 +67,7 @@ Two separate problems make this unit necessary, and both come down to the same i
 | **Sign-off** | An instructor's confirmation, given after reviewing your diagnostic submission, that you are ready to proceed to the next stage. |
 | **Public repository** | A repository anyone with the link can view — required for recruiters and instructors to review your work. |
 
-### 3.4 Syntax/Structure
+### 3.4 Structure
 
 A good portfolio repository does not need to be complex — it needs to be predictable. A reader should be able to guess where something lives from the folder name alone.
 
