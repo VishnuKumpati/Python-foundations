@@ -19,7 +19,7 @@ By the end of this unit, you will be able to:
 
 ## 2. Overview
 
-In Unit 5.1, you learned how to open, read, and write different types of files such as text files, CSV files, and JSON files. In Unit 5.2, you learned how to use **try/except** to handle errors so that a program does not crash.
+In File Handling, you learned how to open, read, and write different types of files such as text files, CSV files, and JSON files. In Errors & Exceptions, you learned how to use **try/except** to handle errors so that a program does not crash.
 
 In this unit, you will combine both of these skills to work with **real-world data**.
 
@@ -29,7 +29,7 @@ If a program crashes when it finds the first incorrect row, it stops processing 
 
 A better approach is to use **try/except** while reading the file. The program should process all the valid rows, skip the invalid ones, and keep a record of the rows that could not be processed along with the reason for the error. This makes the program more reliable and easier to debug.
 
-In this unit, you will learn how to build such a robust file reader by combining the file handling concepts from Unit 5.1 with the exception handling concepts from Unit 5.2. No new syntax is introduced—only a practical way of using the concepts you already know.
+In this unit, you will learn how to build such a robust file reader by combining the file handling concepts you already know with the exception handling concepts you just learned. No new syntax is introduced—only a practical way of using the concepts you already know.
 
 ---
 
@@ -100,11 +100,11 @@ There is no new syntax in this unit — only a recap of how three pieces you alr
 
 | Piece | Where it comes from | Its job here |
 |---|---|---|
-| `with open(path, "r") as file:` | Unit 5.1 | Opens the file safely and guarantees it closes, even if a row inside the loop raises an error. |
-| `csv.reader(file)` (or `csv.DictReader(file)`) | Unit 5.1 | Turns each line of the file into a row — a list of strings (or a dictionary of column name to value). |
-| `for row in reader:` | Units 2–5.1 | Loops over every row in the file, one at a time, in order. |
-| `try:` / `except SomeError:` | Unit 5.2 | Wraps only the *risky* part of processing one row — the conversion or validation — so a failure on this row is caught without stopping the loop. |
-| `valid_records.append(...)` / `invalid_records.append(...)` | Units 2–3 (lists) | Sorts each row's outcome into one of two separate collections, instead of mixing results together. |
+| `with open(path, "r") as file:` | File Handling | Opens the file safely and guarantees it closes, even if a row inside the loop raises an error. |
+| `csv.reader(file)` (or `csv.DictReader(file)`) | File Handling | Turns each line of the file into a row — a list of strings (or a dictionary of column name to value). |
+| `for row in reader:` | Loops, then File Handling | Loops over every row in the file, one at a time, in order. |
+| `try:` / `except SomeError:` | Errors & Exceptions | Wraps only the *risky* part of processing one row — the conversion or validation — so a failure on this row is caught without stopping the loop. |
+| `valid_records.append(...)` / `invalid_records.append(...)` | Lists | Sorts each row's outcome into one of two separate collections, instead of mixing results together. |
 
 The shape, put together, always looks like this skeleton:
 
@@ -123,7 +123,7 @@ with open("data.csv", "r", newline="") as file:
             invalid_records.append(row)
 ```
 
-Every line in that skeleton is syntax you already know — file and CSV handling from Unit 5.1, `try`/`except` from Unit 5.2, and the list operations (`[]`, `.append(...)`) from even earlier. What makes it a *robust* reader is placing the `try`/`except` **inside** the `for` loop, wrapping only one row at a time — not around the whole loop, which would still stop everything at the first failure.
+Every line in that skeleton is syntax you already know — file and CSV handling from File Handling, `try`/`except` from Errors & Exceptions, and the list operations (`[]`, `.append(...)`) from even earlier. What makes it a *robust* reader is placing the `try`/`except` **inside** the `for` loop, wrapping only one row at a time — not around the whole loop, which would still stop everything at the first failure.
 
 **Comparison Table: Fail-Fast vs. Fail-Soft (Graceful Degradation)**
 
@@ -155,7 +155,7 @@ flowchart TD
 - The `try`/`except` block must sit **inside** the `for` loop, around the processing of one single row — placing it around the entire loop defeats the purpose, since one failure would then exit the loop entirely.
 - Only the code that can actually fail (a conversion like `int(row[1])`, or a validation check) needs to be inside `try`. Code that cannot raise an exception doesn't need protecting.
 - Every row must end up in exactly one of the two collections — `valid_records` or `invalid_records` — never both, and never neither.
-- The `except` clause must name the **specific** exception you expect (typically `ValueError` for a bad conversion), not a bare `except:` — Unit 5.2 already established why: a bare `except:` also hides genuine bugs in your own code.
+- The `except` clause must name the **specific** exception you expect (typically `ValueError` for a bad conversion), not a bare `except:` — Errors & Exceptions already established why: a bare `except:` also hides genuine bugs in your own code.
 - The reader must finish reading the entire file regardless of how many rows fail — a robust reader never exits early because of bad data.
 
 ### 3.6 Best Practices
@@ -202,8 +202,8 @@ with open("students.csv", "r", newline="") as file:
 ```
 
 *Line-by-line explanation:*
-- `import csv` — loads the `csv` module from Unit 5.1, so we can read comma-separated rows properly.
-- `with open("students.csv", "r", newline="") as file:` — opens the file for reading, and guarantees it closes automatically even if the code inside crashes (Unit 5.1's `with` statement).
+- `import csv` — loads the `csv` module from File Handling, so we can read comma-separated rows properly.
+- `with open("students.csv", "r", newline="") as file:` — opens the file for reading, and guarantees it closes automatically even if the code inside crashes (the `with` statement from File Handling).
 - `reader = csv.reader(file)` — wraps the open file so each line comes back as a list of strings, one row at a time.
 - `next(reader)` — reads and discards the header row (`Name,Marks`), so the loop below only ever sees actual data rows.
 - `for row in reader:` — loops over every remaining row, one at a time.
@@ -262,7 +262,7 @@ Same file, same bad row — but now Arjun's record survives, because the `try`/`
 
 **Step C — validating a business rule Python's own conversion can't catch.**
 
-`int("105")` succeeds even though 105 is not a possible exam mark out of 100 — Python has no way to know that on its own. This is where you enforce your own rule using `raise`, exactly as Unit 5.2 taught:
+`int("105")` succeeds even though 105 is not a possible exam mark out of 100 — Python has no way to know that on its own. This is where you enforce your own rule using `raise`, exactly as Errors & Exceptions taught:
 
 ```python
 try:
@@ -285,7 +285,7 @@ with open("invalid_rows.csv", "w", newline="") as error_file:
     writer.writerows(invalid_records)
 ```
 
-*Explanation:* `csv.writer(error_file)` (Unit 5.1) writes the header row first with `writerow()`, then every rejected row at once with `writerows()`. This turns the rejected data into a permanent, reviewable file — anyone can open `invalid_rows.csv` later and see exactly what was skipped, without needing to re-run the whole program.
+*Explanation:* `csv.writer(error_file)` (from File Handling) writes the header row first with `writerow()`, then every rejected row at once with `writerows()`. This turns the rejected data into a permanent, reviewable file — anyone can open `invalid_rows.csv` later and see exactly what was skipped, without needing to re-run the whole program.
 
 #### Try It Yourself
 
@@ -479,7 +479,7 @@ print("Invalid bookings (skipped):", invalid_records)
 
 ### Step 4: Explain Each Line
 
-- `import csv` — loads the module used to read comma-separated rows correctly (Unit 5.1).
+- `import csv` — loads the module used to read comma-separated rows correctly (from File Handling).
 - `valid_records = []` / `invalid_records = []` — two separate lists created up front; every row will end up in exactly one of them.
 - `with open("bookings.csv", "r", newline="") as file:` — opens the file safely; `with` guarantees it closes automatically even if a row later raises an error.
 - `reader = csv.reader(file)` — turns each line of the file into a row (a list of strings).
@@ -523,16 +523,24 @@ Priya's and Meena's rows both convert successfully with `float()` and pass the `
 
 ### Important Notes (Interview Insights)
 
-- This exact pattern — read a row, try to process it, catch the failure, log it, move to the next row — is often called **"skip and log"** in real data engineering and data science teams. It is one of the most common patterns in real ETL (extract-transform-load) pipelines, and mentioning it by name in an interview signals that you understand production-quality data handling, not just toy scripts.
-- A common interview question: *"How would you handle a corrupted or malformed row in a large data file without stopping the whole job?"* The expected answer is exactly this unit's pattern — wrap the per-row processing in `try`/`except`, collect successes and failures separately, and report both, rather than an interviewer being satisfied with just "I'd use try/except somewhere."
-- Be ready to explain **why** you'd choose fail-soft over fail-fast in a data pipeline versus a different context (like a financial transaction, where you often *want* fail-fast) — knowing when each approach is appropriate matters more than knowing only one of them.
+**Q: "What is this 'read a row, try to process it, catch the failure, log it, move to the next row' pattern actually called?"**
+
+It is often called **"skip and log"** in real data engineering and data science teams. It is one of the most common patterns in real ETL (extract-transform-load) pipelines, and mentioning it by name in an interview signals that you understand production-quality data handling, not just toy scripts.
+
+**Q: "How would you handle a corrupted or malformed row in a large data file without stopping the whole job?"**
+
+The expected answer is exactly this unit's pattern — wrap the per-row processing in `try`/`except`, collect successes and failures separately, and report both, rather than an interviewer being satisfied with just "I'd use try/except somewhere."
+
+**Q: "Why choose fail-soft over fail-fast in a data pipeline?"**
+
+Be ready to explain **why** you'd choose fail-soft over fail-fast in a data pipeline versus a different context (like a financial transaction, where you often *want* fail-fast) — knowing when each approach is appropriate matters more than knowing only one of them.
 
 ---
 
 ## 6. Key Takeaways
 
 - A **robust file reader** processes every row it can, sets aside every row it can't, and reports both — it never crashes on the first bad row, and it never silently drops bad data either.
-- This unit introduces **no new syntax** — it combines `with open()` and `csv.reader` from Unit 5.1 with `try`/`except` and `raise` from Unit 5.2 into one disciplined pattern.
+- This unit introduces **no new syntax** — it combines `with open()` and `csv.reader` from File Handling with `try`/`except` and `raise` from Errors & Exceptions into one disciplined pattern.
 - The key structural rule: place the `try`/`except` **inside** the loop, wrapped around one row at a time — not around the whole loop.
 - **Valid records and invalid records** belong in two separate collections (or files), never mixed — and any summary math must run only over the valid ones.
 - Not every bad value fails to *convert* — a business rule (like a fare that must be greater than 0, or marks that must stay within 0–100) needs you to `raise` your own exception, which is caught by the same `except` as any error Python raises on its own.
@@ -540,7 +548,7 @@ Priya's and Meena's rows both convert successfully with `float()` and pass the `
 - Always catch the **specific** exception you expect, and always log or store what you skip — a bare `except:` or a silently discarded row both hide real problems instead of solving them.
 - This "skip and log" pattern is common enough in real data pipelines that it's worth naming explicitly in an interview — it signals production-quality thinking, not just toy-script code.
 
-Coming next: Unit 6.1 — Version Control Basics, the start of Module P6, where you'll learn Git and GitHub — the professional habit of saving and sharing the code you've written throughout this course.
+Coming next: Version Control Basics, the start of Module P6, where you'll learn Git and GitHub — the professional habit of saving and sharing the code you've written throughout this course.
 
 ---
 

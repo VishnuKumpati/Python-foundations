@@ -21,7 +21,7 @@
   - [Unit 3.5 - Iterators, Generators & Collections](modules/p3-data-structures/unit-3-5-iterators-generators-collections.md)
 - [P4 · Module IV · Classes & Objects](modules/p4-classes-objects)
   - [Unit 4.1 - Object-Oriented Foundations](modules/p4-classes-objects/unit-4-1-object-oriented-foundations.md)
-  - [Unit 4.2 - The Four Pillars of OOP](modules/p4-classes-objects/unit-4-2-inheritance-encapsulation.md)
+  - [Unit 4.2 - The Four Pillars of OOP](modules/p4-classes-objects/unit-4-2-the-four-pillars-of-oop.md)
   - [Unit 4.3 - Special Methods & Dataclasses](modules/p4-classes-objects/unit-4-3-special-methods-dataclasses.md)
 - [P5 · Module V · Files & Exception Handling](modules/p5-files-exception-handling)
   - [Unit 5.1 - File Handling](modules/p5-files-exception-handling/unit-5-1-file-handling.md)

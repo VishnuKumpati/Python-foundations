@@ -437,17 +437,28 @@ Expected output:
 
 ## 4. Real-World Application
 
-Dictionaries are the workhorse data structure across almost every domain of Indian IT and beyond:
+**Scenario: Looking up a customer's order on an e-commerce app**
 
-- **Banking & FinTech:** An account record — account number, holder name, balance, account type — is naturally a dictionary, and a bank's entire customer database is conceptually a dictionary of dictionaries keyed by account number.
-- **UPI / Payment Systems:** Every transaction — payer, payee, amount, transaction ID, status — is exchanged between apps and banks as a dictionary serialized to JSON, exactly as shown in the example above.
-- **E-commerce:** A product catalog is a dictionary keyed by product ID, each value holding name, price, and stock count; a shopping cart is a dictionary mapping product ID to quantity.
-- **Healthcare:** A patient record system stores a patient's details — name, age, diagnosis, admission status — as a dictionary, often nested with a separate dictionary for vitals or test results.
-- **Education:** A student information system stores marks, attendance, and fee status keyed by roll number or student ID — precisely the nested-dictionary pattern practiced in the worked example.
-- **Railway Booking (IRCTC-style systems):** A booking record — PNR number, passenger name, seat, fare, status — is looked up by PNR, which is nothing but a dictionary key.
-- **AI/ML & Cloud Apps:** Model configuration, API request and response bodies, and cloud service settings are almost always passed around as dictionaries in Python — this is the exact structure you will meet again as **JSON** when this course reaches API integration in Module 5.
+Picture a customer support agent pulling up one order by its order ID:
 
-Whenever you hear "this data comes from an API" or "this is a record with fields," think dictionary first.
+```python
+order = {
+    "order_id": "ORD48213",
+    "customer": "Neha Kapoor",
+    "items": ["Laptop Sleeve", "Wireless Mouse"],
+    "status": "Shipped",
+    "amount": 1499.00,
+}
+```
+
+Every question the support app needs answered maps directly to a dictionary operation you just learned:
+
+- **"What is the current status of this order?"** → **key lookup**: `order["status"]`.
+- **"Has a refund reference number been added yet?"** → a **safe lookup with `.get()`**: `order.get("refund_id")` returns `None` instead of crashing with a `KeyError` when the key doesn't exist yet.
+- **"Mark the order as delivered."** → **updating a value in place**: `order["status"] = "Delivered"`.
+- **"Show every field this order record has, one line at a time."** → looping with `order.items()`.
+
+That is the entire real-world application in one clear picture: a record of named fields, looked up instantly by key instead of by remembering a position — no scanning, no guessing which index held what. Once this one example is clear, you will recognize the exact same shape again and again in production systems: a bank's account record keyed by account number, a UPI transaction payload exchanged as JSON, a patient's record keyed by patient ID, a railway booking looked up by PNR — all are this same order-lookup scenario wearing a different name. Whenever you hear "this data comes from an API" or "this is a record with fields," think dictionary first — this is the exact structure you will meet again as **JSON** when this course reaches API integration in Module 5.
 
 ---
 
@@ -520,9 +531,17 @@ The dictionary comprehension computes one average per student by reading straigh
 
 ### Important Notes (Interview Insights)
 
-- A very common fresher interview question: *"Why is looking up a value in a dictionary faster than searching for it in a list?"* Answer: a dictionary uses **hashing** to jump almost directly to a key's location, giving roughly **constant-time, O(1)** average lookup — while a list must scan element by element in the worst case, which is **O(n)**. This is exactly why a dictionary, not a list, is the right structure whenever your program's main job is "look this up by its label."
-- Interviewers often probe whether you know **when to use `.get()` versus `[]`**: use `[]` when the key's presence is guaranteed and a missing key genuinely signals a bug you want surfaced immediately; use `.get()` whenever the key is optional or comes from untrusted external input, such as a field that might not exist in an API response.
-- Be ready to explain that a dictionary key must be **hashable**, and that this is precisely why a `list` cannot be a key but a `tuple` can — a detail that connects directly back to Unit 3.2 (Tuples) and Unit 3.3 (Sets), where the same hashability rule applies to set elements.
+**Q: "Why is looking up a value in a dictionary faster than searching for it in a list?"**
+
+A dictionary uses **hashing** to jump almost directly to a key's location, giving roughly **constant-time, O(1)** average lookup — while a list must scan element by element in the worst case, which is **O(n)**. This is exactly why a dictionary, not a list, is the right structure whenever your program's main job is "look this up by its label."
+
+**Q: "When should you use `.get()` versus `[]` to access a dictionary value?"**
+
+Use `[]` when the key's presence is guaranteed and a missing key genuinely signals a bug you want surfaced immediately; use `.get()` whenever the key is optional or comes from untrusted external input, such as a field that might not exist in an API response.
+
+**Q: "Why can a tuple be used as a dictionary key, but a list cannot?"**
+
+A dictionary key must be **hashable**, and that is precisely why a `list` cannot be a key but a `tuple` can — a detail that connects directly back to tuples and sets, where the same hashability rule applies to set elements.
 
 ---
 
@@ -538,7 +557,7 @@ The dictionary comprehension computes one average per student by reading straigh
 - Dictionaries are the Python shape of **JSON data** — remember this connection, since it becomes central once this course reaches API integration.
 - A dictionary gives roughly **constant-time (O(1))** lookup by key, versus a list's linear **O(n)** scan — a key interview talking point.
 
-Coming next: Unit 3.5 — Iterators, Generators & Collections, where you will look at the machinery quietly running behind every `for` loop you have written so far, and meet the `collections` module for more specialized dictionary-like tools.
+Coming next: Iterators, Generators & Collections, where you will look at the machinery quietly running behind every `for` loop you have written so far, and meet the `collections` module for more specialized dictionary-like tools.
 
 ---
 

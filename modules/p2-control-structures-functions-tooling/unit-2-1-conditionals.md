@@ -21,7 +21,7 @@ By the end of this unit, you will be able to:
 
 Every program you have written so far in this course runs top to bottom, one line after another, with no branching at all. Real software rarely behaves that way. A login screen must respond differently to a correct password than a wrong one. A UPI app must show "Payment Successful" or "Payment Failed" depending on what the bank returns. A food delivery app decides whether an order qualifies for free delivery based on the cart value. None of this is possible without a way to make a decision inside the code itself.
 
-That decision-making ability comes from a **conditional** — a piece of code that asks a yes/no question and runs different statements depending on the answer. The question is always a **boolean expression**, one that evaluates to `True` or `False`, built using the comparison and logical operators you already learned in Unit 1.3.
+That decision-making ability comes from a **conditional** — a piece of code that asks a yes/no question and runs different statements depending on the answer. The question is always a **boolean expression**, one that evaluates to `True` or `False`, built using the comparison and logical operators you already learned in operators and expressions.
 
 In this unit, you will learn the `if` statement, how to add `elif` and `else` for multi-branch decisions, how to combine conditions using `and`/`or`/`not`, how to nest one conditional inside another, and how to write a compact conditional (ternary) expression for simple two-value choices. Mastering this one skill — asking a question and branching on the answer — is the foundation that every later topic in this course, from loops to functions to real applications, is built on.
 
@@ -448,10 +448,21 @@ Even though `priority` is `1` — which would normally match the "Urgent" branch
 
 ### Important Notes (Interview Insights)
 
-- A common fresher interview question: *"What happens if two `elif` conditions are both `True`?"* The correct answer: only the **first** one that is `True` runs — Python never checks the remaining conditions once a match is found.
-- Interviewers often ask you to explain why Python uses **indentation** instead of braces `{ }` to define blocks — be ready to say that indentation is not just a style choice, it is part of Python's grammar, and inconsistent indentation is a compile-time-like error (`IndentationError`), not just a warning.
-- You may be asked to convert a short `if`/`else` into a ternary expression, or vice versa, to check that you understand that a plain `if`/`else` is a **statement** (directs control flow, produces no value), while a conditional expression **produces a value** that can be stored, printed, or passed onward.
-- Be ready to explain when nesting is appropriate versus when it should be flattened: nesting is justified only when the inner decision has its own `else` that doesn't apply to the outer branch's other paths; otherwise, an `and` almost always simplifies the code.
+**Q: "What happens if two `elif` conditions are both `True`?"**
+
+Only the **first** one that is `True` runs — Python never checks the remaining conditions once a match is found.
+
+**Q: "Why does Python use indentation instead of braces `{ }` to define blocks?"**
+
+Indentation is not just a style choice, it is part of Python's grammar, and inconsistent indentation is a compile-time-like error (`IndentationError`), not just a warning.
+
+**Q: "Can you convert a short `if`/`else` into a ternary expression, or vice versa?"**
+
+You may be asked to do this to check that you understand that a plain `if`/`else` is a **statement** (directs control flow, produces no value), while a conditional expression **produces a value** that can be stored, printed, or passed onward.
+
+**Q: "When is nesting `if` statements appropriate versus when should it be flattened?"**
+
+Nesting is justified only when the inner decision has its own `else` that doesn't apply to the outer branch's other paths; otherwise, an `and` almost always simplifies the code.
 
 ---
 
@@ -466,7 +477,7 @@ Even though `priority` is `1` — which would normally match the "Urgent" branch
 - The **conditional (ternary) expression** — `value_if_true if condition else value_if_false` — produces a value in a single line, unlike a plain `if`/`else` statement, and is best used for simple two-outcome choices.
 - A common interview question is explaining why only one branch of an `if`/`elif`/`else` chain ever runs, and how that differs from a ternary expression producing a value directly.
 
-Coming next: Unit 2.2 — Loops, where you will learn how Python repeats a block of code instead of making the same decision only once.
+Coming next: loops, where you will learn how Python repeats a block of code instead of making the same decision only once.
 
 ---
 

@@ -392,9 +392,17 @@ Pytest scans `fare_calculator.py`, finds one function whose name matches its `te
 
 ### Important Notes (Interview Insights)
 
-- A common fresher interview question: *"Why do we need virtual environments if pip already installs packages?"* Answer with the isolation problem directly: without one, there is exactly one system-wide copy of each package, so two projects that need two different, conflicting versions of the same package cannot both be satisfied at once. A virtual environment gives each project its own private copy, so upgrading one project's dependencies can never silently break another's.
-- Be ready to define a **dependency conflict** in one line: it occurs when two required packages (or two projects sharing one environment) need incompatible versions of the same underlying package at the same time.
-- Interviewers sometimes ask how Python actually *finds* a module during an import. The short, correct answer: Python searches, in order, its built-in modules, then the folders listed in `sys.path` (which includes the current script's folder and the active environment's installed packages) — the first match wins.
+**Q: "Why do we need virtual environments if pip already installs packages?"**
+
+This comes down to the isolation problem: without one, there is exactly one system-wide copy of each package, so two projects that need two different, conflicting versions of the same package cannot both be satisfied at once. A virtual environment gives each project its own private copy, so upgrading one project's dependencies can never silently break another's.
+
+**Q: "What is a dependency conflict?"**
+
+It occurs when two required packages (or two projects sharing one environment) need incompatible versions of the same underlying package at the same time.
+
+**Q: "How does Python actually find a module during an import?"**
+
+Python searches, in order, its built-in modules, then the folders listed in `sys.path` (which includes the current script's folder and the active environment's installed packages) — the first match wins.
 
 ---
 
@@ -409,7 +417,7 @@ Pytest scans `fare_calculator.py`, finds one function whose name matches its `te
 - The most common beginner tooling errors are installing packages globally, forgetting to activate a virtual environment, and a `ModuleNotFoundError` caused by a typo or the wrong active environment.
 - This closes Module P2 — control structures, functions, and now professional tooling. Module P3 moves from single values into full data structures.
 
-Coming next: how Python stores collections of values in order, using your first data structure — Unit 3.1 — Lists.
+Coming next: how Python stores collections of values in order, using your first data structure — lists.
 
 ---
 

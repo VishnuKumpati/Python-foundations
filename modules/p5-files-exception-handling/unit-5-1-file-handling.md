@@ -440,9 +440,17 @@ In the first attempt, `csv.reader()` has no built-in concept of "header row" ver
 
 ### Important Notes (Interview Insights)
 
-- A very common fresher interview question: *"Why is `with open(...)` preferred over calling `open()` and `close()` manually?"* The strongest answer is precise: `with` guarantees `close()` runs even if an exception is raised inside the block, because the context manager's cleanup step executes automatically as control leaves the block — normally or via an error. Manual `close()` has no such guarantee; an error raised before that line simply skips it.
-- Be ready to explain what a **context manager** actually promises: it defines two steps — a setup action that runs when the `with` block is entered, and a cleanup action that is *guaranteed* to run when the block is exited, no matter how it is exited. For a file, "cleanup" means closing it and releasing the operating system's file handle.
-- Interviewers may also ask why file operations can fail at all — a missing file, no permission to write, or a full disk are all realistic failures outside your program's control. Unit 5.2 introduces `try`/`except`, Python's formal mechanism for handling exactly these kinds of failures without crashing; this unit only teaches you to recognize that such failures exist.
+**Q: "Why is `with open(...)` preferred over calling `open()` and `close()` manually?"**
+
+The strongest answer is precise: `with` guarantees `close()` runs even if an exception is raised inside the block, because the context manager's cleanup step executes automatically as control leaves the block — normally or via an error. Manual `close()` has no such guarantee; an error raised before that line simply skips it.
+
+**Q: "What does a context manager actually promise?"**
+
+It defines two steps — a setup action that runs when the `with` block is entered, and a cleanup action that is *guaranteed* to run when the block is exited, no matter how it is exited. For a file, "cleanup" means closing it and releasing the operating system's file handle.
+
+**Q: "Why can file operations fail at all?"**
+
+A missing file, no permission to write, or a full disk are all realistic failures outside your program's control. Errors & Exceptions, coming up next, introduces `try`/`except`, Python's formal mechanism for handling exactly these kinds of failures without crashing; this unit only teaches you to recognize that such failures exist.
 
 ---
 
@@ -458,7 +466,7 @@ In the first attempt, `csv.reader()` has no built-in concept of "header row" ver
 - A missing file opened in read mode raises `FileNotFoundError`; a CSV read that crashes on its very first row is almost always the unconsumed header.
 - File operations can fail for reasons outside your control — a missing file, no write permission, a full disk — and Python's formal way to handle such failures without crashing is coming next.
 
-Coming next: Unit 5.2 — Errors & Exceptions, where you will learn `try`/`except` and how to handle failures like the ones this unit only warned you about, gracefully instead of letting your program crash.
+Coming next: Errors & Exceptions, where you will learn `try`/`except` and how to handle failures like the ones this unit only warned you about, gracefully instead of letting your program crash.
 
 ---
 

@@ -21,7 +21,7 @@ By the end of this unit, you will be able to:
 
 Every `for` loop you have written across this module — over lists, tuples, sets, and dictionaries — has quietly relied on one uniform mechanism you never had to name out loud. That mechanism is the **iterator protocol**, and this unit finally opens it up. Once you understand it, a `for` loop stops being "magic that walks a collection" and becomes a predictable, explainable sequence of function calls — a distinction that comes up constantly in technical interviews, because interviewers use it to check whether a candidate truly understands Python or has only memorized syntax.
 
-This unit also revisits **generators**, which you first met conceptually back in Unit 2.4, and shows exactly why they save memory when a dataset is large or arrives over time — think of a UPI app processing a live stream of transactions, or a system reading a multi-gigabyte log file one line at a time instead of loading it all at once.
+This unit also revisits **generators**, which you first met conceptually back in the unit on functional constructs, and shows exactly why they save memory when a dataset is large or arrives over time — think of a UPI app processing a live stream of transactions, or a system reading a multi-gigabyte log file one line at a time instead of loading it all at once.
 
 Finally, you will meet three ready-made tools from Python's `collections` module — `Counter`, `defaultdict`, and `namedtuple` — that quietly replace hand-written counting loops, error-prone dictionary key checks, and unreadable `tuple[0]`-style code with one clean line each. These are genuinely time-saving tools you will reach for in real projects, not just classroom exercises. This is also the final unit of Module P3 (Data Structures) — after this, Module P4 begins organizing data and behavior together with classes and objects.
 
@@ -515,13 +515,29 @@ Only `Divya` (220) and `Farhan` (260) meet the `amount <= 260` condition, so the
 
 ## 4. Real-World Application
 
-- **Banking & FinTech:** A statement generator that streams thousands of transaction rows one at a time, instead of loading an entire year's history into memory at once, is a generator doing exactly what `countdown()` does — computing the next value only when asked.
-- **UPI / Payment Systems:** A dashboard showing "most-used payment method today" is `Counter` tallying every transaction's method in one pass and reading the top result off with `most_common()`.
-- **E-commerce:** Grouping today's orders by delivery city, with a new city key appearing at any moment, is exactly what `defaultdict(list)` is built for — no `KeyError`, no manual existence checks.
-- **Food Delivery:** Counting how many orders each restaurant received in a day, as shown in the example above, is a one-line `Counter` call instead of a hand-rolled tally loop.
-- **Healthcare:** A patient vitals reading — heart rate, temperature, timestamp — read together and passed around a monitoring script is a natural fit for `namedtuple`, so the code says `reading.heart_rate` instead of decoding what position `1` was supposed to mean.
-- **Railway Booking (IRCTC-style systems):** A seat allocation record with named fields, as shown above, keeps booking code readable across a large codebase maintained by many engineers over time.
-- **AI/ML & Cloud Apps:** Reading a multi-gigabyte training dataset or log file line by line uses a generator so the program never needs the whole file in memory at once — a core reason generators exist in the language at all.
+**Scenario: A food delivery platform's daily order log**
+
+Picture a stream of today's orders arriving across a city, each one a compact, named record:
+
+```python
+from collections import namedtuple
+
+Order = namedtuple("Order", ["restaurant", "city", "amount"])
+todays_orders = [
+    Order("Spice Villa", "Bengaluru", 450),
+    Order("Punjabi Tadka", "Delhi", 620),
+    Order("Spice Villa", "Bengaluru", 300),
+]
+```
+
+Every question the platform's dashboard needs answered maps to exactly one tool from this unit:
+
+- **"Which restaurant got the most orders today?"** → `Counter`: `Counter(o.restaurant for o in todays_orders).most_common(1)`.
+- **"Group today's orders by city — including a brand-new city with zero orders so far."** → `defaultdict(list)`: no `KeyError`, no manual "does this key exist yet?" check.
+- **"Read a field without memorizing what position it was stored at."** → a `namedtuple`: `order.restaurant` instead of the unreadable `order[0]`.
+- **"Scan through a year's worth of order logs — millions of rows — without running out of memory."** → a **generator**: it computes and yields one order at a time, only when asked, instead of holding the entire log in memory at once.
+
+That is the entire real-world application in one clear picture: a stream of compact, named records, tallied, grouped, and read one at a time without ever loading more into memory than the program actually needs right now. Once this one example is clear, you will recognize the exact same shape again and again in production systems: a bank's statement generator streaming transaction rows, a patient-vitals reading accessed as `reading.heart_rate` instead of a mystery index, a railway seat allocation record with named fields — all are this same order-log scenario wearing a different name.
 
 ---
 
@@ -604,10 +620,21 @@ Sara
 
 ### Important Notes (Interview Insights)
 
-- **"What is the difference between an iterable and an iterator?"** is one of the most frequently asked Python interview questions at the fresher level. Answer precisely: every iterator is iterable, but not every iterable is an iterator — a list is iterable but is not itself an iterator, because it has no `__next__` of its own and does not track a current position.
-- Be ready to explain that a `for` loop is simply syntax sugar: it calls `iter()` once, then `next()` repeatedly, and stops silently the moment `StopIteration` is raised — no error ever reaches your code.
-- A common follow-up: **"Why use a generator instead of a list?"** The correct answer is memory — a generator computes and yields one value at a time instead of holding the entire sequence in memory up front, which matters enormously once "the entire sequence" could be millions of rows or an unbounded stream.
-- Interviewers often test `Counter` and `defaultdict` with a quick coding question like "count word frequency in a sentence" — recognizing these tools instantly, instead of writing a manual loop, is a strong signal of practical Python fluency.
+**Q: "What is the difference between an iterable and an iterator?"**
+
+This is one of the most frequently asked Python interview questions at the fresher level. Answer precisely: every iterator is iterable, but not every iterable is an iterator — a list is iterable but is not itself an iterator, because it has no `__next__` of its own and does not track a current position.
+
+**Q: "What actually happens under the hood when you write a `for` loop?"**
+
+A `for` loop is simply syntax sugar: it calls `iter()` once, then `next()` repeatedly, and stops silently the moment `StopIteration` is raised — no error ever reaches your code.
+
+**Q: "Why use a generator instead of a list?"**
+
+The correct answer is memory — a generator computes and yields one value at a time instead of holding the entire sequence in memory up front, which matters enormously once "the entire sequence" could be millions of rows or an unbounded stream.
+
+**Q: "How would you count word frequency in a sentence?"**
+
+Recognizing `Counter` and `defaultdict` instantly, instead of writing a manual loop, is a strong signal of practical Python fluency — interviewers often test exactly this with a quick coding question like "count word frequency in a sentence."
 
 ---
 
@@ -623,7 +650,7 @@ Sara
 - **`namedtuple`** adds readable, named access to a tuple's positions while keeping it fully immutable, unpackable, and indexable.
 - "Iterable vs iterator" is one of the most common Python interview questions at fresher level — be ready to state, precisely, that every iterator is iterable but not every iterable is an iterator.
 
-Coming next: Unit 4.1 — Object-Oriented Foundations, where Module P4 begins organizing data and the behavior that acts on it together, using classes and objects, instead of keeping them separate.
+Coming next: Object-Oriented Foundations, where Module P4 begins organizing data and the behavior that acts on it together, using classes and objects, instead of keeping them separate.
 
 ---
 

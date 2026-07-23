@@ -2,7 +2,7 @@
 
 ---
 
-[← Previous: 4.2 The Four Pillars of OOP](unit-4-2-inheritance-encapsulation.md) | [Go back to TOC](../../README.md) | [Next: 5.1 File Handling →](../p5-files-exception-handling/unit-5-1-file-handling.md)
+[← Previous: 4.2 The Four Pillars of OOP](unit-4-2-the-four-pillars-of-oop.md) | [Go back to TOC](../../README.md) | [Next: 5.1 File Handling →](../p5-files-exception-handling/unit-5-1-file-handling.md)
 
 ## 1. Learning Objectives
 
@@ -31,7 +31,7 @@ The second half of this unit solves a related, very practical problem: many clas
 
 ### 3.1 Definition
 
-A **dunder method** (also called a **magic method** or **special method**) is a method whose name begins and ends with two underscores, such as `__init__`, `__str__`, `__repr__`, `__eq__`, and `__add__`. You have already met one of these — `__init__` — since Unit 4.1: writing `Student(...)` calls `__init__` for you, without you ever typing `s.__init__(...)` yourself. Every dunder method works the same way — Python calls it implicitly, in response to some built-in syntax or function, rather than you calling it by name.
+A **dunder method** (also called a **magic method** or **special method**) is a method whose name begins and ends with two underscores, such as `__init__`, `__str__`, `__repr__`, `__eq__`, and `__add__`. You have already met one of these — `__init__` — since the object-oriented foundations unit: writing `Student(...)` calls `__init__` for you, without you ever typing `s.__init__(...)` yourself. Every dunder method works the same way — Python calls it implicitly, in response to some built-in syntax or function, rather than you calling it by name.
 
 **Operator overloading** is the specific technique of defining a dunder method (such as `__add__`) so that a standard Python operator (such as `+`) does something meaningful for your own class, instead of raising an error or doing nothing useful. Python does not let you write two methods with the same name that differ only in their parameter types (the way languages like Java and C++ allow "method overloading") — instead, each operator maps to exactly *one* dunder method slot per class, and you write the logic for that one slot.
 
@@ -244,7 +244,7 @@ print(repr(wallet_1))
 ```
 
 *Line-by-line explanation:*
-- `class Wallet:` starts a new class with two attributes, `owner_name` and `balance`, set in `__init__` exactly as in Unit 4.1.
+- `class Wallet:` starts a new class with two attributes, `owner_name` and `balance`, set in `__init__` exactly as in the object-oriented foundations unit.
 - `def __repr__(self):` defines the developer-facing description; `{self.owner_name!r}` uses the `!r` conversion to show the string with quotes, exactly as it would appear in code.
 - `def __str__(self):` defines the friendlier, end-user-facing description, formatting `balance` to two decimal places since this represents money.
 - `wallet_1 = Wallet("Rohit", 500.0)` creates one `Wallet` instance.
@@ -522,10 +522,21 @@ Ananya: Rs. 380.00 available
 
 ### Important Notes (Interview Insights)
 
-- *"What is the difference between `__str__` and `__repr__`?"* is one of the most frequently asked Python fresher interview questions. The clean answer: `__str__` is for the end user (readable), `__repr__` is for the developer (unambiguous, ideally re-creatable code); if only `__repr__` is defined, `print()` falls back to it automatically.
-- Interviewers often follow up with *"When would you choose a dataclass over a regular class?"* — the honest answer is: when the class is mainly a container for data with little or no custom behaviour. The moment a class needs validation logic, computed behaviour, or protects an invariant, a hand-written class (or a dataclass with added methods) communicates intent better.
-- Be ready to clarify that Python does not support classic "method overloading" (same method name, different parameter types, resolved at compile time, as in Java). What Python offers instead is **operator overloading** — one dunder method per operator, and your own logic inside it decides how to handle different situations.
-- A dataclass is still an ordinary class underneath the decorator — you can add plain methods to it, and inheritance still works exactly as covered in Unit 4.2, including a subclass with a hand-written `__init__` that calls `super().__init__(...)`.
+**Q: "What is the difference between `__str__` and `__repr__`?"**
+
+This is one of the most frequently asked Python fresher interview questions. The clean answer: `__str__` is for the end user (readable), `__repr__` is for the developer (unambiguous, ideally re-creatable code); if only `__repr__` is defined, `print()` falls back to it automatically.
+
+**Q: "When would you choose a dataclass over a regular class?"**
+
+The honest answer is: when the class is mainly a container for data with little or no custom behaviour. The moment a class needs validation logic, computed behaviour, or protects an invariant, a hand-written class (or a dataclass with added methods) communicates intent better.
+
+**Q: "Does Python support method overloading like Java does?"**
+
+No. Python does not support classic "method overloading" (same method name, different parameter types, resolved at compile time, as in Java). What Python offers instead is **operator overloading** — one dunder method per operator, and your own logic inside it decides how to handle different situations.
+
+**Q: "Can you still add custom methods or use inheritance with a dataclass?"**
+
+Yes — a dataclass is still an ordinary class underneath the decorator, so you can add plain methods to it, and inheritance still works exactly as covered in the four pillars of OOP, including a subclass with a hand-written `__init__` that calls `super().__init__(...)`.
 
 ---
 
@@ -540,7 +551,7 @@ Ananya: Rs. 380.00 available
 - Use a **regular class** when a class needs real behaviour or validation; use a **`@dataclass`** when a class is mostly a bundle of data.
 - **Modules** (separate `.py` files) and **packages** (directories of related modules) keep growing projects organized; `import`/`from module import Name` reaches a class defined elsewhere without redefining it.
 
-Coming next: Unit 5.1 — File Handling, where you move from data that lives only in memory to data read from and written to real files on disk.
+Coming next: File Handling, where you move from data that lives only in memory to data read from and written to real files on disk.
 
 ---
 
@@ -552,7 +563,7 @@ Coming next: Unit 5.1 — File Handling, where you move from data that lives onl
 - [Real Python — Data Classes in Python 3.7+](https://realpython.com/python-data-classes/)
 - [W3Schools — Python Classes and Objects](https://www.w3schools.com/python/python_classes.asp)
 
-[← Previous: 4.2 The Four Pillars of OOP](unit-4-2-inheritance-encapsulation.md) | [Go back to TOC](../../README.md) | [Next: 5.1 File Handling →](../p5-files-exception-handling/unit-5-1-file-handling.md)
+[← Previous: 4.2 The Four Pillars of OOP](unit-4-2-the-four-pillars-of-oop.md) | [Go back to TOC](../../README.md) | [Next: 5.1 File Handling →](../p5-files-exception-handling/unit-5-1-file-handling.md)
 
 ---
 

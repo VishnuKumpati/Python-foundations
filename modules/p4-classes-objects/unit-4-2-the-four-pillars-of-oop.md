@@ -22,7 +22,7 @@ By the end of this unit, you will be able to:
 
 Real-world software is never one giant class. Every serious object-oriented language — Python, Java, C#, C++ — organizes its class design around four foundational ideas, commonly known as the **four pillars of OOP**: **Encapsulation**, **Abstraction**, **Inheritance**, and **Polymorphism**.
 
-You already met the basics of a class and its objects in Unit 4.1, with a `Student` class holding `name`, `roll_number`, and `marks`, plus a method like `has_passed()`. This unit takes that one class and asks four different design questions of it:
+You already met the basics of a class and its objects in the object-oriented foundations unit, with a `Student` class holding `name`, `roll_number`, and `marks`, plus a method like `has_passed()`. This unit takes that one class and asks four different design questions of it:
 
 - **Encapsulation** — how do we stop `marks` from being set to something invalid, like `-50`, by code outside the class?
 - **Abstraction** — how do we describe *what* every kind of student must be able to do (such as `has_passed()`), without forcing every subclass to implement it in exactly the same way?
@@ -784,7 +784,7 @@ Every object shares the exact same `BankAccount.__str__()`, but each one's `acco
 
 ### Problem Statement
 
-You already have a `Student` class from Unit 4.1 with `name`, `roll_number`, `marks`, and `has_passed()`. You are asked to build a `GraduateStudent` class that reuses everything `Student` already provides, adds one new field — `thesis_topic` — and raises the passing mark to 50. You must then show that a single, shared call to `has_passed()` behaves correctly across a mixed list of both classes (polymorphism), before deliberately breaking the inheritance pattern by skipping `super().__init__()` in a second class, to see exactly what goes wrong and why.
+You already have a `Student` class from the object-oriented foundations unit with `name`, `roll_number`, `marks`, and `has_passed()`. You are asked to build a `GraduateStudent` class that reuses everything `Student` already provides, adds one new field — `thesis_topic` — and raises the passing mark to 50. You must then show that a single, shared call to `has_passed()` behaves correctly across a mixed list of both classes (polymorphism), before deliberately breaking the inheritance pattern by skipping `super().__init__()` in a second class, to see exactly what goes wrong and why.
 
 ### Step 1: Understand the Problem
 
@@ -838,7 +838,7 @@ print(broken.has_passed())
 
 ### Step 4: Explain Each Line
 
-- `class Student:` and its `__init__`/`has_passed()` are unchanged from Unit 4.1 — the existing superclass.
+- `class Student:` and its `__init__`/`has_passed()` are unchanged from the object-oriented foundations unit — the existing superclass.
 - `class GraduateStudent(Student):` declares the subclass.
 - `super().__init__(name, roll_number, marks)` calls `Student.__init__`, which sets `self.name`, `self.roll_number`, and `self.marks` on the new object.
 - `self.thesis_topic = thesis_topic` adds the one field unique to `GraduateStudent`.
@@ -877,13 +877,33 @@ For `broken`, `thesis_topic` prints fine because that assignment genuinely execu
 
 ### Important Notes (Interview Insights)
 
-- A very common fresher interview question: *"What are the four pillars of OOP?"* Be ready to name all four — **Encapsulation, Abstraction, Inheritance, Polymorphism** — and give a one-sentence definition of each, ideally with a small example, rather than reciting the names alone.
-- **MRO and `super()` are classic interview topics** for any Python role. Be ready to explain, in your own words, that `super()` does not mean "my direct parent" — it means "the next class in the MRO" — and be able to trace `ClassName.__mro__` for a small diamond-shaped hierarchy on a whiteboard.
-- A very common fresher interview question: *"Does Python have private variables like Java?"* The confident, correct answer: **no** — Python's underscore convention is "convention, not enforcement." A single underscore (`_name`) is a social signal only; a double underscore (`__name`) triggers name mangling, which prevents accidental collisions but can still be bypassed by anyone who knows the mangled name. This is a fundamentally different model from Java's `private` keyword, which the compiler actively enforces.
-- *"Can you create an instance of a class that inherits from `ABC`?"* Yes, but **only** if every `@abstractmethod` it declares or inherits has been overridden somewhere in its own class or an ancestor's concrete implementation — otherwise Python raises `TypeError` at the moment of instantiation, not later.
-- *"Does Python support method overloading?"* No — a very common trick interview question. Unlike Java or C++, defining the same method name twice in a Python class simply replaces the earlier definition; Python developers use default arguments, `*args`/`**kwargs`, or `functools.singledispatch` to get similar flexibility.
-- Interviewers often ask you to distinguish **overriding** (a subclass replacing a method's behavior, resolved at runtime — polymorphism) from **overloading** (multiple versions of the same method name, which Python does not support) — know both terms and be able to state clearly which one Python actually has.
-- Be ready to explain why `isinstance()` is generally preferred over checking `type(obj) == SomeClass` — `isinstance()` respects the whole inheritance hierarchy (and MRO), while an exact `type()` comparison does not.
+**Q: "What are the four pillars of OOP?"**
+
+Be ready to name all four — **Encapsulation, Abstraction, Inheritance, Polymorphism** — and give a one-sentence definition of each, ideally with a small example, rather than reciting the names alone.
+
+**Q: "Can you explain what `super()` actually refers to, and trace an MRO by hand?"**
+
+`super()` does not mean "my direct parent" — it means "the next class in the MRO." Be ready to explain this in your own words, and to trace `ClassName.__mro__` for a small diamond-shaped hierarchy on a whiteboard, since MRO and `super()` are classic interview topics for any Python role.
+
+**Q: "Does Python have private variables like Java?"**
+
+The confident, correct answer: **no** — Python's underscore convention is "convention, not enforcement." A single underscore (`_name`) is a social signal only; a double underscore (`__name`) triggers name mangling, which prevents accidental collisions but can still be bypassed by anyone who knows the mangled name. This is a fundamentally different model from Java's `private` keyword, which the compiler actively enforces.
+
+**Q: "Can you create an instance of a class that inherits from `ABC`?"**
+
+Yes, but **only** if every `@abstractmethod` it declares or inherits has been overridden somewhere in its own class or an ancestor's concrete implementation — otherwise Python raises `TypeError` at the moment of instantiation, not later.
+
+**Q: "Does Python support method overloading?"**
+
+No — a very common trick interview question. Unlike Java or C++, defining the same method name twice in a Python class simply replaces the earlier definition; Python developers use default arguments, `*args`/`**kwargs`, or `functools.singledispatch` to get similar flexibility.
+
+**Q: "What's the difference between overriding and overloading, and which one does Python actually support?"**
+
+**Overriding** is a subclass replacing a method's behavior, resolved at runtime (polymorphism); **overloading** is having multiple versions of the same method name, which Python does not support. Know both terms and be able to state clearly which one Python actually has.
+
+**Q: "Why is `isinstance()` generally preferred over checking `type(obj) == SomeClass`?"**
+
+`isinstance()` respects the whole inheritance hierarchy (and MRO), while an exact `type()` comparison does not.
 
 ---
 
@@ -898,7 +918,7 @@ For `broken`, `thesis_topic` prints fine because that assignment genuinely execu
 - Skipping `super().__init__()` in a subclass means the superclass's attributes never get set, surfacing later as an `AttributeError` the moment code tries to use them.
 - Favor composition and shallow hierarchies over deep inheritance chains — reserve multiple inheritance for narrow, focused mixins, and reach for a shared abstract base whenever you want Python to guarantee a method exists on every subclass.
 
-Coming next: special methods and dataclasses — controlling how your objects are printed and compared (building directly on the dunder methods introduced here for operator overloading), and cutting down the boilerplate needed to define them (Unit 4.3 — Special Methods & Dataclasses).
+Coming next: special methods and dataclasses — controlling how your objects are printed and compared (building directly on the dunder methods introduced here for operator overloading), and cutting down the boilerplate needed to define them.
 
 ---
 

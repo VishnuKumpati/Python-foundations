@@ -19,7 +19,7 @@ By the end of this unit, you will be able to:
 
 ## 2. Overview
 
-By now you have worked with lists (Unit 3.1) and tuples (Unit 3.2). Both remember the order you put things in, and both happily store duplicates — a list of phone numbers can hold the same number three times if that's what got typed in. But a huge amount of real-world data work is not about order at all; it is about **which distinct values are present** and **whether two collections overlap**. Has this customer's phone number already been saved? Which pincodes does a food delivery app service? Which courses do two students have in common?
+By now you have worked with lists and tuples. Both remember the order you put things in, and both happily store duplicates — a list of phone numbers can hold the same number three times if that's what got typed in. But a huge amount of real-world data work is not about order at all; it is about **which distinct values are present** and **whether two collections overlap**. Has this customer's phone number already been saved? Which pincodes does a food delivery app service? Which courses do two students have in common?
 
 A **set** is Python's built-in answer to exactly this kind of question. Picture a set as a bag of unique items — you can drop things in, but the bag never lets a duplicate sit inside it, and it doesn't care in what order things went in.
 
@@ -45,18 +45,19 @@ You write a set using curly braces `{}` around comma-separated values, or by pas
 fruits = {"apple", "banana", "mango"}
 ```
 
-**Comparison Table: List vs Set**
+**Comparison Table: List vs Tuple vs Set**
 
-| Aspect | List | Set |
-|---|---|---|
-| Allows duplicates | Yes | **No** — duplicates are dropped automatically |
-| Preserves insertion order | Yes | **No** — order is not guaranteed |
-| Indexing / slicing | Yes (`my_list[0]`) | **No** — not subscriptable |
-| Membership check (`in`) speed | Slower as the list grows (scans from the start) | **Fast** — roughly constant time via hashing |
-| Written with | `[ ]` | `{ }` or `set()` |
-| Typical use case | Ordered data, data with intentional repeats | Uniqueness, membership checks, overlap between collections |
+| Aspect | List | Tuple | Set |
+|---|---|---|---|
+| Allows duplicates | Yes | Yes | **No** — duplicates are dropped automatically |
+| Preserves insertion order | Yes | Yes | **No** — order is not guaranteed |
+| Mutable | Yes | **No** — immutable | Yes, but its *elements* must each be immutable |
+| Indexing / slicing | Yes (`my_list[0]`) | Yes (`my_tuple[0]`) | **No** — not subscriptable |
+| Membership check (`in`) speed | Slower as the list grows (scans from the start) | Slower as the tuple grows (scans from the start) | **Fast** — roughly constant time via hashing |
+| Written with | `[ ]` | `( )` or just commas | `{ }` or `set()` |
+| Typical use case | Ordered data, data with intentional repeats | A fixed, related group of values that should never change | Uniqueness, membership checks, overlap between collections |
 
-### 3.2 Why This Concept Exists
+### 3.2 Why Uniqueness Matters
 
 Without a dedicated data structure for uniqueness, a programmer would have to write a manual check every single time duplicates mattered:
 
@@ -534,9 +535,17 @@ Lower-casing every name before building each set ensures that `"Meera Iyer"` and
 
 ### Important Notes (Interview Insights)
 
-- A common fresher interview question: *"Why are sets unordered and unindexed?"* A set is built on a **hash table**, the same idea a dictionary uses internally. Elements are stored at positions computed from their hash value, not in the order you typed them, so there is no meaningful "first" or "second" element to index — that is the trade-off a set makes in exchange for very fast membership testing.
-- Another common question: *"When would you use a set instead of a list for de-duplication?"* Answer: whenever the collection is large or membership will be checked repeatedly. Removing duplicates via `list(set(data))` is a single readable line, and checking membership against a set stays fast (roughly constant time) even as the set grows, while checking membership against a list gets slower as the list grows, because Python has to scan it from the start each time.
-- Be ready to state clearly: **a set trades order and duplicates for speed and uniqueness** — that trade-off is the entire reason the data structure exists.
+**Q: "Why are sets unordered and unindexed?"**
+
+A set is built on a **hash table**, the same idea a dictionary uses internally. Elements are stored at positions computed from their hash value, not in the order you typed them, so there is no meaningful "first" or "second" element to index — that is the trade-off a set makes in exchange for very fast membership testing.
+
+**Q: "When would you use a set instead of a list for de-duplication?"**
+
+Whenever the collection is large or membership will be checked repeatedly. Removing duplicates via `list(set(data))` is a single readable line, and checking membership against a set stays fast (roughly constant time) even as the set grows, while checking membership against a list gets slower as the list grows, because Python has to scan it from the start each time.
+
+**Q: "What's the fundamental trade-off a set makes?"**
+
+A set trades order and duplicates for speed and uniqueness — that trade-off is the entire reason the data structure exists.
 
 ---
 
@@ -551,7 +560,7 @@ Lower-casing every name before building each set ensures that `"Meera Iyer"` and
 - A set only ever compares values exactly as they are — normalize data (same case, same spacing) yourself before relying on a set to catch "obvious" duplicates.
 - Choose a **list** for ordered or position-based data with intentional duplicates; choose a **set** for uniqueness, fast membership checks, and comparing overlap between collections.
 
-Coming next: Unit 3.4 — Dictionaries, a structure that pairs every value with its own key instead of just a position or a bare presence check.
+Coming next: Dictionaries, a structure that pairs every value with its own key instead of just a position or a bare presence check.
 
 ---
 

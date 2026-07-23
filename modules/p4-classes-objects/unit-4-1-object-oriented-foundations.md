@@ -2,7 +2,7 @@
 
 ---
 
-[← Previous: 3.5 Iterators, Generators & Collections](../p3-data-structures/unit-3-5-iterators-generators-collections.md) | [Go back to TOC](../../README.md) | [Next: 4.2 The Four Pillars of OOP →](unit-4-2-inheritance-encapsulation.md)
+[← Previous: 3.5 Iterators, Generators & Collections](../p3-data-structures/unit-3-5-iterators-generators-collections.md) | [Go back to TOC](../../README.md) | [Next: 4.2 The Four Pillars of OOP →](unit-4-2-the-four-pillars-of-oop.md)
 
 ## 1. Learning Objectives
 
@@ -71,7 +71,7 @@ Output:
 <class '__main__.Student'>
 ```
 
-`class Student:` defines the blueprint (`pass` means "no body yet — deliberately left empty"). `Student()` creates one object from that blueprint, and `type()` confirms the object belongs to the `Student` class — the same `type()` function you have used since Unit 1.2 to inspect `int`, `str`, and every other value's type.
+`class Student:` defines the blueprint (`pass` means "no body yet — deliberately left empty"). `Student()` creates one object from that blueprint, and `type()` confirms the object belongs to the `Student` class — the same `type()` function you have used since your introduction to variables and types to inspect `int`, `str`, and every other value's type.
 
 ### 3.2 Why This Concept Exists
 
@@ -485,10 +485,21 @@ Priya Nair's account at First National: Rs.570
 
 ### Important Notes (Interview Insights)
 
-- *"What is the difference between a class and an object?"* is one of the most frequently asked entry-level interview questions. Answer with the blueprint analogy: a class is the plan (e.g., the architectural drawing of a house); an object is one specific thing built from that plan (an actual house, with its own address and its own residents). You can build many houses from one drawing, each independent of the others — exactly like many objects from one class.
-- Be ready to explain `self` in your own words, since it confuses nearly every fresher at first. `self` is simply the parameter that receives the object a method was called on — `account.deposit(100)` is quietly rewritten by Python into `BankAccount.deposit(account, 100)`, so `self` inside the method body always means "this particular object."
-- Interviewers may also ask when to use a class attribute versus an instance attribute — answer that class attributes are for values shared by every instance, while instance attributes, set through `self` inside `__init__`, are for values that differ per object, which in practice is almost everything you model.
-- You will meet naming conventions that hint at "this attribute is meant to stay internal to the class" (a leading underscore, like `_balance`) in Unit 4.2 — The Four Pillars of OOP. For now, every attribute you write is openly accessible from outside the class.
+**Q: "What is the difference between a class and an object?"**
+
+This is one of the most frequently asked entry-level interview questions. Answer with the blueprint analogy: a class is the plan (e.g., the architectural drawing of a house); an object is one specific thing built from that plan (an actual house, with its own address and its own residents). You can build many houses from one drawing, each independent of the others — exactly like many objects from one class.
+
+**Q: "What is `self`, in plain terms?"**
+
+It confuses nearly every fresher at first, so it's worth being able to explain in your own words. `self` is simply the parameter that receives the object a method was called on — `account.deposit(100)` is quietly rewritten by Python into `BankAccount.deposit(account, 100)`, so `self` inside the method body always means "this particular object."
+
+**Q: "When should you use a class attribute versus an instance attribute?"**
+
+Class attributes are for values shared by every instance, while instance attributes, set through `self` inside `__init__`, are for values that differ per object, which in practice is almost everything you model.
+
+**Q: "Are attributes hidden or private in Python by default?"**
+
+Not at this stage — every attribute you write here is openly accessible from outside the class. You will meet naming conventions that hint at "this attribute is meant to stay internal to the class" (a leading underscore, like `_balance`) in the next unit, on the four pillars of OOP.
 
 ---
 
@@ -503,7 +514,7 @@ Priya Nair's account at First National: Rs.570
 - The most common beginner mistake is forgetting `self` as a method's first parameter, which produces a confusing `TypeError` about argument counts rather than an obvious complaint about `self`.
 - Being able to clearly explain the difference between a class and an object — and what `self` actually does — is one of the most frequently asked entry-level Python interview questions.
 
-Coming next: the four pillars of OOP — encapsulation, abstraction, inheritance, and polymorphism — starting with extending one class's behaviour into another and controlling which parts of an object stay hidden from outside code (Unit 4.2 — The Four Pillars of OOP).
+Coming next: the four pillars of OOP — encapsulation, abstraction, inheritance, and polymorphism — starting with extending one class's behaviour into another and controlling which parts of an object stay hidden from outside code.
 
 ---
 
@@ -514,7 +525,7 @@ Coming next: the four pillars of OOP — encapsulation, abstraction, inheritance
 - [Real Python — Object-Oriented Programming (OOP) in Python 3](https://realpython.com/python3-object-oriented-programming/)
 - [W3Schools — Python Classes/Objects](https://www.w3schools.com/python/python_classes.asp)
 
-[← Previous: 3.5 Iterators, Generators & Collections](../p3-data-structures/unit-3-5-iterators-generators-collections.md) | [Go back to TOC](../../README.md) | [Next: 4.2 The Four Pillars of OOP →](unit-4-2-inheritance-encapsulation.md)
+[← Previous: 3.5 Iterators, Generators & Collections](../p3-data-structures/unit-3-5-iterators-generators-collections.md) | [Go back to TOC](../../README.md) | [Next: 4.2 The Four Pillars of OOP →](unit-4-2-the-four-pillars-of-oop.md)
 
 ---
 

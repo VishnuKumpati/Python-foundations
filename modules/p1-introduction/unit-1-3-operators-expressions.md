@@ -19,7 +19,7 @@ By the end of this unit, you will be able to:
 
 ## 2. Overview
 
-In Unit 1.2 you learned to name a value and check its type with `type()`. But a program that only stores values doesn't actually *do* anything with them. The moment you want to add a delivery charge to a cart total, check whether a UPI amount is within a daily limit, or decide whether a customer qualifies for a discount, you need an **operator** — a symbol or short keyword that combines one or more values into a new value. Put values, variables, and operators together into something Python can evaluate down to a single result, and you have written an **expression**.
+Working with variables and types, you learned to name a value and check its type with `type()`. But a program that only stores values doesn't actually *do* anything with them. The moment you want to add a delivery charge to a cart total, check whether a UPI amount is within a daily limit, or decide whether a customer qualifies for a discount, you need an **operator** — a symbol or short keyword that combines one or more values into a new value. Put values, variables, and operators together into something Python can evaluate down to a single result, and you have written an **expression**.
 
 This unit covers four operator families and one supporting idea that you will use in almost every Python program you ever write: **arithmetic operators** (for calculations), **operator precedence** (which operator runs first), **comparison operators** (for asking true/false questions about values), **logical operators** (for combining those questions), and **truthiness** (how Python judges *any* value as true-ish or false-ish). In the Indian IT industry, these five ideas sit underneath everything from a food delivery app calculating your bill, to a banking system validating a transaction, to an e-commerce site deciding whether you qualify for free shipping. Every comparison and logical expression you write here produces a `bool` — and those booleans are exactly what will drive the decisions your programs make once you reach conditional statements in the next part of this course.
 
@@ -98,7 +98,7 @@ Arithmetic, comparison, and logical operators, together with the rules that gove
 
 | Aspect | `=` (Assignment) | `==` (Equality Comparison) |
 |---|---|---|
-| Purpose | Binds a name to a value (from Unit 1.2) | Asks whether two values are equal |
+| Purpose | Binds a name to a value | Asks whether two values are equal |
 | Result | No result value — it performs an action | Always produces a `bool`: `True` or `False` |
 | Example | `x = 5` — stores `5` in `x` | `x == 5` — asks "does `x` currently equal `5`?" |
 | Where it's used | Only in a statement, to create or update a variable | Inside any expression — conditions, print statements, calculations |
@@ -414,11 +414,25 @@ Discount eligible: True
 
 ### Important Notes (Interview Insights)
 
-- A very common fresher interview question: *"What is the difference between `/` and `//` in Python?"* Answer confidently: `/` is true division and always returns a `float`; `//` is floor division and rounds down toward negative infinity, returning an `int` when both operands are `int`.
-- Interviewers often ask you to evaluate an expression on paper, such as `2 + 3 * 4` or `-2 ** 2`, purely to check whether you understand operator precedence rather than reading left to right.
-- Be ready to explain **short-circuit evaluation** in your own words — it is a favourite question because it tests whether you understand *why* `False and expensive_function()` never actually calls that function.
-- Interviewers frequently ask what values are "falsy" in Python — the confident answer is the fixed list: `False`, `0`, `0.0`, and `""`; everything else is truthy (and later in the course, empty collections like an empty list or dictionary join this falsy list too).
-- Knowing the difference between `=` (assignment) and `==` (comparison) sounds trivial, but interviewers use it to filter out candidates who have only memorized syntax without understanding what each operator actually does.
+**Q: "What is the difference between `/` and `//` in Python?"**
+
+`/` is true division and always returns a `float`; `//` is floor division and rounds down toward negative infinity, returning an `int` when both operands are `int`.
+
+**Q: "Can you evaluate `2 + 3 * 4` or `-2 ** 2` on paper?"**
+
+Interviewers often ask you to evaluate an expression like this purely to check whether you understand operator precedence rather than reading left to right.
+
+**Q: "What is short-circuit evaluation?"**
+
+Be ready to explain it in your own words — it is a favourite question because it tests whether you understand *why* `False and expensive_function()` never actually calls that function.
+
+**Q: "What values are considered 'falsy' in Python?"**
+
+The confident answer is the fixed list: `False`, `0`, `0.0`, and `""`; everything else is truthy (and later in the course, empty collections like an empty list or dictionary join this falsy list too).
+
+**Q: "What is the difference between `=` and `==`?"**
+
+`=` is assignment and `==` is comparison. This sounds trivial, but interviewers use it to filter out candidates who have only memorized syntax without understanding what each operator actually does.
 
 ---
 
@@ -433,7 +447,7 @@ Discount eligible: True
 - **Truthiness** means every value acts as true or false in a logical context — `False`, `0`, `0.0`, and `""` are falsy; everything else is truthy.
 - Being ready to explain operator precedence, short-circuit evaluation, and truthiness in your own words is common ground for entry-level Python interview questions.
 
-Coming next: statements, type conversion, and formatted output — how to take the values and conditions from this unit and shape them into readable, well-presented results (Unit 1.4 — Statements, Conversion & Output).
+Coming next: statements, type conversion, and formatted output — how to take the values and conditions from this unit and shape them into readable, well-presented results.
 
 ---
 

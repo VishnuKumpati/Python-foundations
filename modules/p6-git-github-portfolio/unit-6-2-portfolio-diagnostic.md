@@ -8,12 +8,12 @@
 
 By the end of this unit, you will be able to:
 
-- **Explain** what a portfolio repository is and why it is different from the disposable practice repos you created in Unit 6.1.
+- **Explain** what a portfolio repository is and why it is different from the disposable practice repos you created while learning version control.
 - **Describe** what the end-of-Part-A diagnostic checks and why it exists as a gate before Part B.
 - **Create** a permanent, public GitHub repository to hold your work for the rest of the programme.
 - **Implement** a clear folder structure and a README that a stranger can understand in under a minute.
 - **Differentiate** between a messy, disorganized repository and a well-organized one, using specific, checkable criteria.
-- **Apply** the commit discipline from Unit 6.1 to build a commit history that itself acts as evidence of consistent work.
+- **Apply** the commit discipline from Version Control Basics to build a commit history that itself acts as evidence of consistent work.
 
 ---
 
@@ -108,7 +108,7 @@ flowchart TD
 The Part A diagnostic itself is intentionally narrow in what it demands — but what it demands, it demands exactly:
 
 - The submission must be **working code**, committed to your portfolio repository, that runs without errors on the sample input provided.
-- It must demonstrate **one Python skill** from Part A (such as reading a file and computing a summary) and **one Git skill** from Unit 6.1 (such as committing and pushing that result) — together, not in isolation.
+- It must demonstrate **one Python skill** from Part A (such as reading a file and computing a summary) and **one Git skill** from Version Control Basics (such as committing and pushing that result) — together, not in isolation.
 - The commit must be **pushed to a public repository** your instructor can open and review directly on GitHub — a local-only commit or a private repo cannot be reviewed.
 - **Sign-off** happens only after your instructor reviews the actual commit — not a description of it, not a screenshot, the real code in the real repository.
 
@@ -116,7 +116,7 @@ The Part A diagnostic itself is intentionally narrow in what it demands — but 
 
 - Write a clear, specific top-level **README** — who you are, what this repository collects, and a short index of what is inside. Avoid vague, generic openings that could describe anyone's repository.
 - Organize projects **logically**, one folder per project, named for its contents rather than a date or a vague label like `misc` or `week4`.
-- Keep your **commit history** meaningful, exactly as you practised in Unit 6.1 — commit messages that say what changed and why, not `update` or `final final v2`.
+- Keep your **commit history** meaningful, exactly as you practised in Version Control Basics — commit messages that say what changed and why, not `update` or `final final v2`.
 - Update the portfolio **regularly** as you complete new work, rather than doing one large dump at the end — a steady commit history is itself evidence of consistent effort.
 - Keep the repository **public** from the very start. A private repository cannot be reviewed by an instructor or shown to a recruiter later.
 
@@ -246,8 +246,8 @@ Create the repository once, write a specific and honest README, move your best p
 ### Step 3: Walk Through the Concrete Steps
 
 1. On GitHub, click **New repository**. Name it something like `yourname-ai-native-portfolio`.
-2. Set visibility to **Public**, exactly as you practised in Unit 6.1 — a private repository cannot be reviewed by an instructor or shown to a recruiter later.
-3. Click **Create repository**, then create a `README.md` file directly on GitHub (or clone the repo locally and add it there, using the clone/commit/push workflow from Unit 6.1).
+2. Set visibility to **Public**, exactly as you practised in Version Control Basics — a private repository cannot be reviewed by an instructor or shown to a recruiter later.
+3. Click **Create repository**, then create a `README.md` file directly on GitHub (or clone the repo locally and add it there, using the clone/commit/push workflow from Version Control Basics).
 4. Write a first draft of the README with a title, a one-line description, and a short "What's Inside" list.
 5. Create one folder per project you want to showcase, named for its contents — `csv_summary_tool/`, not `week5` — and move your strongest Part A work into each, committing after each move rather than in one giant commit.
 6. Create a `diagnostics/` folder and add a short script, `part-a-diagnostic.py`, that reads a CSV of sample data and prints a summary (for example, row count and basic statistics), skipping or flagging malformed rows instead of crashing.
@@ -256,7 +256,7 @@ Create the repository once, write a specific and honest README, move your best p
 
 ### Step 4: Explain Each Step
 
-- Steps 1-3 create the permanent repository and its first, visible entry point — the README — using the exact GitHub workflow from Unit 6.1.
+- Steps 1-3 create the permanent repository and its first, visible entry point — the README — using the exact GitHub workflow from Version Control Basics.
 - Step 4 applies the README structure from §3.8: a clear title, a one-line description, and an index of contents, so a visitor understands the repository within seconds.
 - Step 5 applies the folder-structure guidance from §3.4 and §3.6 — one project per folder, named for its contents, moved and committed incrementally so the commit history itself shows steady progress.
 - Steps 6-7 produce the actual diagnostic submission described in §3.5 — a small script combining a Python skill (reading and summarizing data) with a Git skill (commit and push).
@@ -289,15 +289,23 @@ This result is the tangible proof that everything taught across Part A — varia
 
 ### Important Notes (Interview Insights)
 
-- Recruiters and interviewers at Indian IT companies — from large service firms to product startups — routinely check a candidate's GitHub profile before or during screening, especially for freshers with limited work history. A clean, well-documented portfolio is one of the few concrete differentiators a fresher can control.
-- Be ready to explain, in an interview, *what* is in your portfolio and *why* — an interviewer may click into a project and ask you to walk through it live. A repository you cannot explain is worse than no repository at all.
-- Commit history is often checked as evidence of genuine, sustained effort rather than a single last-minute upload — a portfolio built up gradually, over many small commits, reads as more credible than one created in a single sitting the night before an interview.
+**Q: "Do recruiters actually check a candidate's GitHub profile?"**
+
+Recruiters and interviewers at Indian IT companies — from large service firms to product startups — routinely check a candidate's GitHub profile before or during screening, especially for freshers with limited work history. A clean, well-documented portfolio is one of the few concrete differentiators a fresher can control.
+
+**Q: "What should you be ready to explain about your own portfolio in an interview?"**
+
+Be ready to explain *what* is in your portfolio and *why* — an interviewer may click into a project and ask you to walk through it live. A repository you cannot explain is worse than no repository at all.
+
+**Q: "Why does commit history matter to an interviewer?"**
+
+It is often checked as evidence of genuine, sustained effort rather than a single last-minute upload — a portfolio built up gradually, over many small commits, reads as more credible than one created in a single sitting the night before an interview.
 
 ---
 
 ## 6. Key Takeaways
 
-- A **portfolio repository** is created once and grows for the entire programme, unlike the disposable per-assignment repos from Unit 6.1.
+- A **portfolio repository** is created once and grows for the entire programme, unlike the disposable per-assignment repos from Version Control Basics.
 - A **README** is usually the first — and sometimes only — thing a reader opens; a specific, well-structured one is far more effective than a generic placeholder.
 - **Folder structure** should let a reader predict where something lives from the folder name alone, without opening every file.
 - The **Part A diagnostic** combines one Python skill and one Git skill in a small, deliberately easy task — it exists only to confirm readiness, not to teach anything new.

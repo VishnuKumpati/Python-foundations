@@ -166,7 +166,7 @@ match subject:
 - In chained assignment (`a = b = 5`) and tuple unpacking (`x, y = 1, 2`), the number of names and the number of values on each side must correspond correctly, or Python raises an error.
 - `int()` **truncates** toward zero when converting a float — it does not round: `int(3.9)` is `3`, and `int(-3.9)` is `-3`.
 - `int("3.14")` raises `ValueError` — a string must look like a whole number to convert to `int`; use `float()` first if the text has a decimal point.
-- `bool()` follows the truthiness rules from Unit 1.3: `0`, `0.0`, and `""` convert to `False`; almost everything else converts to `True`.
+- `bool()` follows the truthiness rules from operators and expressions: `0`, `0.0`, and `""` convert to `False`; almost everything else converts to `True`.
 - Strings must be **explicitly converted** before being combined with numbers — `"5" + 3` raises `TypeError`, but `int("5") + 3` works.
 - An f-string's `{}` can hold *any* expression, including arithmetic and comparisons, not just a bare variable name.
 - A type hint is **not enforced** at runtime — Python will still let you assign a `str` to a variable hinted as `int`; hints exist for humans and tooling (editors, type checkers).
@@ -240,7 +240,7 @@ price_text: str = "15.0"     # price as it would arrive from the canteen's order
 quantity: int = 3             # the same quantity converted in Step 1
 
 price = float(price_text)     # convert text -> float
-total = price * quantity      # arithmetic from Unit 1.3
+total = price * quantity      # ordinary arithmetic, same as before
 
 print(f"{item:>10}: {quantity:d} x Rs.{price:.2f} = Rs.{total:.2f}")
 ```
@@ -365,7 +365,7 @@ You need to take a text-shaped price, convert it into a usable number, multiply 
 
 ### Step 2: Plan the Solution
 
-First, store the given values, using a type hint where it helps document intent. Convert the text price to a `float`. Compute the total with ordinary multiplication (Unit 1.3). Build the receipt line with an f-string, using format specifiers for alignment and precision. Finally, write a `match`/`case` block covering the expected order statuses plus a wildcard for anything unexpected.
+First, store the given values, using a type hint where it helps document intent. Convert the text price to a `float`. Compute the total with ordinary multiplication. Build the receipt line with an f-string, using format specifiers for alignment and precision. Finally, write a `match`/`case` block covering the expected order statuses plus a wildcard for anything unexpected.
 
 ### Step 3: Write the Python Code
 
@@ -398,7 +398,7 @@ match order_status:
 - `quantity: int = 2` — a type-hinted `int`, no conversion needed.
 - `order_status = "OUT_FOR_DELIVERY"` — one of a fixed set of status values a delivery app would send.
 - `price = float(price_text)` — explicit conversion; without it, `price_text * quantity` would produce repeated text, not multiplication.
-- `total = price * quantity` — ordinary arithmetic (Unit 1.3), now safe because `price` is a `float`.
+- `total = price * quantity` — ordinary arithmetic, now safe because `price` is a `float`.
 - The f-string prints four pieces: `{item:>18}` right-aligns the item name in an 18-character field, `{quantity:d}` shows the count as a plain integer, and `{price:.2f}` / `{total:.2f}` pin both money values to two decimal places.
 - `match order_status:` compares the status against each `case` top to bottom; `"OUT_FOR_DELIVERY"` matches the second case, so that block runs and the rest — including `case _:` — are skipped.
 
@@ -423,9 +423,17 @@ The receipt line reflects every formatting choice made: `float(price_text)` turn
 
 ### Important Notes (Interview Insights)
 
-- A common fresher interview question: *"What's the difference between implicit and explicit type conversion?"* Be ready to explain that Python performs a small amount of **implicit conversion** automatically (e.g. `3 + 4.0` becomes `7.0`, promoting the `int` to `float`), but never converts between unrelated types like `str` and `int` on its own — that always requires **explicit conversion** using `int()`, `float()`, `str()`, or `bool()`.
-- Interviewers often ask why `int("3.14")` fails but `int(3.14)` works — the answer demonstrates that you understand `int()` parses digit-only text but truncates numeric values, which are two different code paths inside the same function.
-- Knowing that `match`/`case` (introduced in Python 3.10 via PEP 634) exists and recognizing its basic shape is increasingly expected, even at entry level, since modern Python codebases use it in place of long `if`/`elif` chains.
+**Q: "What's the difference between implicit and explicit type conversion?"**
+
+Python performs a small amount of **implicit conversion** automatically (e.g. `3 + 4.0` becomes `7.0`, promoting the `int` to `float`), but never converts between unrelated types like `str` and `int` on its own — that always requires **explicit conversion** using `int()`, `float()`, `str()`, or `bool()`.
+
+**Q: "Why does `int(\"3.14\")` fail but `int(3.14)` work?"**
+
+The answer demonstrates that you understand `int()` parses digit-only text but truncates numeric values, which are two different code paths inside the same function.
+
+**Q: "Do you know what `match`/`case` is?"**
+
+Knowing that `match`/`case` (introduced in Python 3.10 via PEP 634) exists and recognizing its basic shape is increasingly expected, even at entry level, since modern Python codebases use it in place of long `if`/`elif` chains.
 
 ---
 
@@ -440,7 +448,7 @@ The receipt line reflects every formatting choice made: `float(price_text)` turn
 - **Comments** (`#`) are ignored by Python and exist to explain *why*, not *what*; PEP 8 basics — spacing, one statement per line, blank lines between sections — keep code readable across a team.
 - A recurring interview theme: implicit conversion happens automatically between numeric types, but explicit conversion is always required to bridge `str` and numeric types.
 
-Coming next: Unit 2.1 — Conditionals, where your programs make their first real decisions using `if`, `elif`, and `else`.
+Coming next: conditionals, where your programs make their first real decisions using `if`, `elif`, and `else`.
 
 ---
 

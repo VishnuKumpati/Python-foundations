@@ -313,10 +313,21 @@ Each commit is a permanent, independent snapshot — committing again never eras
 
 ### Important Notes (Interview Insights)
 
-- Git and GitHub are near-universal expectations for any developer role today, regardless of the company or the stack — expect at least one interview question that assumes you already use them daily.
-- Be ready to clearly explain the difference between Git and GitHub in your own words — this is one of the most common fresher interview questions in this area, and confusing the two is an immediate red flag to an interviewer.
-- Be ready to describe your own commit habits — for example, "I commit each time a small, working piece of a feature is done, and I write a message describing what changed and why" is a strong, concrete answer.
-- Interviewers sometimes ask what a **pull request** is, even at fresher level: it is a proposed set of changes on GitHub, submitted for review before being merged into the main project — you will not create one in this unit, but knowing the term is expected.
+**Q: "How important is Git/GitHub knowledge in developer interviews?"**
+
+Git and GitHub are near-universal expectations for any developer role today, regardless of the company or the stack — expect at least one interview question that assumes you already use them daily.
+
+**Q: "What's the difference between Git and GitHub?"**
+
+Be ready to clearly explain it in your own words — this is one of the most common fresher interview questions in this area, and confusing the two is an immediate red flag to an interviewer.
+
+**Q: "Can you describe your own commit habits?"**
+
+Be ready with a concrete answer — for example, "I commit each time a small, working piece of a feature is done, and I write a message describing what changed and why."
+
+**Q: "What is a pull request?"**
+
+Interviewers sometimes ask this even at fresher level: it is a proposed set of changes on GitHub, submitted for review before being merged into the main project — you will not create one in this unit, but knowing the term is expected.
 
 ---
 
@@ -331,7 +342,7 @@ Each commit is a permanent, independent snapshot — committing again never eras
 - Never commit **secrets** — passwords, API keys, and tokens must stay out of a repository's permanent history.
 - A clear **README** and a thoughtful `.gitignore` are what separate a professional repository from one nobody, including its own author, can make sense of later.
 
-Coming next: Unit 6.2 — Portfolio & Diagnostic, where everything you have built across Modules P1 to P6 comes together.
+Coming next: Portfolio & Diagnostic, where everything you have built across this course comes together.
 
 ---
 
