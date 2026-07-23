@@ -71,7 +71,7 @@ A list solves this with one mechanism: hold any number of values, of any type, u
 | **Alias** | A second variable name that refers to the exact same list in memory, not an independent copy. |
 | **`IndexError`** | The error Python raises when you access an index that does not exist in the list. |
 
-### 3.4 **List literal**, Indexing , Slicing
+### 3.4 List Literals, Indexing & Slicing (and How Lists Differ from Arrays)
 
 **List literal:**
 
@@ -165,7 +165,7 @@ To get an independent list, use a full slice (`b = a[:]`) or the `copy()` method
 
 ### 3.6 List Methods
 
-Lists carry built-in **methods** — functions attached to the list object, invoked with dot syntax: `my_list.method(...)`. The everyday set falls into three groups.
+Lists carry built-in **methods** — functions attached to the list object, invoked with dot syntax: `my_list.method(...)`. The everyday set falls into four groups.
 
 **Methods that add elements:**
 
@@ -184,15 +184,24 @@ Lists carry built-in **methods** — functions attached to the list object, invo
 - `index(x)` — returns the index of the first element equal to `x` (raises `ValueError` if not found).
 - `count(x)` — returns how many times `x` appears in the list.
 
+**Method that reorders elements:**
+
+- `reverse()` — reverses the list **in place**, permanently flipping the order of every element; unlike `sort()`, it does not compare values, so it works even on a list Python couldn't otherwise sort.
+
+**Method that copies the list:**
+
+- `copy()` — returns a new, independent **shallow copy** of the list, equivalent to the full slice `a[:]`; changing the copy does not affect the original (though, for a *nested* list, the inner lists are still shared — see §3.5 Mutability).
+
 ```python
 nums = [1, 2, 3]
 nums.append(4)         # [1, 2, 3, 4]
 nums.insert(0, 99)     # [99, 1, 2, 3, 4]
 nums.extend([5, 6])    # [99, 1, 2, 3, 4, 5, 6]
 last = nums.pop()      # last = 6, nums = [99, 1, 2, 3, 4, 5]
+nums.reverse()          # nums = [5, 4, 3, 2, 1, 99]
 ```
 
-Notice the difference between `append` and `extend`: `nums.append([5, 6])` adds the list `[5, 6]` as **one** nested element, whereas `nums.extend([5, 6])` unpacks it and adds `5` and `6` as two separate elements. All of `append`, `insert`, `extend`, `remove`, `pop`, and `clear` change the list *in place* — this is mutability at work — while `index` and `count` only read from the list and never change it.
+Notice the difference between `append` and `extend`: `nums.append([5, 6])` adds the list `[5, 6]` as **one** nested element, whereas `nums.extend([5, 6])` unpacks it and adds `5` and `6` as two separate elements. All of `append`, `insert`, `extend`, `remove`, `pop`, `clear`, and `reverse` change the list *in place* — this is mutability at work — while `index` and `count` only read from the list and never change it.
 
 ### 3.7 Sorting: `sort()` vs. `sorted()`
 
@@ -278,7 +287,7 @@ Reading this line by line: `for n in nums` walks through `1, 2, 3, 4, 5, 6` one 
 - A **slice** (`start:stop:step`) never raises an `IndexError` even if `start` or `stop` is out of range — Python simply clamps to the available elements, and an empty range produces an empty list `[]`.
 - `stop` in a slice is always **excluded** — `a[1:5]` gives you indices `1, 2, 3, 4`, not `5`.
 - Lists are **mutable**; assigning a list to a new name creates an **alias**, not a copy — use `.copy()` or a full slice `[:]` for an independent list.
-- Methods that change a list (`append`, `insert`, `extend`, `remove`, `pop`, `clear`, `sort`) act **in place** and typically return `None`; do not assign their result back to the list.
+- Methods that change a list (`append`, `insert`, `extend`, `remove`, `pop`, `clear`, `sort`, `reverse`) act **in place** and typically return `None`; do not assign their result back to the list.
 - `sorted()` and slicing always return a **new** list and never modify the argument they were given.
 - Never add or remove elements from a list while a `for` loop is directly iterating over it — doing so can skip elements or raise errors (see §3.12).
 

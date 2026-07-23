@@ -37,15 +37,7 @@ A **generator** is a special, lazy kind of iterator: instead of holding all its 
 
 The **`collections` module** is a part of Python's standard library that ships ready-to-use, purpose-built versions of `dict` and `tuple` for patterns that come up constantly in real programs: **`Counter`** (tallying), **`defaultdict`** (grouping and counting without key errors), and **`namedtuple`** (tuples with readable, named fields).
 
-### 3.2 Why This Concept Exists
-
-Without a single uniform protocol, Python's `for` loop would need separate, special-cased logic for walking a list, a different kind of logic for a set, another for a dictionary, and yet another for a file opened on disk. Instead, Python designed one small contract — "give me an iterator, then let me call `next()` on it until it tells me to stop" — and made every loopable object honor that same contract. Learn the contract once, and it explains *every* `for` loop you will ever write, over *any* type, forever.
-
-Generators exist to solve a very practical problem: sometimes the full set of values you need is too large to fit comfortably in memory, or is not even fully known yet (a live sensor feed, an infinite counter, a huge log file). A generator produces "the next value, computed just now" instead of "the entire list, computed and stored in advance" — which is often the only way to make a program work at all, not just work faster.
-
-The `collections` module exists because three patterns are so common that Python's core team decided they deserved dedicated, well-tested tools rather than leaving every developer to hand-write the same few lines of counting and grouping logic — and to get them subtly wrong — over and over again.
-
-### 3.3 Key Terminology
+### 3.2 Key Terminology
 
 | Term | Simple Meaning |
 |---|---|
@@ -65,7 +57,7 @@ The `collections` module exists because three patterns are so common that Python
 | **Factory function** | The function you hand to `defaultdict` (commonly `list` or `int`) that produces the default value for a brand-new key. |
 | **`namedtuple`** | A function, from `collections`, that builds a tuple subclass whose positions also have readable field names. |
 
-### 3.4 Syntax
+### 3.3 Syntax
 
 **Getting an iterator with `iter()`:**
 
@@ -239,7 +231,7 @@ flowchart TD
     S5 --> S6["No yield left to reach<br/>→ StopIteration raised"]
 ```
 
-### 3.5 Rules
+### 3.4 Rules
 
 **Iterator and generator rules:**
 
@@ -249,13 +241,7 @@ flowchart TD
 - An iterator is itself iterable — calling `iter()` on an iterator returns that same iterator unchanged — which is why you can place an iterator directly inside a `for` loop.
 - A **generator is a special case of an iterator**, so everything above applies to it too: it can only be walked through once from start to finish.
 
-**`collections` module rules:**
-
-- `Counter` is a `dict` subclass: looking up a key that never appeared returns `0`, never `KeyError`.
-- `defaultdict` requires a **factory function** (a callable with no arguments, such as `list` or `int`) at creation time; that factory is called automatically the first time a new key is used.
-- `namedtuple` objects remain true tuples: they are **immutable** (you cannot reassign a field after creation), they can be unpacked (`name, marks = student`), and they support indexing (`student[0]`) in addition to named access (`student.name`).
-
-### 3.6 Best Practices
+### 3.5 Best Practices
 
 - Reach for **`Counter`** the moment you catch yourself writing `counts[key] = counts.get(key, 0) + 1` in a loop — it is the same result in one line, and it comes with `most_common()` built in.
 - Reach for **`defaultdict(list)`** whenever you are grouping items under keys, replacing the clunkier `if key not in dict: dict[key] = []` check every single time.
@@ -264,7 +250,7 @@ flowchart TD
 - Reach for **`namedtuple`** the moment a plain tuple's meaning depends on remembering "position 0 is the name, position 1 is the marks" — named access removes that guesswork for every future reader of the code.
 - If you genuinely need to reuse a generator's values more than once, materialize them explicitly with `list(...)` the first time, or call the generator function again to get a fresh one.
 
-### 3.7 Common Mistakes
+### 3.6 Common Mistakes
 
 - **Treating `StopIteration` as a bug to catch and suppress everywhere** — it is the *normal*, expected termination signal that a `for` loop already handles for you silently; you only see it directly when calling `next()` manually.
 - **Assuming `next()` on an exhausted iterator will restart it** — it will not; you must call `iter()` again on the original iterable to get a fresh iterator.
@@ -272,7 +258,7 @@ flowchart TD
 - **Creating a `defaultdict` without a factory function, or with the wrong one** — `defaultdict()` with no argument behaves like a plain `dict` and still raises `KeyError`; passing `0` instead of `int` raises a `TypeError`, because the factory must be callable.
 - **Trying to modify a `namedtuple` field like a list element** — `student.marks = 90` raises an `AttributeError`, because a `namedtuple`, like any tuple, is immutable.
 
-### 3.8 Code Examples
+### 3.7 Code Examples
 
 **Consolidated example** — running "Chennai Bites," a food-delivery app's order pipeline, from the raw iterator protocol all the way up to `Counter`, `defaultdict`, and `namedtuple`. One running scenario, built up step by step.
 

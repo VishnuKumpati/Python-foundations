@@ -19,9 +19,11 @@ By the end of this unit, you will be able to:
 
 ## 2. Overview
 
-Every unit so far has taught you a way to store *values*. A list stores values in order. A set stores values without duplicates. But think about how data actually looks in the software you use every day — your bank statement, your UPI payment history, your college mark sheet, a food delivery order. None of these are just "a bunch of values." Each one is a set of **labelled** values: a name paired with a roll number, an amount paired with a transaction ID, a course paired with a grade. Neither a list nor a set captures that idea of "this label points to this value" — and that gap is exactly what a **dictionary** fills.
+Think about your phone's contacts list. You don't save a friend's number by remembering "they are the 47th person I added" — you save it under their name, and later you just look up that name to get the number back. A name points to a number. That's the whole idea.
 
-A dictionary is Python's built-in way to store **key-value pairs** — where each key acts like a label you use to fetch its value, instead of remembering a numeric position. This is the closest data structure you have met so far to a real database record or a row in a spreadsheet, and it is also, not coincidentally, the exact shape that data takes when it travels over the internet as **JSON** — the format almost every web API, mobile app backend, and cloud service in the Indian IT industry uses to exchange information. Whether you go on to build a banking backend, a UPI payment gateway, an e-commerce catalog, or an AI/ML pipeline, you will be reading and writing dictionaries constantly.
+A **dictionary** is Python's way of storing exactly this kind of thing: pairs of `key: value`, where the key is like the name you search by, and the value is what you get back. A dictionary doesn't care about position or order the way a list does — it cares about labels. You ask "what's the value for this key?" and Python hands it back instantly, no matter how many entries you have.
+
+Once you notice this pattern, you'll start seeing it everywhere: a student's record (roll number → marks), a product in an online store (product ID → price), a bank account (account number → balance). It's also exactly the shape data takes when it travels between an app and a server as **JSON** — so getting comfortable with dictionaries now will make working with real APIs later much easier.
 
 This unit covers creating and accessing a dictionary, adding, modifying, and deleting entries, looping through it three different ways, sorting it, nesting dictionaries inside each other, the built-in functions and methods that make dictionaries convenient, and dictionary comprehensions.
 
@@ -40,6 +42,17 @@ student = {"name": "Ananya", "roll_no": 101, "marks": 87}
 ```
 
 Here, `"name"`, `"roll_no"`, and `"marks"` are keys, and `"Ananya"`, `101`, and `87` are their corresponding values. Together, `"name": "Ananya"` is one **key-value pair**.
+
+**Key-Value Mapping**
+
+```mermaid
+flowchart LR
+    K1["Key: 'name'"] --> V1["Value: 'Ananya'"]
+    K2["Key: 'roll_no'"] --> V2["Value: 101"]
+    K3["Key: 'marks'"] --> V3["Value: 87"]
+```
+
+Each key on the left points to exactly one value on the right — that arrow *is* the dictionary. Look up `"marks"` and you are handed `87` directly; there is no scanning involved.
 
 ### 3.2 Why This Concept Exists
 
@@ -78,7 +91,7 @@ Because so much real-world data — user profiles, product catalogs, API respons
 | **`.get()`** | A method that reads a key's value, returning a default (instead of raising an error) if the key is missing. |
 | **Hashable** | A property of a value that lets Python compute a fixed "fingerprint" for it, so it can be used as a dictionary key; immutable types are hashable, mutable ones (like `list`) are not. |
 
-### 3.4 Syntax
+### 3.4 Creating, Accessing, and Updating a Dictionary
 
 **Creating a dictionary:**
 
@@ -181,17 +194,6 @@ Output:
 
 By now you've met all three collection types, so it helps to place them side by side in plain terms. A **list** is written with `[ ]` and accessed by position (`lst[i]`) — it keeps whatever order you added items in, and happily allows duplicates. A **set** is written with `{ }` or `set()` and only supports membership checks (`in`), not access by position — it has no reliable order, and never allows duplicates. A **dictionary** is written with `{key: value}` and accessed by key (`d[key]`), not position — like a set, it never allows duplicate **keys**, but unlike a set, it does remember insertion order (since Python 3.7). Reach for a list for an ordered sequence of items, a set for unique items and fast membership tests, and a dictionary for labelled records, lookup tables, and counting.
 
-**Key-Value Mapping**
-
-```mermaid
-flowchart LR
-    K1["Key: 'name'"] --> V1["Value: 'Ananya'"]
-    K2["Key: 'roll_no'"] --> V2["Value: 101"]
-    K3["Key: 'marks'"] --> V3["Value: 87"]
-```
-
-Each key on the left points to exactly one value on the right — that arrow *is* the dictionary. Look up `"marks"` and you are handed `87` directly; there is no scanning involved.
-
 **A Nested Dictionary**
 
 ```mermaid
@@ -243,6 +245,7 @@ The outer dictionary's keys (`101`, `102`) are roll numbers; each value is itsel
 | `d.pop(key, default)` | Removes `key` and returns its value; returns `default` (or raises `KeyError`) if the key is missing. |
 | `d.popitem()` | Removes and returns the last-inserted key-value pair as a tuple. |
 | `d.clear()` | Removes every key-value pair, leaving an empty dictionary. |
+| `d.copy()` | Returns a new, independent **shallow copy** of `d` — changing the copy's top-level keys doesn't affect the original (though a nested value, like an inner list or dict, is still shared). |
 | `sorted(d)` / `sorted(d.items(), key=...)` | Returns a new, sorted **list** — of keys, or of pairs — without changing `d` itself. |
 
 `keys()`, `values()`, and `items()` each return a **view object**, not a plain list — a view stays "live" and reflects later changes to the dictionary; wrap it in `list(...)` if you need an actual, independent list.

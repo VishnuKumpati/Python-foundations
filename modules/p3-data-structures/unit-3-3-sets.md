@@ -172,26 +172,23 @@ Output:
 - `your_friends - classmate_friends` is the **difference** — friends you have that your classmate doesn't.
 - `your_friends ^ classmate_friends` is the **symmetric difference** — friends that belong to exactly one of you, not both.
 
-**Membership testing:**
+**In-place set operations:**
+
+Each of the four operations above also has a mutating counterpart — instead of returning a *new* set, it updates the set on the left directly:
+
+| Method | Equivalent to |
+|---|---|
+| `a.update(b)` | `a = a \| b` — but changes `a` in place instead of building a new set. |
+| `a.intersection_update(b)` | `a = a & b` — in place. |
+| `a.difference_update(b)` | `a = a - b` — in place. |
+| `a.symmetric_difference_update(b)` | `a = a ^ b` — in place. |
 
 ```python
-value in my_set
+your_friends.update(classmate_friends)
+print(your_friends)   # your_friends itself now holds the union — no new set was created
 ```
 
-Example:
-
-```python
-print("Aditi" in your_friends)
-print("Kabir" in your_friends)
-```
-
-Output:
-```
-True
-False
-```
-
-`in` simply asks "is this value present in the set?" and answers with `True` or `False`.
+Reach for the in-place form when you genuinely want to grow or shrink the existing set itself (for example, merging a new batch of friends into your own set as it arrives); reach for the operator form (`|`, `&`, `-`, `^`) when you want to keep both original sets untouched and work with a fresh result instead.
 
 ### 3.5 Rules
 
@@ -220,7 +217,7 @@ False
 - **Trying to put a mutable value (like a list) inside a set** — this raises `TypeError: unhashable type: 'list'`, since a set can only hold immutable, hashable elements.
 - **Using `remove()` on a value that might not exist.** This raises a `KeyError`. Use `discard()` when a missing value should simply be ignored.
 
-### 3.8 Membership Testing and Mutation
+### 3.8 Membership Testing, Mutation, and Comparison Methods
 
 **Membership testing** uses the same `in` operator you already know from lists and strings:
 
@@ -237,20 +234,29 @@ True
 False
 ```
 
-**Mutation** means changing a set's contents after it is created. Three methods handle this:
+**Mutation** means changing a set's contents after it is created:
 
 | Method | What it does | Behaviour on a missing/existing value |
 |---|---|---|
 | `add(value)` | Adds `value` to the set. | If `value` is already present, nothing changes — no error, no duplicate. |
 | `remove(value)` | Removes `value` from the set. | Raises `KeyError` if `value` is not present. |
 | `discard(value)` | Removes `value` from the set if present. | Does nothing if `value` is not present — no error. |
+| `pop()` | Removes and returns an arbitrary element from the set. | Raises `KeyError` if the set is already empty — there is no way to choose *which* element is removed, since a set has no order. |
+| `clear()` | Removes every element, leaving an empty set. | Works even if the set is already empty. |
+| `copy()` | Returns a new, independent set with the same elements. | Does not mutate the original — listed here because it is commonly used alongside the other set methods. |
 
 ```python
 cart_items = {"soap", "shampoo"}
 cart_items.add("toothpaste")
 cart_items.discard("shampoo")
 cart_items.discard("perfume")   # not present, but no error
+print(cart_items)
 
+backup = cart_items.copy()
+removed_item = cart_items.pop()
+print(len(cart_items), len(backup))
+
+cart_items.clear()
 print(cart_items)
 ```
 
@@ -258,9 +264,38 @@ Output:
 
 ```
 {'soap', 'toothpaste'}
+1 2
+set()
 ```
 
-Default to `discard()` unless a missing value would genuinely be a bug you want Python to flag with an error.
+Default to `discard()` unless a missing value would genuinely be a bug you want Python to flag with an error. `removed_item` holds whichever element `pop()` happened to remove — since a set has no order, this is never guaranteed to be a specific value, but `cart_items` reliably drops from 2 elements to 1, while `backup` (copied *before* the `pop()`) still holds both.
+
+**Comparing two sets:**
+
+| Method | What it does |
+|---|---|
+| `a.issubset(b)` | `True` if every element of `a` is also in `b` (`a <= b` is the operator form). |
+| `a.issuperset(b)` | `True` if `a` contains every element of `b` (`a >= b` is the operator form). |
+| `a.isdisjoint(b)` | `True` if `a` and `b` share **no** elements at all. |
+
+```python
+allowed_roles = {"admin", "editor", "viewer"}
+requested_roles = {"editor", "viewer"}
+
+print(requested_roles.issubset(allowed_roles))
+print(allowed_roles.issuperset(requested_roles))
+print(allowed_roles.isdisjoint({"guest"}))
+```
+
+Output:
+
+```
+True
+True
+True
+```
+
+`requested_roles.issubset(allowed_roles)` confirms every requested role is actually a permitted one — a common real check before granting access to a feature.
 
 ### 3.9 Set Comprehensions
 
