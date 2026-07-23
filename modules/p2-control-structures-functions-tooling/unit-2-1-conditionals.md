@@ -74,7 +74,7 @@ A conditional solves all three by letting the program's path change based on a b
 
 ### 3.4 Syntax
 
-** `if`/`elif`/`else` syntax:**
+`if`/`elif`/`else` syntax:
 
 ```python
 if condition_1:
