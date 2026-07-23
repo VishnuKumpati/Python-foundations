@@ -2,7 +2,7 @@
 
 ---
 
-[← Previous: 3.5 Iterators, Generators & Collections](../p3-data-structures/unit-3-5-iterators-generators-collections.md) | [Go back to TOC](../../README.md) | [Next: 4.2 Inheritance & Encapsulation →](unit-4-2-inheritance-encapsulation.md)
+[← Previous: 3.5 Iterators, Generators & Collections](../p3-data-structures/unit-3-5-iterators-generators-collections.md) | [Go back to TOC](../../README.md) | [Next: 4.2 The Four Pillars of OOP →](unit-4-2-inheritance-encapsulation.md)
 
 ## 1. Learning Objectives
 
@@ -488,7 +488,7 @@ Priya Nair's account at First National: Rs.570
 - *"What is the difference between a class and an object?"* is one of the most frequently asked entry-level interview questions. Answer with the blueprint analogy: a class is the plan (e.g., the architectural drawing of a house); an object is one specific thing built from that plan (an actual house, with its own address and its own residents). You can build many houses from one drawing, each independent of the others — exactly like many objects from one class.
 - Be ready to explain `self` in your own words, since it confuses nearly every fresher at first. `self` is simply the parameter that receives the object a method was called on — `account.deposit(100)` is quietly rewritten by Python into `BankAccount.deposit(account, 100)`, so `self` inside the method body always means "this particular object."
 - Interviewers may also ask when to use a class attribute versus an instance attribute — answer that class attributes are for values shared by every instance, while instance attributes, set through `self` inside `__init__`, are for values that differ per object, which in practice is almost everything you model.
-- You will meet naming conventions that hint at "this attribute is meant to stay internal to the class" (a leading underscore, like `_balance`) in Unit 4.2 — Inheritance & Encapsulation. For now, every attribute you write is openly accessible from outside the class.
+- You will meet naming conventions that hint at "this attribute is meant to stay internal to the class" (a leading underscore, like `_balance`) in Unit 4.2 — The Four Pillars of OOP. For now, every attribute you write is openly accessible from outside the class.
 
 ---
 
@@ -503,7 +503,7 @@ Priya Nair's account at First National: Rs.570
 - The most common beginner mistake is forgetting `self` as a method's first parameter, which produces a confusing `TypeError` about argument counts rather than an obvious complaint about `self`.
 - Being able to clearly explain the difference between a class and an object — and what `self` actually does — is one of the most frequently asked entry-level Python interview questions.
 
-Coming next: inheritance and encapsulation — extending one class's behaviour into another, and controlling which parts of an object stay hidden from outside code (Unit 4.2 — Inheritance & Encapsulation).
+Coming next: the four pillars of OOP — encapsulation, abstraction, inheritance, and polymorphism — starting with extending one class's behaviour into another and controlling which parts of an object stay hidden from outside code (Unit 4.2 — The Four Pillars of OOP).
 
 ---
 
@@ -514,7 +514,7 @@ Coming next: inheritance and encapsulation — extending one class's behaviour i
 - [Real Python — Object-Oriented Programming (OOP) in Python 3](https://realpython.com/python3-object-oriented-programming/)
 - [W3Schools — Python Classes/Objects](https://www.w3schools.com/python/python_classes.asp)
 
-[← Previous: 3.5 Iterators, Generators & Collections](../p3-data-structures/unit-3-5-iterators-generators-collections.md) | [Go back to TOC](../../README.md) | [Next: 4.2 Inheritance & Encapsulation →](unit-4-2-inheritance-encapsulation.md)
+[← Previous: 3.5 Iterators, Generators & Collections](../p3-data-structures/unit-3-5-iterators-generators-collections.md) | [Go back to TOC](../../README.md) | [Next: 4.2 The Four Pillars of OOP →](unit-4-2-inheritance-encapsulation.md)
 
 ---
 

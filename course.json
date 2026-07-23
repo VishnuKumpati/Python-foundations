@@ -166,8 +166,8 @@
                 },
                 {
                     "id" : "b626a741-e204-40ec-9d6a-85ca553262f9",
-                    "title" : "Unit 4.2 - Inheritance & Encapsulation",
-                    "tooltip" : "Single-level inheritance, multiple levels of inheritance, multiple inheritance (MRO), encapsulation",
+                    "title" : "Unit 4.2 - The Four Pillars of OOP",
+                    "tooltip" : "Encapsulation, abstraction, inheritance (single, multi-level, multiple, MRO), and polymorphism",
                     "url" : "modules/p4-classes-objects/unit-4-2-inheritance-encapsulation.md"
                 },
                 {

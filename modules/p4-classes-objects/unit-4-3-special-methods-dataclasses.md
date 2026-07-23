@@ -2,7 +2,7 @@
 
 ---
 
-[← Previous: 4.2 Inheritance & Encapsulation](unit-4-2-inheritance-encapsulation.md) | [Go back to TOC](../../README.md) | [Next: 5.1 File Handling →](../p5-files-exception-handling/unit-5-1-file-handling.md)
+[← Previous: 4.2 The Four Pillars of OOP](unit-4-2-inheritance-encapsulation.md) | [Go back to TOC](../../README.md) | [Next: 5.1 File Handling →](../p5-files-exception-handling/unit-5-1-file-handling.md)
 
 ## 1. Learning Objectives
 
@@ -552,7 +552,7 @@ Coming next: Unit 5.1 — File Handling, where you move from data that lives onl
 - [Real Python — Data Classes in Python 3.7+](https://realpython.com/python-data-classes/)
 - [W3Schools — Python Classes and Objects](https://www.w3schools.com/python/python_classes.asp)
 
-[← Previous: 4.2 Inheritance & Encapsulation](unit-4-2-inheritance-encapsulation.md) | [Go back to TOC](../../README.md) | [Next: 5.1 File Handling →](../p5-files-exception-handling/unit-5-1-file-handling.md)
+[← Previous: 4.2 The Four Pillars of OOP](unit-4-2-inheritance-encapsulation.md) | [Go back to TOC](../../README.md) | [Next: 5.1 File Handling →](../p5-files-exception-handling/unit-5-1-file-handling.md)
 
 ---
 
