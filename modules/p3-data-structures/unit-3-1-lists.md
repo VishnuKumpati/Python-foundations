@@ -129,14 +129,6 @@ print(a[::-1])     # [9, 8, 7, 6, 5, 4, 3, 2, 1, 0] — a reversed copy
 
 Two slicing idioms come up so often that they are worth memorizing: `a[::2]` takes every second element, and `a[::-1]` produces the list reversed, because a negative step walks backward through the list. Since a slice always builds a *new* list, slicing itself never changes the original — this is different from the in-place methods you will meet in §3.6.
 
-**Common methods (a small sample — the full set is covered in §3.6):**
-
-| Method | What it does |
-|---|---|
-| `my_list.append(x)` | Adds `x` as one new element at the end. |
-| `my_list.remove(x)` | Deletes the first element equal to `x`. |
-| `my_list.sort()` | Sorts the list in place, in ascending order by default. |
-
 **Comparison Table: Python List vs. Array (Other Languages)**
 
 Many languages you may encounter later (C, Java, and others) have a data structure called an **array**, which looks similar to a Python list at first glance but behaves quite differently:
