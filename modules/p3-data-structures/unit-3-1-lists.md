@@ -71,7 +71,7 @@ A list solves this with one mechanism: hold any number of values, of any type, u
 | **Alias** | A second variable name that refers to the exact same list in memory, not an independent copy. |
 | **`IndexError`** | The error Python raises when you access an index that does not exist in the list. |
 
-### 3.4 Syntax
+### 3.4 **List literal**, Indexing , Slicing
 
 **List literal:**
 
