@@ -82,7 +82,7 @@ Without encapsulation, any code anywhere in a program could reach directly into 
 - **Makes programs easier to maintain** because changes to *how* internal data is stored or validated stay inside the class itself — nothing outside the class needs to change.
 - **Is used everywhere in production code:** a `BankAccount` class hides its own `_balance` behind `deposit()`/`withdraw()` methods that can reject an invalid amount, rather than letting any code set `account.balance = -500` directly.
 
-#### Types of Encapsulation
+#### Access Levels in Encapsulation
 
 Python expresses encapsulation through three access levels, distinguished purely by **naming convention** — unlike Java or C++, there is no `private`/`protected`/`public` keyword:
 
@@ -147,7 +147,7 @@ class PaymentMethod(ABC):          # abstract base class — cannot be instantia
 - **Catches design mistakes early** — forgetting to implement an abstract method raises a `TypeError` the moment you try to instantiate the incomplete subclass, not later, when the missing method finally gets called in production.
 - **Used constantly in real systems** — a payment gateway, a notification service (`EmailNotifier`, `SMSNotifier`, `PushNotifier`), or a file parser (`CSVParser`, `JSONParser`) are all naturally modeled as one abstract base defining the shared method every concrete version must supply.
 
-#### Types of Abstraction
+#### Approaches to Abstraction
 
 1. **Partial (incomplete) abstraction** — an abstract class mixes abstract methods (declared with `@abstractmethod`, no implementation) with regular, concrete methods that are already fully implemented and simply inherited as-is. Most real Python abstract classes are this type — some behavior is shared, some is left for each subclass to define.
 2. **Full abstraction (interface-like)** — every single method in the abstract class is marked `@abstractmethod`; the class provides no implementation of its own at all, only a contract that every subclass must fill in completely. This is the closest Python gets to Java's or C#'s dedicated `interface` keyword — Python has no separate keyword for it, because an ABC where 100% of the methods are abstract already achieves the same effect.
@@ -364,7 +364,7 @@ for shape in [Circle(5), Square(4)]:
 
 #### Types of Polymorphism
 
-1. **Runtime polymorphism — Method Overriding.** A subclass redefines a method its superclass already has; Python decides, at the moment the method is actually called, which version to run — based on the object's real class, following the MRO. This is exactly what `MinorSavingsAccount.show_balance()` does in §3.8 by overriding `BankAccount.show_balance()`.
+1. **Runtime polymorphism — Method Overriding.** A subclass redefines a method its superclass already has; Python decides, at the moment the method is actually called, which version to run — based on the object's real class, following the MRO. This is exactly what `MinorSavingsAccount.show_balance()` does in §3.9 by overriding `BankAccount.show_balance()`.
 2. **Runtime polymorphism — Duck Typing.** "If it walks like a duck and quacks like a duck, it's a duck." Python never checks an object's class before calling a method on it — it only checks that the method exists at that moment. Two completely unrelated classes, with no shared superclass at all, can be used interchangeably as long as they both define the method being called.
 3. **Compile-time-style polymorphism — Operator Overloading.** Defining dunder (double-underscore) methods like `__add__`, `__eq__`, or `__str__` teaches a built-in operator (`+`, `==`) or built-in function (`str()`, `print()`) to behave in a way that makes sense for your own class.
 4. **Compile-time-style polymorphism — Method Overloading (Python's limited version).** In Java or C++, "overloading" means defining the same method name multiple times with different parameter lists, and the compiler picks the right one. **Python does not support this at all** — defining a method with the same name twice in one class simply makes the second definition replace the first. Python code that needs this kind of flexibility instead uses default arguments, `*args`/`**kwargs`, or the `functools.singledispatch` decorator.
@@ -408,41 +408,7 @@ print(m1 + m2)      # Rs. 150 — '+' now means something new, specific to Money
 | `def __str__(self):` | A dunder method Python calls automatically for `str(obj)` and `print(obj)`. | Lets a custom class control how it prints, instead of showing a default memory address. |
 | Overriding `area()`, `show_balance()`, etc. in a subclass | A subclass redefining a method it inherited. | The correct version runs automatically at call time, based on the object's real class. |
 
-### 3.6 Key Terminology
-
-| Term | Pillar | Simple Meaning |
-|---|---|---|
-| **Encapsulation** | Encapsulation | Bundling data and the methods that act on it together inside a class, while signaling which parts are meant to stay internal. |
-| **Public attribute** | Encapsulation | A normal attribute (`balance`) — no naming signal; any code may read or change it freely. |
-| **Protected attribute (`_name`)** | Encapsulation | A single leading underscore — a convention meaning "internal use, don't rely on this from outside," but not enforced by Python. |
-| **Private attribute (`__name`)** | Encapsulation | A double leading underscore — triggers **name mangling**, rewriting the attribute to `_ClassName__name`. |
-| **Name mangling** | Encapsulation | Python's automatic rewriting of `self.__x` inside a class body to `self._ClassName__x`, used to avoid attribute name collisions across a hierarchy. |
-| **Abstraction** | Abstraction | Exposing only the essential "what" an object can do, while hiding the internal "how" behind it. |
-| **Abstract Base Class (ABC)** | Abstraction | A class, built on Python's `abc` module, that cannot be instantiated directly and exists mainly to define a shared contract for its subclasses. |
-| **Abstract method** | Abstraction | A method marked `@abstractmethod` — it has no usable body of its own, and every concrete subclass must override it. |
-| **Concrete class / method** | Abstraction | A class that can actually be instantiated, or a method with a real, usable implementation — the opposite of "abstract." |
-| **Interface** | Abstraction | A class made entirely of abstract methods, with no implementation of its own — Python has no dedicated `interface` keyword, but an ABC where every method is abstract achieves the same thing. |
-| **Inheritance** | Inheritance | A mechanism where a new class automatically acquires the attributes and methods of an existing class. |
-| **Superclass (parent/base class)** | Inheritance | The existing class being extended. |
-| **Subclass (child/derived class)** | Inheritance | The new class built on top of a superclass, using `class Child(Parent):`. |
-| **`super()`** | Inheritance | A built-in function that gives a subclass access to the next class in line (usually its superclass), so it can call that class's methods instead of duplicating them. |
-| **Multi-level inheritance** | Inheritance | A chain of more than two classes, where each class extends the one before it (e.g., `A` → `B` → `C`). |
-| **Multiple inheritance** | Inheritance | A single subclass extending more than one direct superclass at once, written `class C(A, B):`. |
-| **Hierarchical inheritance** | Inheritance | One superclass with several independent direct subclasses that share the parent but know nothing about each other. |
-| **Hybrid inheritance** | Inheritance | A hierarchy that combines more than one of the other inheritance shapes at once (e.g., multi-level plus multiple). |
-| **MRO (Method Resolution Order)** | Inheritance | The fixed order Python searches through a class's ancestors when looking up a method or attribute; inspectable via `ClassName.__mro__`. |
-| **Diamond problem** | Inheritance | The situation where two superclasses share a common ancestor, and a subclass inherits from both — raising the question of which ancestor's method runs first. |
-| **Mixin** | Inheritance | A small superclass written only to add one specific piece of reusable behavior through multiple inheritance — it isn't meant to be used on its own as a genuine "is-a" relationship. |
-| **Overriding** | Polymorphism | A subclass defining its own version of a method the superclass already has; the subclass's version runs instead of the superclass's. |
-| **Polymorphism** | Polymorphism | The same method call or operator producing different behavior depending on the actual object it's used on. |
-| **Duck typing** | Polymorphism | Calling a method on an object because it has that method, without checking or caring what class the object actually belongs to. |
-| **Operator overloading** | Polymorphism | Defining a dunder method (`__add__`, `__eq__`, `__str__`, etc.) so a built-in operator or function behaves in a way specific to your class. |
-| **Method overloading** | Polymorphism | Defining the same method name with different parameter lists — **not supported** in Python; a later definition simply replaces an earlier one with the same name. |
-| **Dunder / magic method** | Polymorphism | A method with double underscores on both sides (`__init__`, `__add__`, `__str__`) that Python calls automatically in response to a specific syntax or built-in function. |
-| **`isinstance()`** | Inheritance | A built-in function that checks whether an object belongs to a given class or any of its superclasses. |
-| **`issubclass()`** | Inheritance | A built-in function that checks the same relationship at the class level, not on an instance. |
-
-### 3.7 Rules
+### 3.6 Rules
 
 #### Encapsulation
 
@@ -472,7 +438,7 @@ print(m1 + m2)      # Rs. 150 — '+' now means something new, specific to Money
 - An operator (`+`, `==`, `<`, and so on) only works on a custom class if that class defines the matching dunder method (`__add__`, `__eq__`, `__lt__`); otherwise Python raises a `TypeError`.
 - Duck typing means Python checks for the *method's existence* only at the exact moment it is called — there is no upfront check that an object "qualifies" to be used somewhere.
 
-### 3.8 Best Practices
+### 3.7 Best Practices
 
 #### Encapsulation
 
@@ -498,7 +464,7 @@ print(m1 + m2)      # Rs. 150 — '+' now means something new, specific to Money
 - Reach for duck typing when the objects genuinely have no meaningful "is-a" relationship; reach for a shared abstract base (abstraction + inheritance) when you want Python to *enforce* that the shared method actually exists.
 - Only overload an operator (`__add__`, `__eq__`, and so on) when the operation has an obvious, unsurprising meaning for your class — an unexpected `__add__` makes code harder to read, not easier.
 
-### 3.9 Common Mistakes
+### 3.8 Common Mistakes
 
 #### Encapsulation
 
@@ -522,7 +488,7 @@ print(m1 + m2)      # Rs. 150 — '+' now means something new, specific to Money
 - **Writing a long `if isinstance(x, A): ... elif isinstance(x, B): ...` chain** instead of relying on a shared method name — this defeats the entire purpose of polymorphism and must be edited every time a new type is added.
 - **Overriding a method without knowing you're overriding it** — accidentally reusing a superclass's method name and silently losing access to its original behavior.
 
-### 3.10 Code Examples
+### 3.9 Code Examples
 
 One consolidated example builds up an entire `BankAccount` hierarchy, adding one pillar at a time — abstraction with `ABC`, single-level inheritance with `super()`, then multi-level inheritance, then multiple inheritance with MRO, then the encapsulation naming conventions, and finally polymorphism tying it all together.
 
@@ -770,7 +736,7 @@ Every object shares the exact same `BankAccount.__str__()`, but each one's `acco
 
 ## 4. Real-World Application
 
-- **Banking & FinTech:** `SavingsAccount` and `CurrentAccount` both extend a shared, abstract `BankAccount` base, reusing `deposit()`/`show_balance()` logic while each adds its own rules (interest, overdraft limits) and its own `account_type()` — exactly the pattern built up in §3.10's code example.
+- **Banking & FinTech:** `SavingsAccount` and `CurrentAccount` both extend a shared, abstract `BankAccount` base, reusing `deposit()`/`show_balance()` logic while each adds its own rules (interest, overdraft limits) and its own `account_type()` — exactly the pattern built up in §3.9's code example.
 - **UPI / Payment Systems:** A payment gateway defines an abstract `PaymentMethod` (§3.3) requiring every subclass to implement `process()`, guaranteeing that `UPIPayment`, `CardPayment`, and `NetBankingPayment` all honor the same contract; a single loop can then call `payment.process(amount)` polymorphically across all of them without checking which one it is.
 - **E-commerce:** A `Product` base class is extended by `ElectronicsProduct` and `GroceryProduct`, each adding fields like `warranty_period` or `expiry_date`, while both inherit shared pricing and discount logic and both encapsulate their own internal stock count behind a `restock()` method.
 - **Food Delivery:** A `DeliveryPartner` base class is extended by `BikePartner` and `CarPartner`; combining a partner class with an independent `RatingMixin` through multiple inheritance is a realistic use of the MRO concept from §3.4, and a dispatch system calling `partner.calculate_fee()` on a mixed list of both types is polymorphism (§3.5) in action.
