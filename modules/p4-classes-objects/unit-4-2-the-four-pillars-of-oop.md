@@ -39,7 +39,7 @@ This unit walks through all four pillars one at a time — each with its own def
 
 ### 3.1 The Four Pillars of OOP — Overview
 
-Object-Oriented Programming is not one single technique — it is four related but distinct ideas that, together, let you model real-world entities as objects that are safe to use, easy to extend, and easy to reuse. Every class-based language you will ever work in is built around exactly these four pillars:
+Each pillar has its own one-line definition and the specific problem it solves:
 
 | Pillar | One-line definition | The problem it solves |
 |---|---|---|
@@ -48,7 +48,7 @@ Object-Oriented Programming is not one single technique — it is four related b
 | **Inheritance** | Letting a new class reuse the attributes and methods of an existing class. | Removes the need to rewrite the same logic in every related class. |
 | **Polymorphism** | Letting the same method call or operator behave differently depending on the actual object involved. | Lets one piece of code work with many different types through a single shared interface, instead of an `if`/`elif` chain checking every type by hand. |
 
-These four ideas are taught together because, in real designs, they build on one another: you typically design an **abstraction** first (what must every subclass be able to do), realize it through **inheritance** (share common code across those subclasses), rely on **polymorphism** to call the shared method without caring which subclass you actually have, and protect the object's internals throughout with **encapsulation**. The rest of this unit takes each pillar in turn — its definition, why and where it's useful, its types, and its syntax — before bringing all four together in one consolidated example in §3.10.
+In real designs, the four build on one another in this order: you typically design an **abstraction** first (what must every subclass be able to do), realize it through **inheritance** (share common code across those subclasses), rely on **polymorphism** to call the shared method without caring which subclass you actually have, and protect the object's internals throughout with **encapsulation**. The rest of this unit takes each pillar in turn — its definition, why and where it's useful, its types, and its syntax — before bringing all four together in one consolidated example in §3.9.
 
 ### 3.2 Pillar 1: Encapsulation
 
