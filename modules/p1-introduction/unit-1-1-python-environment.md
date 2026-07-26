@@ -1,461 +1,132 @@
-﻿# The Python Environment
+# The Python Environment
+
+Every semester, lakhs of first-year engineering students across India sit down to write their first computer program, and nearly all of them ask the same two questions: which language should I learn, and where do I actually type it? This chapter answers both. The language is Python — the single most in-demand programming language in Indian and global software teams today, used to build everything from UPI payment apps to the recommendation systems behind e-commerce platforms. The workspace is Google Colab, a free tool that runs entirely inside your web browser, so there is nothing to install and nothing that can be "set up wrong" on your machine.
+
+Before you write anything, it helps to know what actually happens when a computer "runs" your code. You will meet two very different strategies for turning your instructions into action — compiling and interpreting — and see which one Python uses, and why that matters for how you will work day to day. You will then open Google Colab and learn what a notebook, a cell, and a runtime are, because these three words describe your entire working environment for the rest of this course. Finally, you will write your first program: one line that prints a message to the screen — and in doing so, you will already be practising two habits that separate confident programmers from frustrated ones: reading error messages carefully, and restarting your environment the moment something feels stuck.
+
+By the time you finish this chapter, "running a program" will no longer be a mysterious phrase. It will be something you have done yourself, watched happen, and understood.
 
 ---
 
-[Go back to TOC](../../README.md) | [Next: 1.2 Variables, Identifiers & Types →](unit-1-2-variables-identifiers-types.md)
+## Why the whole industry is standardising on Python
 
-## 1. Learning Objectives
+Open any job listing for a software or data role at an Indian IT company — TCS, Infosys, a fintech startup building UPI infrastructure, or a global bank's technology centre in Bengaluru — and Python appears constantly. That is not hype; it is a genuine, industry-wide pattern.
 
-By the end of this unit, you will be able to:
-
-- **Explain** why Python is one of the most widely used languages in the software industry today, especially for AI and data-driven work.
-- **Differentiate** between a compiled language and an interpreted language, and describe how each one turns your code into a running program.
-- **Describe** what an interpreter does and what "interactive mode" (the REPL) means.
-- **Identify** the parts of Google Colab — notebooks, cells, and the runtime — and explain what each one is for.
-- **Implement** your first Python program using the `print()` function and read its output correctly.
-- **Debug** a simple "cell didn't run" or "stuck runtime" situation by applying the restart-and-rerun habit.
-
----
-
-## 2. Overview
-
-Imagine you have just joined your first software job. Before you write a single line of business logic, you need two things: a language to write instructions in, and a place to actually run those instructions and see what happens. This unit is about exactly that — nothing more, nothing less.
-
-The language you will learn is **Python**. It is the single most in-demand language in the Indian and global IT industry right now, used everywhere from banking backends to UPI-based payment apps to AI systems. The place you will run it is **Google Colab**, a free tool that runs Python inside your browser — no installation, no setup, no "it works on my machine" headaches on day one.
-
-As a fresher, it is tempting to skip straight to "writing programs." But every experienced engineer will tell you the same thing: if you don't understand *how* your code actually gets executed by the machine, you will spend your entire career debugging blind. So before you write anything complicated, you need to understand what an interpreter is, what "running" code even means, and how to use the tool (Colab) you'll be living in for the next several weeks.
-
-By the end of this unit, you will have typed and run your very first Python program — and, more importantly, you will understand *why* it worked the way it did.
-
----
-
-## 3. Description
-
-### 3.1 Definition
-
-A **programming language** is a formal, precise set of words and symbols that lets a human give instructions to a computer. Think of it as a strict, unambiguous language — unlike English or Hindi, which allow multiple interpretations of the same sentence, a programming language allows exactly one meaning per valid instruction.
-
-**Python** is one such programming language. It was created to be easy to read and easy to write, while still being powerful enough to run banking systems, e-commerce platforms, and AI models.
-
-### 3.2 Why This Concept Exists
-
-Every fresher asks the same question in their first week: "There are so many programming languages — C, Java, JavaScript, Python — why are we starting with Python?"
-
-The honest answer has two parts:
-
-1. **Readability.** Python code reads almost like plain English. A line like `print("Hello, world!")` needs almost no translation to understand. Other languages force you to write extra "boilerplate" (repetitive setup code) just to display one line of text. This low "syntax overhead" means, as a beginner, you spend your mental energy learning to *think like a programmer* rather than fighting punctuation.
-2. **Ecosystem.** An **ecosystem** is the collection of ready-made, reusable code — called libraries or packages — that other developers have already written and shared. Python has, by a wide margin, the richest ecosystem for data analysis, automation, web backends, and AI/ML work. When you later build an AI feature or automate a report, you will almost always find a Python library that already does 80% of the work for you.
-
-In short: Python exists in your syllabus because it lowers the barrier to entry today and keeps the door open to almost every advanced software career path tomorrow — data engineer, backend developer, ML engineer, automation engineer, and more.
-
-### 3.3 Key Terminology
-
-| Term | Simple Meaning |
+| Where it's used | Concrete example |
 |---|---|
-| **Programming language** | A set of words and rules for giving a computer instructions, with no ambiguity allowed. |
-| **Source code** | The instructions you type, in plain text, using the rules of a programming language. |
-| **Interpreter** | A program that reads your Python source code and carries out its instructions, one line at a time. |
-| **Compiler** | A program that translates *all* of your source code, ahead of time, into a separate file the machine runs later. |
-| **Interactive mode / REPL** | A way of using the interpreter where you type one instruction, immediately see the result, then type the next one. REPL = Read, Evaluate, Print, Loop. |
-| **Google Colab** | A free, browser-based tool from Google that lets you write and run Python without installing anything on your own computer. |
-| **Notebook** | A Colab document made up of cells, where you write and run code, and see output saved alongside it. |
-| **Cell** | A single box inside a notebook that holds either code or text; you run cells one at a time. |
-| **Runtime** | The live Python session on Google's servers that remembers everything you have run so far in the current session. |
-| **`print()` function** | A built-in Python function that displays whatever you give it as output on the screen. |
-| **String** | A piece of text data, written between quotation marks, e.g. `"Hello, world!"`. |
+| Banking & fintech | Fraud-detection logic, UPI transaction-processing pipelines |
+| E-commerce | Product recommendation engines, price-tracking bots |
+| Data & AI | Training machine learning models, cleaning large datasets |
+| Automation | Scripts that generate reports, send reminders, scrape web data |
+| Web backends | Server logic behind apps built with Django or FastAPI |
 
-**Comparison Table: Compiled vs Interpreted Languages**
+Two things put Python in all of these places at once. First, its syntax — the set of rules for what counts as valid, correctly written code — reads close to plain English, so you spend less time fighting punctuation and more time solving the actual problem. Second, Python ships with, or can install, ready-made libraries for almost anything: talking to a database, sending an email, training a neural network. You will feel both advantages within your first few weeks.
 
-| Aspect | Compiled Language (e.g., C, Java) | Interpreted Language (e.g., Python) |
+## Two ways a computer can run your code
+
+A computer's processor understands exactly one language: sequences of 0s and 1s called machine code. The words you type — `print`, `if`, `for` — mean nothing to the processor directly, so something has to stand between your readable code and the machine code the processor executes. Programming languages take one of two broad approaches to that translation.
+
+**Compiled languages**, such as C or C++, translate your entire program into machine code *before* you run it, producing a separate executable file. **Interpreted languages**, such as Python, translate and run your code line by line, at the moment you execute it, with no separate translation step for you to manage.
+
+| | Compiled language | Interpreted language |
 |---|---|---|
-| Translation timing | All at once, ahead of time | Line by line, as the program runs |
-| Output of translation | A separate file (e.g., `.exe`, `.class`) | No separate file for you to manage |
-| Feedback speed | You must recompile before testing again | You can test a single line immediately |
-| Typical use in this course | Not used | Used throughout, via the Python interpreter in Colab |
-| Beginner-friendliness | Extra setup and translation step | Faster feedback loop, better for learning |
+| Translation happens | Once, ahead of time, into a standalone file | Every time you run the program, one line at a time |
+| Tool that does it | A compiler | An interpreter |
+| Feedback speed | Wait for the whole program to compile first | See results almost immediately |
+| Example | C, C++ | Python, JavaScript |
 
-**The REPL / Interactive Mode Loop**
+Python's line-by-line approach is why you can type a single instruction, run it, and see the result in under a second — there is no separate "build" stage standing between you and your output. It is also why Python is so forgiving to learn in: a mistake shows up close to where you made it, one line at a time, instead of buried inside a wall of compiler messages.
 
-```mermaid
-flowchart TD
-    R["Read: you type an instruction"] --> E["Evaluate: interpreter runs it"]
-    E --> P["Print: result is shown to you"]
-    P --> L["Loop: wait for your next instruction"]
-    L --> R
+## Meeting the interpreter
+
+The program that performs this line-by-line translation for Python is called the **Python interpreter**. You can talk to it directly, one instruction at a time, in what is called **interactive mode** (also known as a REPL — Read, Evaluate, Print, Loop): you type a line, press Enter, and the interpreter replies immediately, the same way a calculator answers the instant you press "=".
+
+Before checking, try predicting what would appear directly below `2 + 2` if you typed it into an interpreter and pressed Enter.
+
+```
+>>> 2 + 2
+4
+>>> print("Namaste, world")
+Namaste, world
 ```
 
-### 3.4 Step-by-Step Guide: Accessing and Activating Google Colab for the First Time
+Line 1 in each pair is what you type; line 2 is the interpreter's reply. That back-and-forth — one line in, one result out — is exactly what interactive mode means. Google Colab, which you will use for this entire course, runs a full Python interpreter behind the scenes, but wraps it in a more convenient notebook interface rather than this bare line-by-line prompt.
 
-Before you go any further, get Google Colab open and ready — this is where you will write and run every example in this unit. If you have never done this before, follow these steps exactly, in order. Don't skip ahead — each step depends on the one before it.
+## Google Colab: your notebook, cell, and runtime
 
-**What you need before you start:**
-- A computer or laptop with an internet connection.
-- A web **browser** — the application you use to visit websites, such as Google Chrome or Microsoft Edge.
-- A **Google account** (the same kind of account you would use for Gmail). If you don't have one, you will need to create one first at `accounts.google.com` — this takes only a couple of minutes.
+Google Colab (short for "Colaboratory") is a free, browser-based tool built by Google that gives every student a working Python interpreter with nothing to install. You open a link, sign in with a Google account, and within seconds you have a place to write and run code. Three words describe everything you will interact with inside it.
 
-**Step 1: Open your browser and go to the Colab website.**
-Type `colab.research.google.com` into the address bar at the top of your browser (this is called a **URL** — the address of a specific page on the internet) and press Enter. This takes you directly to Google Colab's homepage.
+- **Notebook** — the document itself, saved to your Google Drive, made up of an ordered sequence of cells.
+- **Cell** — a single block inside a notebook: either a *code cell* (Python you run) or a *text cell* (notes you write for yourself).
+- **Runtime** — the actual machine, running on Google's servers, that executes your code cells and remembers their results in memory.
 
-**Step 2: Sign in with your Google account.**
-If you are not already signed in, Colab will ask you to **sign in** — meaning you enter your Google email and password so Google knows it is really you. Use the same Google account you use for Gmail or Google Drive. Signing in matters because your notebooks (the files you'll create) are saved to *your* Google Drive, not anyone else's.
+The runtime is the part that trips up beginners, so it deserves a closer look. When you run a code cell, the runtime keeps whatever it produced in memory for your *next* cell to use. This is unlike, say, a Word document, where each paragraph stands alone — in a notebook, cell 5 can depend entirely on something you defined back in cell 2, which is exactly why running cells out of order can produce confusing results.
 
-**Step 3: Look at the "Welcome to Colab" screen.**
-Once signed in, you will usually see a welcome page with some example notebooks and a popup asking you to open a recent file or start something new. You can close this popup for now — you don't need any of these examples yet.
+## Writing your first program
 
-<img src="../../Images/image%20%289%29.png" alt="The Welcome to Colab page, showing the toolbar of an empty text cell highlighted in red" width="480">
-
-*This is what the welcome page looks like once you're signed in — notice the "Welcome to Colab!" heading and the toolbar highlighted above the first cell. That toolbar (bold, italic, insert-link, insert-image, and more) belongs to a text cell, used for writing notes rather than Python code — you'll create your own **code** cell in the next step.*
-
-**Step 4: Create a brand-new, empty notebook.**
-Click on **File** in the top-left menu, then click **New notebook**. A **notebook** is the document where you'll write and run your Python code. Google Colab will now open a fresh, empty notebook for you, with one empty **cell** already waiting.
-
-
-<img src="../../Images/image%20%288%29.png" alt="The same File menu with New notebook highlighted (dark theme)" width="480">
-
-*Google Colab can appear in a light or dark theme depending on your Google account's display settings — both screenshots above show the same action: open the **File** menu, then click **New notebook**.*
-
-**Step 5: Give your notebook a proper name.**
-At the top-left of the page, you will see a default name like `Untitled0.ipynb` (the `.ipynb` ending simply means "IPython Notebook" — the file format Colab uses). Click directly on this name and rename it to something meaningful, such as `unit-1-1-first-program`. This small habit will help you a lot later, especially when you have many notebooks and need to find the right one quickly — including while revising for interviews.
-
-**Step 6: Locate the first code cell.**
-Look for the empty box on the page with a small "play" (▶) button or **Run** icon on its left side. This is a **cell** — the box where you type your Python code. Right now it is empty and waiting for you.
-
-**Step 7: Type your first line of code into the cell.**
-Click inside the empty cell and type:
+A Python program, at its simplest, is one or more instructions the interpreter carries out in order. The very first instruction nearly every learner writes calls a built-in function named `print()`, whose job is to display whatever you hand it inside the parentheses onto the screen.
 
 ```python
-print("Hello, world!")
+print("Namaste, world")
 ```
 
-**Step 8: Run the cell.**
-There are two ways to run a cell — pick whichever feels easier:
-- Click the ▶ **Run** button on the left side of the cell, or
-- Press **Shift + Enter** on your keyboard (hold Shift, then press Enter).
+Type this into a Colab code cell and run it (Shift+Enter, or the ▶ button beside the cell):
 
-**Step 9: Read the output.**
-Within a second or two, you should see `Hello, world!` appear directly underneath the cell. This confirms three things at once: Colab is active, your Python interpreter is running, and your very first program worked correctly.
-
-**How Your Code Becomes Output**
-
-```mermaid
-flowchart LR
-    A["You type Python code<br/>in a Colab cell"] --> B["Python Interpreter<br/>reads the code"]
-    B --> C["Interpreter executes<br/>one instruction at a time"]
-    C --> D["Output appears<br/>below the cell"]
+```
+Step 1 — Python reads the line print("Namaste, world")
+Step 2 — it recognises print as a function call, and "Namaste, world" as the value to hand it
+Step 3 — it sends that text to the output area below the cell
+Output: Namaste, world
 ```
 
-**Step 10: Confirm your work is saved.**
-Google Colab automatically saves your notebook to your Google Drive as you work, usually shown as "Saving..." briefly near the top of the page. You can also save manually at any time using **File → Save**, or the keyboard shortcut **Ctrl + S**. This means you can safely close the browser tab and come back to the exact same notebook later, from any computer, just by signing in again.
+Notice the double quotes around the text. In Python, text you want treated as literal characters — not as code to execute — must be wrapped in quotes, and this is called a **string**. Drop the quotes and write `print(Namaste, world)` instead, and the interpreter complains, because now it assumes `Namaste` and `world` are meant to be *names* it should already recognise, not plain text.
 
-**If something doesn't work:**
-- If the page looks stuck or blank, refresh the browser tab and try again.
-- If a popup about "cookies" or "notifications" appears, you can dismiss it — it does not affect your code.
-- If you accidentally close the tab, don't worry — reopen `colab.research.google.com`, and your notebook will be waiting for you in **File → Open notebook → Recent**, since it was already saved to your Google Drive.
+**A missing quote, a missing parenthesis, or the wrong case (`Print` instead of `print`) is the single most common reason a beginner's first program fails.**
 
-### 3.5 Syntax
+- Forgetting the closing parenthesis or quote — Python will not run the line until every opening symbol has a matching close.
+- Typing `Print` or `PRINT` — Python is case-sensitive, so only the lowercase `print` refers to the built-in function.
+- Mixing quote styles, such as opening with `"` and closing with `'` — pick one style per string and stay consistent.
 
-Your very first piece of Python syntax is the `print()` function call:
+Before reading further, try predicting the output of `print("Marks:", 95)` on your own, then run it in a Colab cell to check whether you guessed the spacing correctly.
 
-```python
-print("Hello, world!")
-```
+## When the runtime gets stuck
 
-Let's break this down piece by piece, because as a fresher you must be able to name every symbol you type, not just copy it:
+Because the runtime remembers everything you have run so far, it can end up in a confusing state — for instance, from running cells out of order, or from code that loops forever and never finishes. When output stops appearing, or a cell seems to hang indefinitely, resist the urge to keep clicking run.
 
-| Part | What it is | Why it's there |
-|---|---|---|
-| `print` | The **name** of a built-in function. | This tells Python *which* action to perform — "display something on the screen." |
-| `(` and `)` | **Parentheses.** | They mark where you hand information *into* the function. Whatever goes inside is called an **argument**. |
-| `"Hello, world!"` | A **string literal** — text wrapped in quotes. | The quotes tell Python "treat this as literal text, not as an instruction." Without quotes, Python would try to understand `Hello` as code and fail. |
-| *(no semicolon)* | Python statements normally end with a newline, not a semicolon. | Unlike languages like Java or C, Python doesn't require a `;` to mark the end of a line. |
+**When a cell hangs or stops making sense, restart the runtime before trying anything else.**
 
-### 3.6 Rules
-
-- Every string must open and close with a matching pair of quotes — either `"double quotes"` or `'single quotes'`, but the opening and closing quote must match.
-- Function calls always need parentheses, even if you are passing nothing inside them.
-- Python cares about **case**: `print` works, but `Print` or `PRINT` will raise an error, because Python treats them as different, unrecognised names.
-- Indentation (spacing at the start of a line) has meaning in Python — you haven't touched this yet in unit 1.1, but keep it in mind, because it becomes critical from unit 2.1 onward.
-
-### 3.7 Best Practices
-
-- Always run notebook cells **top to bottom**, in order, especially early in your career — out-of-order execution is one of the most common sources of "but it worked a second ago!" confusion.
-- Give your Colab notebooks meaningful names (e.g., `unit-1-1-first-program.ipynb`) instead of leaving them as `Untitled0.ipynb` — you will thank yourself later when revising for interviews.
-- Read the output of every cell you run, even the simple ones. Building the habit of "run, then read" now will save you hours of debugging later.
-- When your runtime feels "stuck" or behaves unexpectedly, restart it and rerun from the top rather than guessing — it is a cheap, reliable reset.
-- Save your work to Google Drive frequently; don't rely on an open browser tab as your only copy.
-
-### 3.8 Common Mistakes
-
-- **Forgetting the quotes** around text: writing `print(Hello, world!)` instead of `print("Hello, world!")`. Python will try to treat `Hello` as a name it should already know, and fail with an error.
-- **Mismatched quotes**: starting a string with `"` and closing it with `'`.
-- **Running cells out of order**: editing an earlier cell but forgetting to rerun it, then wondering why later cells don't reflect the change.
-- **Confusing "writing code" with "running code"**: typing a program into a cell does nothing until you actually execute that cell.
-- **Panicking at the first error message** instead of reading it — Python's error messages almost always tell you exactly what went wrong and on which line.
-
-### 3.9 Code Examples
-
-**Scenario: Aditi Sharma's first day as a fresher at an IT company.** Aditi has just joined an IT company as a fresher, and her onboarding system needs to print a few things to the screen on her first day — starting with a simple welcome, and gradually building up to a fully formatted digital ID card. We'll build this up one small step at a time, exactly as you would in your own Colab notebook — running one cell, reading its output, then extending it.
-
-**Step 1 — print a single welcome line.**
-
-The absolute smallest thing Aditi's onboarding program can do is display one line of text:
-
-```python
-print("Welcome to your first day, Aditi!")
-```
-
-*Line-by-line explanation:*
-- `print(...)` — calls the built-in `print` function.
-- `"Welcome to your first day, Aditi!"` — a string literal, the exact text to display, wrapped in matching double quotes.
-- Running this cell displays the text directly beneath it. There is nothing else in this program — one function call, one line, one output.
-- Expected output:
-  ```
-  Welcome to your first day, Aditi!
-  ```
-
-**Step 2 — print more than one line.**
-
-A single welcome line isn't much of an onboarding message. Let's add a second `print()` call so Aditi sees two lines instead of one:
-
-```python
-print("Welcome to your first day, Aditi!")
-print("Please find your employee details below.")
-```
-
-*Line-by-line explanation:*
-- Line 1: calls `print()` with the welcome string, exactly as in Step 1.
-- Line 2: calls `print()` again with a different string. Because each `print()` call automatically moves to a new line afterward, this second line appears directly below the first, not next to it.
-- Python runs both lines strictly top to bottom — the order you write your `print()` calls is the order the output appears in.
-- Expected output:
-  ```
-  Welcome to your first day, Aditi!
-  Please find your employee details below.
-  ```
-
-**Step 3 — print Aditi's employee details as an ID card.**
-
-Now let's extend the same idea to display Aditi's actual employee details, one detail per line — this is exactly the "print several related lines" pattern used in real onboarding tools:
-
-```python
-print("Welcome to your first day, Aditi!")
-print("Please find your employee details below.")
-print("Employee Name: Aditi Sharma")
-print("Employee ID: EMP-2026-0143")
-print("Department: AI Native Engineering")
-```
-
-*Line-by-line explanation:*
-- The first two lines are unchanged from Step 2 — we are building on top of what already worked, not starting over.
-- Each new line is its own independent `print()` call with its own string.
-- Python executes all five calls strictly top to bottom, so the five lines of output appear in exactly the order they were written.
-- Expected output:
-  ```
-  Welcome to your first day, Aditi!
-  Please find your employee details below.
-  Employee Name: Aditi Sharma
-  Employee ID: EMP-2026-0143
-  Department: AI Native Engineering
-  ```
-
-**Step 4 — format it like a real, industry-style confirmation card.**
-
-Finally, let's make it look like something a real company system would print — with a bordered header and footer, similar to how a UPI app shows "Payment Successful" after a transaction:
-
-```python
-print("======================================")
-print("      NEW EMPLOYEE ONBOARDING")
-print("======================================")
-print("Employee Name: Aditi Sharma")
-print("Employee ID: EMP-2026-0143")
-print("Department: AI Native Engineering")
-print("Status: ACTIVE")
-print("======================================")
-```
-
-*Line-by-line explanation:*
-- The `"======================================"` lines are just ordinary string literals made of `=` characters — Python does not treat them specially in any way; it prints them exactly as written, the same as any other string.
-- The middle three lines print Aditi's details, exactly as in Step 3, now framed by a header and footer.
-- `print("Status: ACTIVE")` is a new fixed-text line added the same way as every other line in this example — one more `print()` call, executed in order.
-- Every one of the eight `print()` calls is independent and produces exactly one line of output, and Python runs them strictly top to bottom.
-- Expected output:
-  ```
-  ======================================
-        NEW EMPLOYEE ONBOARDING
-  ======================================
-  Employee Name: Aditi Sharma
-  Employee ID: EMP-2026-0143
-  Department: AI Native Engineering
-  Status: ACTIVE
-  ======================================
-  ```
-- This mirrors something you have almost certainly seen for real: a payment app confirming a UPI transaction, or an HR system confirming a new joiner. In this unit, you are only printing fixed text — later units (starting with variables) will let you print information that *changes*, like a real employee ID pulled from a database instead of typed directly into the code.
-
-#### Try It Yourself
-
-**Exercise: Build your own "First Day" card.**
-
-Using only `print()` and string literals (nothing else — no variables, no user input), recreate Aditi's onboarding flow for *yourself* in a new Colab cell:
-
-- **(a)** Print a single line welcoming yourself to your first day, e.g. `"Welcome to your first day, <Your Name>!"`.
-- **(b)** Add a second and third line printing your own name and the course/batch you are part of, e.g. `"Student Name: ..."` and `"Batch: ..."`, so your cell now prints three lines in total.
-- **(c)** Add a bordered header and footer around your details, using a line of `=` or `-` characters, so the final output looks like a proper formatted card (similar to Step 4 above).
-
-**Solution (a):**
-
-```python
-print("Welcome to your first day, Rohan!")
-```
-
-Expected output:
-```
-Welcome to your first day, Rohan!
-```
-
-**Solution (b):**
-
-```python
-print("Welcome to your first day, Rohan!")
-print("Student Name: Rohan Verma")
-print("Batch: 2026-Colab-01")
-```
-
-Expected output:
-```
-Welcome to your first day, Rohan!
-Student Name: Rohan Verma
-Batch: 2026-Colab-01
-```
-
-**Solution (c):**
-
-```python
-print("--------------------------------------")
-print("Welcome to your first day, Rohan!")
-print("Student Name: Rohan Verma")
-print("Batch: 2026-Colab-01")
-print("--------------------------------------")
-```
-
-Expected output:
-```
---------------------------------------
-Welcome to your first day, Rohan!
-Student Name: Rohan Verma
-Batch: 2026-Colab-01
---------------------------------------
-```
-
-Notice that each part only adds `print()` calls on top of the previous part — nothing you already had needs to change. That "extend, don't rewrite" habit is exactly what you will keep doing as your programs grow in later units.
+The fix, in almost every such case, is the same three-step habit every experienced Python programmer reaches for first: open the **Runtime** menu, choose **Restart runtime**, and re-run your cells from the top. This clears the runtime's memory completely and gives you a clean slate, the same way restarting a hung mobile app clears whatever confused state it was stuck in. Treat this as your default first move rather than a last resort — it costs a few seconds and resolves the large majority of "nothing is working" moments you will run into in this course.
 
 ---
 
-## 4. Real-World Application
+### Key Terminology
 
-The pattern you practiced in this unit — write instructions, run them, read the output — is the exact same loop used in every professional Python codebase, just at a larger scale:
+- **Machine code** — the raw 0s and 1s a processor executes directly.
+- **Compiler** — a tool that translates an entire program into machine code before it runs.
+- **Interpreter** — a tool that translates and runs code one line at a time, as it executes.
+- **Interactive mode (REPL)** — using the interpreter by typing one instruction, seeing its result immediately, then typing the next.
+- **Notebook** — a Colab document containing an ordered sequence of cells.
+- **Cell** — a single block within a notebook; either code (Python to run) or text (notes).
+- **Runtime** — the remote machine that executes a notebook's code cells and holds their results in memory.
+- **String** — text data in Python, written inside a matching pair of quotes.
+- **Syntax** — the set of rules that determine what counts as valid, runnable code.
 
-- **Banking & FinTech:** Backend services that process transactions run as Python programs on a server; the "output" isn't printed to a screen but written to a database or sent back as an API response — same underlying execute-and-observe loop.
-- **UPI / Payment Systems:** When your phone shows "Payment Successful," a Python (or similar) service on the backend executed a sequence of steps and produced a result, conceptually identical to your `print()` statements above.
-- **Healthcare:** Hospital record systems use Python scripts to process patient data and generate reports — again, code runs, and something is produced as output (a report, a chart, an alert).
-- **Education & EdTech:** Platforms that auto-grade code (including the ones checking your own assignments!) run your Python code in an interpreter, capture its output, and compare it against the expected result.
-- **AI/ML:** Every AI model you will later call or build is wrapped in ordinary Python code that loads data, runs the model, and prints or returns the result — the same three-step shape you just learned.
-- **Cloud Applications:** Services deployed on cloud platforms (AWS, Azure, GCP) are frequently just Python programs running continuously on a remote server — very similar in spirit to your code running on Google's Colab servers instead of your own laptop.
+### Mastery Checkpoint
 
-The takeaway for a fresher: the "toy" program you just wrote is not a separate skill from "real" software development. It is the same skill, at the smallest possible scale.
+Before moving to Unit 1.2, check that you can answer these without looking back:
 
----
+1. Why does Python not need a separate compiling step before you can run your code?
+2. What is the difference between a notebook, a cell, and a runtime in Google Colab?
+3. What output does `print("5 + 3")` produce, and why is it different from the output of `print(5 + 3)`?
+4. Your Colab cell has been "running" for two minutes with no output. What is the first thing you should try?
 
-## 5. Worked Example
+### Summary
 
-### Problem Statement
+You now know what stands between the code you type and the processor that runs it, why Python's interpreted, line-by-line approach makes it especially beginner-friendly, and how Google Colab's notebooks, cells, and runtimes fit together into a working Python environment with nothing to install. You have also written and traced your first program, and picked up the restart-and-rerun habit that will save you time for the rest of this course. From here, the next step is learning how Python stores the data your programs work with — starting with variables.
 
-You are asked to simulate a very small "digital receipt" for a food delivery order, similar to what apps like Zomato or Swiggy show after checkout. The receipt should clearly show the restaurant name, the order status, and a thank-you message — each on its own line.
+### Additional Resources
 
-### Step 1: Understand the Problem
-
-You need to display a small block of fixed text, formatted so it is easy to read, using only what you've learned so far in this unit: the `print()` function and strings. No variables or calculations are needed yet — this unit is only about getting text onto the screen correctly.
-
-### Step 2: Plan the Solution
-
-Break the receipt into individual lines: a header, the restaurant name, the order status, and a closing message. Each line will be its own `print()` call, and Python will display them in the order you write them.
-
-### Step 3: Write the Python Code
-
-```python
-print("=== Order Receipt ===")
-print("Restaurant: Sharma's Tiffin Corner")
-print("Order Status: Delivered")
-print("Thank you for ordering with us!")
-```
-
-### Step 4: Explain Each Line
-
-- `print("=== Order Receipt ===")` — displays a simple text header. The `=` characters are just part of the string, used to visually separate the receipt from anything printed before it.
-- `print("Restaurant: Sharma's Tiffin Corner")` — displays the restaurant's name as fixed text.
-- `print("Order Status: Delivered")` — displays the order status as fixed text.
-- `print("Thank you for ordering with us!")` — displays a closing message.
-- All four lines run strictly top to bottom, because that is how the Python interpreter executes a program — one instruction after another, in the order written.
-
-### Step 5: Sample Input
-
-None. This program takes no input from the user — it simply displays fixed text you wrote directly into the code. (You will learn how to accept real user input in a later unit.)
-
-### Step 6: Expected Output
-
-```
-=== Order Receipt ===
-Restaurant: Sharma's Tiffin Corner
-Order Status: Delivered
-Thank you for ordering with us!
-```
-
-### Step 7: Why the Output Is Produced
-
-Each `print()` call is executed by the interpreter one at a time, in the exact order it appears in the code. Every call produces exactly one line of output, and the interpreter automatically moves to a new line after each `print()`. There is no branching, no repetition, and no calculation involved — the output is simply the four strings, displayed in sequence, exactly as instructed.
-
----
-
-### Important Notes (Interview Insights)
-
-**Q: "Is Python compiled or interpreted?"**
-
-Python source code is first compiled to an intermediate form called **bytecode**, which the Python interpreter then executes. For practical, day-to-day purposes, and for this course, it is fine — and expected — to describe Python as an **interpreted language**, since there is no separate compile step you manage yourself, unlike C or Java.
-
-**Q: "What does REPL stand for, and what does it mean?"**
-
-REPL stands for Read-Eval-Print Loop. Make sure you can expand the acronym and explain it in one sentence, not just recite the letters — interviewers often ask this directly.
-
-**Q: "Why is Python so popular for AI/ML?"**
-
-Its combination of readability and a rich, ready-made ecosystem of libraries makes it the default choice for data and AI-adjacent work. This is a common conversational interview question, especially for freshers applying to data or AI-adjacent roles.
-
----
-
-## 6. Key Takeaways
-
-- Python is widely used in the industry because it is readable and has a rich ecosystem of ready-made libraries, especially for AI/ML and data work.
-- Python is generally described as an **interpreted language** — the interpreter executes your code line by line, without a separate compile step you manage yourself.
-- **Interactive mode (REPL)** means Read, Evaluate, Print, Loop — you get feedback on one instruction before moving to the next.
-- **Google Colab** is a free, browser-based, hosted Jupyter notebook environment — no installation required, and your work runs on Google's servers.
-- A Colab **notebook** is made of **cells**; cells run only when you explicitly run them, and they do not have to run in top-to-bottom order — though you should run them that way as a habit.
-- The **runtime** is your live Python session; restarting it clears memory and gives you a clean slate, at the cost of having to rerun your cells.
-- `print()` is a built-in function that displays whatever you pass it as an **argument**; text arguments must be wrapped in matching quotation marks to form a **string**.
-- Reading and verifying your program's output — not just writing code — is a core, professional habit you are building from day one.
-- A very common fresher interview question is explaining the difference between compiled and interpreted languages — be ready to answer it in your own words, not just from memory.
-
-Coming next: the building blocks of the language itself — variables, identifiers, and types, where you'll learn to store values and do math with them.
-
----
-
-## 7. Reference Links
-
-- [The Python Tutorial — Using the Python Interpreter (Official Docs)](https://docs.python.org/3/tutorial/interpreter.html)
+- [Python Tutorial — official docs: "Using the Python Interpreter"](https://docs.python.org/3/tutorial/interpreter.html)
 - [Python 3 Documentation — `print()` built-in function](https://docs.python.org/3/library/functions.html#print)
-- [Real Python — Interacting With Python](https://realpython.com/interacting-with-python/)
 - [W3Schools — Python Introduction](https://www.w3schools.com/python/python_intro.asp)
-- [Google Colab — Welcome Notebook (Official)](https://colab.research.google.com/notebooks/intro.ipynb)
-
-[Go back to TOC](../../README.md) | [Next: 1.2 Variables, Identifiers & Types →](unit-1-2-variables-identifiers-types.md)
-
----
-
-*© 2026 Revature · AI Native Engineering — Foundations · Unit 1.1 · Version 2.0*
+- [W3Schools — Python Getting Started](https://www.w3schools.com/python/python_getstarted.asp)
