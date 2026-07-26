@@ -563,11 +563,25 @@ process_order took 0.0XXX seconds
 
 ### Important Notes (Interview Insights)
 
-- A very common fresher interview question: *"Why not just always use lambda instead of def?"* Answer confidently: a lambda is restricted to a single expression, cannot have a docstring, and is harder to debug because it has no name in a traceback — `def` is the right choice for anything beyond a short, disposable, one-line piece of logic.
-- Be ready to explain the **memory difference between a list and a generator**: a list holding a million computed values sits entirely in memory at once, while a generator produces one value at a time and never holds more than the current value in memory — this is why generators are the standard answer to "how would you process a huge file without running out of memory?"
-- Interviewers often check whether you understand that **`@decorator` is just syntax sugar** for `function = decorator(function)` — being able to write out that equivalent by hand is a strong signal you actually understand decorators rather than having memorized the `@` symbol.
-- When multiple decorators are stacked on one function, they apply **bottom-up**: `@a` above `@b` above `def f()` means `f = a(b(f))` — `b` wraps `f` first, and `a` wraps the result of that.
-- The reason a decorator's `wrapper` can still "see" the original `func` after `decorator_name` has already finished running is called a **closure** — the inner function remembers variables from the outer function's scope even after the outer function has returned.
+**Q: "Why not just always use lambda instead of def?"**
+
+A lambda is restricted to a single expression, cannot have a docstring, and is harder to debug because it has no name in a traceback — `def` is the right choice for anything beyond a short, disposable, one-line piece of logic.
+
+**Q: "What is the memory difference between a list and a generator?"**
+
+A list holding a million computed values sits entirely in memory at once, while a generator produces one value at a time and never holds more than the current value in memory — this is why generators are the standard answer to "how would you process a huge file without running out of memory?"
+
+**Q: "What does `@decorator` actually do under the hood?"**
+
+`@decorator` is just syntax sugar for `function = decorator(function)` — being able to write out that equivalent by hand is a strong signal you actually understand decorators rather than having memorized the `@` symbol.
+
+**Q: "When multiple decorators are stacked on one function, in what order do they apply?"**
+
+They apply **bottom-up**: `@a` above `@b` above `def f()` means `f = a(b(f))` — `b` wraps `f` first, and `a` wraps the result of that.
+
+**Q: "How can a decorator's `wrapper` still 'see' the original `func` after `decorator_name` has already finished running?"**
+
+This is called a **closure** — the inner function remembers variables from the outer function's scope even after the outer function has returned.
 
 ---
 
@@ -582,7 +596,7 @@ process_order took 0.0XXX seconds
 - Stacked decorators apply **bottom-up**: the one closest to the function wraps it first.
 - A generator object can be iterated **only once, forward** — call the generator function again for a fresh run.
 
-Coming next: Unit 2.5 — Modules, Packaging & Professional Tooling.
+Coming next: modules, packaging, and professional tooling.
 
 ---
 

@@ -19,7 +19,7 @@ By the end of this unit, you will be able to:
 
 ## 2. Overview
 
-You have been calling functions since Unit 1.1 — every `print()`, `int()`, and `type()` you've written hands work to code someone else wrote and gets an answer back. This unit teaches you to write your own: a named, reusable block of code that takes some input, does exactly one job, and gives back a result. That single shift — from one long script to organized, callable pieces — is what lets a program grow from ten lines to ten thousand lines without collapsing into unreadable, unmaintainable spaghetti code.
+You have been calling functions since your very first Python program — every `print()`, `int()`, and `type()` you've written hands work to code someone else wrote and gets an answer back. This unit teaches you to write your own: a named, reusable block of code that takes some input, does exactly one job, and gives back a result. That single shift — from one long script to organized, callable pieces — is what lets a program grow from ten lines to ten thousand lines without collapsing into unreadable, unmaintainable spaghetti code.
 
 This matters enormously once you join a real engineering team. Indian IT companies — whether building a banking core system, a UPI payment gateway, or an e-commerce checkout flow — do not write one giant script. They write thousands of small, well-named functions, each with clear inputs, a clear output, and a docstring explaining its purpose, so that hundreds of engineers can build on each other's work without reading each other's minds. Automated test suites — the backbone of any serious codebase — work by calling your functions and checking their **returned** values, not by reading what you printed to the screen.
 
@@ -110,7 +110,7 @@ def function_name(parameter1, parameter2=default_value):
 | indented body | The statements that run every time the function is called. | This is the actual work the function performs. |
 | `return result` | Sends `result` back to the caller and ends the function immediately. | Without it, the function silently returns `None`. |
 
-Calling the function reuses the same familiar shape you've used since Unit 1.1:
+Calling the function reuses the same familiar shape you've used since your very first Python program:
 
 ```python
 function_name(argument1, argument2)
@@ -160,7 +160,7 @@ greet("Sam", "Welcome")    # "Welcome, Sam"
 
 Two ordering rules follow directly from this: in a `def` line, parameters with defaults must come after parameters without them; in a call, positional arguments must come before any keyword arguments. There is also a real trap here worth remembering early: **a default value is calculated once, at the moment Python reads the `def` line — not freshly on every call.** For a plain number or string this never causes a problem. It becomes dangerous only when the default is something that can be changed in place after creation. The safe habit at this stage is to keep every default simple and fixed — a number, a string, or `None`.
 
-Sometimes a function does not know in advance how many arguments a caller will pass. A single `*` written before a parameter name tells Python to gather all the extra **positional** arguments together under that one name — by strong convention, `*args`. You then walk through whatever was gathered using a plain `for` loop, exactly like you did in Unit 2.2:
+Sometimes a function does not know in advance how many arguments a caller will pass. A single `*` written before a parameter name tells Python to gather all the extra **positional** arguments together under that one name — by strong convention, `*args`. You then walk through whatever was gathered using a plain `for` loop, exactly like you did with loops:
 
 ```python
 def total(*args):
@@ -269,7 +269,7 @@ flowchart TB
 
 If the base case were missing, or written so it could never actually be reached, the function would keep calling itself forever, pushing a fresh frame onto the call stack on every call. Python limits how deep this stack is allowed to grow. Once a program exceeds that limit, Python stops it cleanly and raises a `RecursionError` reporting "maximum recursion depth exceeded" — a controlled failure, not a silent hang or a crashed interpreter.
 
-The exact same job can also be done with a `for` loop and an accumulator, precisely as you practiced in Unit 2.2. Recursion is not faster here — it is a different way of *thinking* about a problem, one that fits naturally when a problem is already defined in terms of a smaller copy of itself. Getting the base case exactly right is the whole game.
+The exact same job can also be done with a `for` loop and an accumulator, precisely as you practiced with loops. Recursion is not faster here — it is a different way of *thinking* about a problem, one that fits naturally when a problem is already defined in terms of a smaller copy of itself. Getting the base case exactly right is the whole game.
 
 ### 3.8 Docstrings
 
@@ -405,7 +405,7 @@ print(calculate_bill(300, 40, 10, 5))
 *Line-by-line explanation:*
 - `*extra_charges` collects any further positional arguments — a packaging fee, a surge charge, a small-order fee — under one name, however many the caller passes.
 - The docstring states in one sentence what the function returns.
-- `for charge in extra_charges:` walks through whatever was collected, exactly like the `for` loops from Unit 2.2, adding each one to `total`.
+- `for charge in extra_charges:` walks through whatever was collected, exactly like the `for` loops you already know, adding each one to `total`.
 - `calculate_bill(300)` passes no extra charges at all, so `extra_charges` is empty and the loop body never runs: `300 + 30 = 330`.
 - `calculate_bill(300, 40, 10, 5)` passes two extra charges, collected into `extra_charges` as `10` and `5`: `300 + 40 + 10 + 5 = 355`.
 - Output:
@@ -567,11 +567,25 @@ For `digit_sum(492)`: `492` is not a single digit, so it splits into `2` (last d
 
 ### Important Notes (Interview Insights)
 
-- Be ready to state the difference precisely: a **parameter** is the name in the function's definition; an **argument** is the value supplied in the call. Interviewers frequently ask this exact question to check fundamentals.
-- A very common interview question: *"What happens when recursion goes too deep?"* Answer confidently: Python raises a `RecursionError` once the call stack exceeds its maximum depth — it is a controlled, catchable error, not a program crash, though in some other languages the equivalent situation is called a "stack overflow."
-- Be able to explain **why `return` matters more than `print()`** inside a function meant to be reused: a returned value can be stored, passed on, or checked by an automated test; a printed value is gone the instant it appears.
-- Know that a docstring is retrievable at runtime through a function's `__doc__` attribute or via the built-in `help()` function — this is what makes it genuinely useful documentation, not just a comment that only a human reading the source will ever see.
-- Understand that recursion and iteration (loops) can solve the exact same class of problems — recursion is a way of expressing a solution, not a way of making it faster.
+**Q: "What is the difference between a parameter and an argument?"**
+
+A **parameter** is the name in the function's definition; an **argument** is the value supplied in the call. Interviewers frequently ask this exact question to check fundamentals.
+
+**Q: "What happens when recursion goes too deep?"**
+
+Python raises a `RecursionError` once the call stack exceeds its maximum depth — it is a controlled, catchable error, not a program crash, though in some other languages the equivalent situation is called a "stack overflow."
+
+**Q: "Why does `return` matter more than `print()` inside a function meant to be reused?"**
+
+A returned value can be stored, passed on, or checked by an automated test; a printed value is gone the instant it appears.
+
+**Q: "How is a docstring different from an ordinary comment?"**
+
+A docstring is retrievable at runtime through a function's `__doc__` attribute or via the built-in `help()` function — this is what makes it genuinely useful documentation, not just a comment that only a human reading the source will ever see.
+
+**Q: "Is recursion faster than iteration?"**
+
+No — recursion and iteration (loops) can solve the exact same class of problems; recursion is a way of expressing a solution, not a way of making it faster.
 
 ---
 
@@ -586,7 +600,7 @@ For `digit_sum(492)`: `492` is not a single digit, so it splits into `2` (last d
 - A missing or unreachable base case leads to a `RecursionError` once Python's call stack limit is exceeded — a controlled failure, not a silent crash.
 - A **docstring** — a triple-quoted string as a function's first statement — documents what it does, following PEP 257, and is retrievable at runtime through `__doc__` or `help()`.
 
-Coming next: functional constructs — building on the functions you just learned to write, in Unit 2.4 — Functional Constructs.
+Coming next: functional constructs — building on the functions you just learned to write.
 
 ---
 

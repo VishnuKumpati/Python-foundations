@@ -19,11 +19,11 @@ By the end of this unit, you will be able to:
 
 ## 2. Overview
 
-In Unit 5.1, you learned to open files, read CSV data, and parse JSON — but every example assumed the file was exactly where you expected it, and every value inside it was exactly the type you expected. Real files, and real users, are rarely that well-behaved. A teammate deletes `sales.csv` before your script runs. A customer typing into a UPI payment form enters "five hundred" instead of `500`. A railway booking system is asked to look up a PNR number that was never actually booked. In production software — a payment gateway, an e-commerce checkout, a hospital record system — none of these situations gets to crash the entire application for every other user at the same time. The system must detect the problem, respond sensibly, and keep running.
+In File Handling, you learned to open files, read CSV data, and parse JSON — but every example assumed the file was exactly where you expected it, and every value inside it was exactly the type you expected. Real files, and real users, are rarely that well-behaved. A teammate deletes `sales.csv` before your script runs. A customer typing into a UPI payment form enters "five hundred" instead of `500`. A railway booking system is asked to look up a PNR number that was never actually booked. In production software — a payment gateway, an e-commerce checkout, a hospital record system — none of these situations gets to crash the entire application for every other user at the same time. The system must detect the problem, respond sensibly, and keep running.
 
 This is exactly what **exception handling** gives you. Instead of writing code and hoping nothing ever goes wrong, you explicitly plan for the specific ways it *can* go wrong, and write a response for each one — the same way good logic branches on `if`/`elif` rather than one generic `else`.
 
-This unit builds directly on Unit 5.1: you will revisit the very same `open()` calls from that unit, now protected against a missing file with `FileNotFoundError`. You will also learn the full `try`/`except`/`else`/`finally` toolkit, how to catch several distinct failures from one block, the most common built-in exceptions you will meet constantly, and how to `raise` your own exception when your code detects a problem no built-in exception describes. By the end, you will be writing code that behaves the way real, professional software must: it survives bad input instead of dying on it.
+This unit builds directly on File Handling: you will revisit the very same `open()` calls from that unit, now protected against a missing file with `FileNotFoundError`. You will also learn the full `try`/`except`/`else`/`finally` toolkit, how to catch several distinct failures from one block, the most common built-in exceptions you will meet constantly, and how to `raise` your own exception when your code detects a problem no built-in exception describes. By the end, you will be writing code that behaves the way real, professional software must: it survives bad input instead of dying on it.
 
 ---
 
@@ -202,7 +202,7 @@ graph TD
 ### 3.6 Best Practices
 
 - Catch specific exceptions (`except ValueError:`) rather than a bare `except:` — never hide a bug you didn't anticipate.
-- Use `finally` (or a `with` block, as covered in Unit 5.1) for cleanup that must always happen — closing a file, releasing a resource, logging that an attempt was made.
+- Use `finally` (or a `with` block, as covered in File Handling) for cleanup that must always happen — closing a file, releasing a resource, logging that an attempt was made.
 - Never silently swallow an exception (`except: pass`) — at minimum, log it so the failure stays visible somewhere.
 - Catch the narrowest exception type that fits the situation — catching `Exception` broadly is only a small improvement over a bare `except:`.
 - Keep the `try` block small — wrap only the risky line(s), not your entire program, so you know precisely what failed.
@@ -577,10 +577,21 @@ The first call converts `"100"` and `"5"` cleanly, divides them with no error, s
 
 ### Important Notes (Interview Insights)
 
-- Common interview question: *"What's the difference between an error and an exception?"* Answer confidently: a **syntax error** prevents the program from running at all; a **runtime exception** occurs during execution of otherwise-valid code and can be caught and handled — an error is the broader umbrella term, and an exception is the specific, handleable kind.
-- Common interview question: *"Does `finally` run if `return` is used inside `try`?"* Yes — `finally` runs before the function actually hands back its value, on literally every path out of the block, including an uncaught exception propagating upward.
-- Be ready to explain, with a concrete example, why a bare `except:` is dangerous rather than just reciting "it's bad practice" — interviewers often ask for the actual failure mode: a real bug (like a typo) getting silently reported as expected behaviour.
-- Know that all built-in exceptions descend from `BaseException`, but `Exception` is the practical class you should inherit from for your own custom exceptions — not `BaseException` directly, which also covers things like `SystemExit` and `KeyboardInterrupt` that you almost never want to accidentally catch.
+**Q: "What's the difference between an error and an exception?"**
+
+A **syntax error** prevents the program from running at all; a **runtime exception** occurs during execution of otherwise-valid code and can be caught and handled — an error is the broader umbrella term, and an exception is the specific, handleable kind.
+
+**Q: "Does `finally` run if `return` is used inside `try`?"**
+
+Yes — `finally` runs before the function actually hands back its value, on literally every path out of the block, including an uncaught exception propagating upward.
+
+**Q: "Why is a bare `except:` dangerous?"**
+
+Be ready to explain, with a concrete example, rather than just reciting "it's bad practice" — interviewers often ask for the actual failure mode: a real bug (like a typo) getting silently reported as expected behaviour.
+
+**Q: "Should custom exceptions inherit from `Exception` or `BaseException`?"**
+
+All built-in exceptions descend from `BaseException`, but `Exception` is the practical class you should inherit from for your own custom exceptions — not `BaseException` directly, which also covers things like `SystemExit` and `KeyboardInterrupt` that you almost never want to accidentally catch.
 
 ---
 
@@ -593,9 +604,9 @@ The first call converts `"100"` and `"5"` cleanly, divides them with no error, s
 - **Order matters**: list a specific exception before a related parent class, or the parent catches it first.
 - **`raise`**, including through a custom class inheriting from `Exception`, lets your own code signal a problem no built-in exception describes.
 - The most common built-in exceptions — `ValueError`, `TypeError`, `ZeroDivisionError`, `FileNotFoundError`, `KeyError`, `IndexError` — each map to one specific, recognizable situation worth memorizing.
-- Combining Unit 5.1's file handling with this unit's exception handling is exactly how real programs read messy, real-world data safely.
+- Combining file handling with this unit's exception handling is exactly how real programs read messy, real-world data safely.
 
-Coming next: Unit 5.3 — Case Study, which pulls file handling and exception handling together into one program that reads real, messy data and survives it instead of crashing on the first bad line.
+Coming next: Case Study — Building a Robust File Reader, which pulls file handling and exception handling together into one program that reads real, messy data and survives it instead of crashing on the first bad line.
 
 ---
 

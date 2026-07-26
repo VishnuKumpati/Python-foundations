@@ -19,9 +19,11 @@ By the end of this unit, you will be able to:
 
 ## 2. Overview
 
-Every unit so far has taught you a way to store *values*. A list stores values in order. A set stores values without duplicates. But think about how data actually looks in the software you use every day — your bank statement, your UPI payment history, your college mark sheet, a food delivery order. None of these are just "a bunch of values." Each one is a set of **labelled** values: a name paired with a roll number, an amount paired with a transaction ID, a course paired with a grade. Neither a list nor a set captures that idea of "this label points to this value" — and that gap is exactly what a **dictionary** fills.
+Think about your phone's contacts list. You don't save a friend's number by remembering "they are the 47th person I added" — you save it under their name, and later you just look up that name to get the number back. A name points to a number. That's the whole idea.
 
-A dictionary is Python's built-in way to store **key-value pairs** — where each key acts like a label you use to fetch its value, instead of remembering a numeric position. This is the closest data structure you have met so far to a real database record or a row in a spreadsheet, and it is also, not coincidentally, the exact shape that data takes when it travels over the internet as **JSON** — the format almost every web API, mobile app backend, and cloud service in the Indian IT industry uses to exchange information. Whether you go on to build a banking backend, a UPI payment gateway, an e-commerce catalog, or an AI/ML pipeline, you will be reading and writing dictionaries constantly.
+A **dictionary** is Python's way of storing exactly this kind of thing: pairs of `key: value`, where the key is like the name you search by, and the value is what you get back. A dictionary doesn't care about position or order the way a list does — it cares about labels. You ask "what's the value for this key?" and Python hands it back instantly, no matter how many entries you have.
+
+Once you notice this pattern, you'll start seeing it everywhere: a student's record (roll number → marks), a product in an online store (product ID → price), a bank account (account number → balance). It's also exactly the shape data takes when it travels between an app and a server as **JSON** — so getting comfortable with dictionaries now will make working with real APIs later much easier.
 
 This unit covers creating and accessing a dictionary, adding, modifying, and deleting entries, looping through it three different ways, sorting it, nesting dictionaries inside each other, the built-in functions and methods that make dictionaries convenient, and dictionary comprehensions.
 
@@ -40,6 +42,17 @@ student = {"name": "Ananya", "roll_no": 101, "marks": 87}
 ```
 
 Here, `"name"`, `"roll_no"`, and `"marks"` are keys, and `"Ananya"`, `101`, and `87` are their corresponding values. Together, `"name": "Ananya"` is one **key-value pair**.
+
+**Key-Value Mapping**
+
+```mermaid
+flowchart LR
+    K1["Key: 'name'"] --> V1["Value: 'Ananya'"]
+    K2["Key: 'roll_no'"] --> V2["Value: 101"]
+    K3["Key: 'marks'"] --> V3["Value: 87"]
+```
+
+Each key on the left points to exactly one value on the right — that arrow *is* the dictionary. Look up `"marks"` and you are handed `87` directly; there is no scanning involved.
 
 ### 3.2 Why This Concept Exists
 
@@ -78,44 +91,108 @@ Because so much real-world data — user profiles, product catalogs, API respons
 | **`.get()`** | A method that reads a key's value, returning a default (instead of raising an error) if the key is missing. |
 | **Hashable** | A property of a value that lets Python compute a fixed "fingerprint" for it, so it can be used as a dictionary key; immutable types are hashable, mutable ones (like `list`) are not. |
 
-### 3.4 Syntax
+### 3.4 Creating, Accessing, and Updating a Dictionary
+
+**Creating a dictionary:**
 
 ```python
-d = {key1: value1, key2: value2}   # dict literal
-value = d[key]                     # access — raises KeyError if key is missing
-value = d.get(key, default)        # safe access — returns default instead of raising
-d[key] = value                     # add a new key, or modify an existing one
-del d[key]                         # delete a key-value pair
+d = {key1: value1, key2: value2}
 ```
 
-| Part | What it is | Why it's there |
-|---|---|---|
-| `{key1: value1, key2: value2}` | A **dict literal** — curly braces holding comma-separated `key: value` pairs. | This is how you write a dictionary directly in code. |
-| `d[key]` | **Bracket access** — the same brackets used for list indexing, but the "index" is now a key. | Retrieves the value tied to `key`; raises `KeyError` if `key` isn't in `d`. |
-| `d.get(key, default)` | The **`.get()`** method. | Retrieves the value tied to `key`, or `default` (or `None` if you omit it) if the key is absent — never raises an error. |
-| `d[key] = value` | **Assignment** into a dictionary. | If `key` is new, it is added; if `key` already exists, its value is overwritten. There is no separate "insert" syntax. |
-| `del d[key]` | The **`del`** statement. | Removes a key and its value entirely; raises `KeyError` if the key does not exist. |
+Example:
 
-**Comparison Table: List vs Set vs Dict**
-
-| Aspect | List | Set | Dict |
-|---|---|---|---|
-| Access by | position, `lst[i]` | membership only (`in`) | **key**, `d[key]` |
-| Ordering | insertion order | unordered | insertion order (since Python 3.7) |
-| Duplicates | allowed | never | no duplicate **keys** (values may repeat) |
-| Written with | `[ ]` | `{ }` / `set()` | `{key: value}` |
-| Typical use case | an ordered sequence of items | unique items, fast membership tests | labelled records, lookup tables, counting |
-
-**Key-Value Mapping**
-
-```mermaid
-flowchart LR
-    K1["Key: 'name'"] --> V1["Value: 'Ananya'"]
-    K2["Key: 'roll_no'"] --> V2["Value: 101"]
-    K3["Key: 'marks'"] --> V3["Value: 87"]
+```python
+student = {"name": "Ananya", "roll_no": 101, "marks": 87}
+print(student)
 ```
 
-Each key on the left points to exactly one value on the right — that arrow *is* the dictionary. Look up `"marks"` and you are handed `87` directly; there is no scanning involved.
+Output:
+```
+{'name': 'Ananya', 'roll_no': 101, 'marks': 87}
+```
+
+Curly braces `{}` hold comma-separated `key: value` pairs — this is how you write a dictionary directly in code.
+
+**Accessing a value:**
+
+```python
+value = d[key]
+```
+
+Example:
+
+```python
+print(student["name"])
+```
+
+Output:
+```
+Ananya
+```
+
+Square brackets — the same brackets used for list indexing — retrieve the value tied to a key instead of a position. If the key doesn't exist, Python raises `KeyError`.
+
+**Accessing a value safely with `.get()`:**
+
+```python
+value = d.get(key, default)
+```
+
+Example:
+
+```python
+print(student.get("grade", "not available"))
+```
+
+Output:
+```
+not available
+```
+
+`.get()` retrieves the value tied to a key, or returns `default` (or `None` if you omit it) when the key is absent — it never raises an error, unlike bracket access.
+
+**Adding or modifying a key:**
+
+```python
+d[key] = value
+```
+
+Example:
+
+```python
+student["grade"] = "A"
+student["marks"] = 90
+print(student)
+```
+
+Output:
+```
+{'name': 'Ananya', 'roll_no': 101, 'marks': 90, 'grade': 'A'}
+```
+
+If `key` is new, it is added; if `key` already exists, its value is simply overwritten. There is no separate "insert" syntax — assignment handles both cases.
+
+**Deleting a key:**
+
+```python
+del d[key]
+```
+
+Example:
+
+```python
+del student["grade"]
+print(student)
+```
+
+Output:
+```
+{'name': 'Ananya', 'roll_no': 101, 'marks': 90}
+```
+
+`del` removes a key and its value entirely; it raises `KeyError` if the key does not exist.
+
+By now you've met all three collection types, so it helps to place them side by side in plain terms. A **list** is written with `[ ]` and accessed by position (`lst[i]`) — it keeps whatever order you added items in, and happily allows duplicates. A **set** is written with `{ }` or `set()` and only supports membership checks (`in`), not access by position — it has no reliable order, and never allows duplicates. A **dictionary** is written with `{key: value}` and accessed by key (`d[key]`), not position — like a set, it never allows duplicate **keys**, but unlike a set, it does remember insertion order (since Python 3.7). Reach for a list for an ordered sequence of items, a set for unique items and fast membership tests, and a dictionary for labelled records, lookup tables, and counting.
 
 **A Nested Dictionary**
 
@@ -168,6 +245,7 @@ The outer dictionary's keys (`101`, `102`) are roll numbers; each value is itsel
 | `d.pop(key, default)` | Removes `key` and returns its value; returns `default` (or raises `KeyError`) if the key is missing. |
 | `d.popitem()` | Removes and returns the last-inserted key-value pair as a tuple. |
 | `d.clear()` | Removes every key-value pair, leaving an empty dictionary. |
+| `d.copy()` | Returns a new, independent **shallow copy** of `d` — changing the copy's top-level keys doesn't affect the original (though a nested value, like an inner list or dict, is still shared). |
 | `sorted(d)` / `sorted(d.items(), key=...)` | Returns a new, sorted **list** — of keys, or of pairs — without changing `d` itself. |
 
 `keys()`, `values()`, and `items()` each return a **view object**, not a plain list — a view stays "live" and reflects later changes to the dictionary; wrap it in `list(...)` if you need an actual, independent list.
@@ -362,17 +440,28 @@ Expected output:
 
 ## 4. Real-World Application
 
-Dictionaries are the workhorse data structure across almost every domain of Indian IT and beyond:
+**Scenario: Looking up a customer's order on an e-commerce app**
 
-- **Banking & FinTech:** An account record — account number, holder name, balance, account type — is naturally a dictionary, and a bank's entire customer database is conceptually a dictionary of dictionaries keyed by account number.
-- **UPI / Payment Systems:** Every transaction — payer, payee, amount, transaction ID, status — is exchanged between apps and banks as a dictionary serialized to JSON, exactly as shown in the example above.
-- **E-commerce:** A product catalog is a dictionary keyed by product ID, each value holding name, price, and stock count; a shopping cart is a dictionary mapping product ID to quantity.
-- **Healthcare:** A patient record system stores a patient's details — name, age, diagnosis, admission status — as a dictionary, often nested with a separate dictionary for vitals or test results.
-- **Education:** A student information system stores marks, attendance, and fee status keyed by roll number or student ID — precisely the nested-dictionary pattern practiced in the worked example.
-- **Railway Booking (IRCTC-style systems):** A booking record — PNR number, passenger name, seat, fare, status — is looked up by PNR, which is nothing but a dictionary key.
-- **AI/ML & Cloud Apps:** Model configuration, API request and response bodies, and cloud service settings are almost always passed around as dictionaries in Python — this is the exact structure you will meet again as **JSON** when this course reaches API integration in Module 5.
+Picture a customer support agent pulling up one order by its order ID:
 
-Whenever you hear "this data comes from an API" or "this is a record with fields," think dictionary first.
+```python
+order = {
+    "order_id": "ORD48213",
+    "customer": "Neha Kapoor",
+    "items": ["Laptop Sleeve", "Wireless Mouse"],
+    "status": "Shipped",
+    "amount": 1499.00,
+}
+```
+
+Every question the support app needs answered maps directly to a dictionary operation you just learned:
+
+- **"What is the current status of this order?"** → **key lookup**: `order["status"]`.
+- **"Has a refund reference number been added yet?"** → a **safe lookup with `.get()`**: `order.get("refund_id")` returns `None` instead of crashing with a `KeyError` when the key doesn't exist yet.
+- **"Mark the order as delivered."** → **updating a value in place**: `order["status"] = "Delivered"`.
+- **"Show every field this order record has, one line at a time."** → looping with `order.items()`.
+
+That is the entire real-world application in one clear picture: a record of named fields, looked up instantly by key instead of by remembering a position — no scanning, no guessing which index held what. Once this one example is clear, you will recognize the exact same shape again and again in production systems: a bank's account record keyed by account number, a UPI transaction payload exchanged as JSON, a patient's record keyed by patient ID, a railway booking looked up by PNR — all are this same order-lookup scenario wearing a different name. Whenever you hear "this data comes from an API" or "this is a record with fields," think dictionary first — this is the exact structure you will meet again as **JSON** when this course reaches API integration in Module 5.
 
 ---
 
@@ -445,9 +534,17 @@ The dictionary comprehension computes one average per student by reading straigh
 
 ### Important Notes (Interview Insights)
 
-- A very common fresher interview question: *"Why is looking up a value in a dictionary faster than searching for it in a list?"* Answer: a dictionary uses **hashing** to jump almost directly to a key's location, giving roughly **constant-time, O(1)** average lookup — while a list must scan element by element in the worst case, which is **O(n)**. This is exactly why a dictionary, not a list, is the right structure whenever your program's main job is "look this up by its label."
-- Interviewers often probe whether you know **when to use `.get()` versus `[]`**: use `[]` when the key's presence is guaranteed and a missing key genuinely signals a bug you want surfaced immediately; use `.get()` whenever the key is optional or comes from untrusted external input, such as a field that might not exist in an API response.
-- Be ready to explain that a dictionary key must be **hashable**, and that this is precisely why a `list` cannot be a key but a `tuple` can — a detail that connects directly back to Unit 3.2 (Tuples) and Unit 3.3 (Sets), where the same hashability rule applies to set elements.
+**Q: "Why is looking up a value in a dictionary faster than searching for it in a list?"**
+
+A dictionary uses **hashing** to jump almost directly to a key's location, giving roughly **constant-time, O(1)** average lookup — while a list must scan element by element in the worst case, which is **O(n)**. This is exactly why a dictionary, not a list, is the right structure whenever your program's main job is "look this up by its label."
+
+**Q: "When should you use `.get()` versus `[]` to access a dictionary value?"**
+
+Use `[]` when the key's presence is guaranteed and a missing key genuinely signals a bug you want surfaced immediately; use `.get()` whenever the key is optional or comes from untrusted external input, such as a field that might not exist in an API response.
+
+**Q: "Why can a tuple be used as a dictionary key, but a list cannot?"**
+
+A dictionary key must be **hashable**, and that is precisely why a `list` cannot be a key but a `tuple` can — a detail that connects directly back to tuples and sets, where the same hashability rule applies to set elements.
 
 ---
 
@@ -463,7 +560,7 @@ The dictionary comprehension computes one average per student by reading straigh
 - Dictionaries are the Python shape of **JSON data** — remember this connection, since it becomes central once this course reaches API integration.
 - A dictionary gives roughly **constant-time (O(1))** lookup by key, versus a list's linear **O(n)** scan — a key interview talking point.
 
-Coming next: Unit 3.5 — Iterators, Generators & Collections, where you will look at the machinery quietly running behind every `for` loop you have written so far, and meet the `collections` module for more specialized dictionary-like tools.
+Coming next: Iterators, Generators & Collections, where you will look at the machinery quietly running behind every `for` loop you have written so far, and meet the `collections` module for more specialized dictionary-like tools.
 
 ---
 

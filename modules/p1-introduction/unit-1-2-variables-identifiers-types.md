@@ -19,7 +19,7 @@ By the end of this unit, you will be able to:
 
 ## 2. Overview
 
-In Unit 1.1, you learned to type code into a Colab cell, run it, and use `print()` to see a result. That's a good start, but think about what a real application does — a banking app remembers your account balance, a food delivery app remembers your cart total, a UPI app remembers the amount you're about to pay. None of that is possible if every value disappears the moment it's printed.
+Working in the Python environment, you learned to type code into a Colab cell, run it, and use `print()` to see a result. That's a good start, but think about what a real application does — a banking app remembers your account balance, a food delivery app remembers your cart total, a UPI app remembers the amount you're about to pay. None of that is possible if every value disappears the moment it's printed.
 
 This is exactly the gap a **variable** fills. A variable gives a value a name, so your program can refer to it again and again, and update it in one place instead of hunting down every copy scattered across the code. This single idea — "give it a name, use the name" — is the single most-used concept in all of software development; you will use it in literally every program you ever write, from your first Colab cell to a production banking system.
 
@@ -43,7 +43,7 @@ Read this as "let `x` refer to the value `5`" — not "x equals 5" in the mathem
 
 ### 3.2 Why This Concept Exists
 
-Without variables, every program would be limited to `print()`-ing fixed text once and forgetting it — exactly the limitation you hit at the end of Unit 1.1. Real software constantly needs to:
+Without variables, every program would be limited to `print()`-ing fixed text once and forgetting it — exactly the limitation you hit at the end of your first look at the Python environment. Real software constantly needs to:
 
 - **Remember** a value across multiple steps (a customer's cart total while they keep shopping).
 - **Reuse** a value in several places without retyping it (a tax rate applied to every item).
@@ -119,7 +119,7 @@ print("Hello,", name)
 |---|---|---|
 | `input(...)` | The built-in function that reads one line of text typed by the user. | This is how a program collects information from a real person instead of having every value hard-coded. |
 | `"Enter your name: "` | An optional **prompt** string, shown before the program waits. | Tells the user what kind of value is expected; without it, the program would still wait, but with no visible message. |
-| Return value | **Always a `str`**, no matter what the user types — even `input("Enter your age: ")` with `20` typed in returns the *string* `"20"`, not the number `20`. | This is the single most important fact about `input()`: you must explicitly convert it (using `int()` or `float()`, covered in Unit 1.4) before using it as a number. |
+| Return value | **Always a `str`**, no matter what the user types — even `input("Enter your age: ")` with `20` typed in returns the *string* `"20"`, not the number `20`. | This is the single most important fact about `input()`: you must explicitly convert it (using `int()` or `float()`, covered later when we look at statements, conversion, and output) before using it as a number. |
 
 See this for yourself — even though the user types a number below, `type()` proves what `input()` actually handed back:
 
@@ -442,9 +442,17 @@ Each `type()` call reports exactly the type Python inferred at the moment of ass
 
 ### Important Notes (Interview Insights)
 
-- A frequently asked fresher interview question: *"Is Python statically typed or dynamically typed?"* Answer confidently: Python is **dynamically typed** — you never declare a variable's type in advance; Python determines it automatically from the assigned value, and the same name can refer to different types at different times in the program.
-- Be ready to explain the difference between a **rule** and a **convention**: identifier rules are enforced by the language (violating one stops your program from running at all), while `snake_case` is a convention — a team agreement that keeps code consistent and readable, not something Python itself checks.
-- Interviewers sometimes probe whether you understand that `=` in Python is *assignment*, not mathematical equality — comparison uses a different operator (`==`), which you will meet in Unit 1.3.
+**Q: "Is Python statically typed or dynamically typed?"**
+
+Python is **dynamically typed** — you never declare a variable's type in advance; Python determines it automatically from the assigned value, and the same name can refer to different types at different times in the program.
+
+**Q: "What is the difference between an identifier rule and a naming convention?"**
+
+Identifier rules are enforced by the language (violating one stops your program from running at all), while `snake_case` is a convention — a team agreement that keeps code consistent and readable, not something Python itself checks.
+
+**Q: "Does `=` mean the same thing in Python as it does in mathematics?"**
+
+No — `=` in Python is *assignment*, not mathematical equality. Comparison uses a different operator (`==`), which you will meet when we cover operators and expressions. Interviewers sometimes probe whether you understand this distinction.
 
 ---
 
@@ -458,7 +466,7 @@ Each `type()` call reports exactly the type Python inferred at the moment of ass
 - A `NameError` means you used a variable before assigning it; a `SyntaxError` on a variable name usually means it starts with a digit or clashes with a reserved keyword.
 - Being ready to explain *dynamic vs static typing* in your own words is a very common entry-level interview question.
 
-Coming next: operators and expressions — how you combine and compare the values you now know how to store (Unit 1.3 — Operators & Expressions).
+Coming next: operators and expressions — how you combine and compare the values you now know how to store.
 
 ---
 

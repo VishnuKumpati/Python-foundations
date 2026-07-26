@@ -19,11 +19,11 @@ By the end of this unit, you will be able to:
 
 ## 2. Overview
 
-By now you have worked with lists (Unit 3.1) and tuples (Unit 3.2). Both remember the order you put things in, and both happily store duplicates — a list of phone numbers can hold the same number three times if that's what got typed in. But a huge amount of real-world data work is not about order at all; it is about **which distinct values are present** and **whether two collections overlap**. Has this customer's phone number already been saved? Which pincodes does a food delivery app service? Which courses do two students have in common?
+By now you have worked with lists and tuples. Both remember the order you put things in, and both happily store duplicates — a list of phone numbers can hold the same number three times if that's what got typed in. But a huge amount of real-world data work is not about order at all; it is about **which distinct values are present** and **whether two collections overlap**. Has this customer's phone number already been saved? Which pincodes does a food delivery app service? Which courses do two students have in common?
 
 A **set** is Python's built-in answer to exactly this kind of question. Picture a set as a bag of unique items — you can drop things in, but the bag never lets a duplicate sit inside it, and it doesn't care in what order things went in.
 
-In the Indian IT industry, sets show up constantly and quietly: a banking system removing duplicate transaction IDs during reconciliation, a UPI app checking a payer's VPA (Virtual Payment Address — the `name@bank` ID behind a UPI payment) against a blacklist in a split second, an e-commerce recommendation engine comparing what two customers bought to find overlap, a college placement cell de-duplicating a messy Google Form export. Learning to reach for a set instead of writing a manual duplicate-checking loop is a small decision that consistently separates clean, fast code from slow, bug-prone code.
+Here's a simple, everyday example: when you sign up for a new app with your phone number, the app has to check whether that number is already registered. Behind the scenes, it is really just asking one question — "have I seen this value before?" — against a huge collection of existing phone numbers. A set answers that exact question instantly, no matter how many phone numbers it holds. Learning to reach for a set instead of writing a manual duplicate-checking loop is a small decision that consistently separates clean, fast code from slow, bug-prone code.
 
 This unit covers creating sets, the four set operations, membership testing, safe mutation, and set comprehensions.
 
@@ -45,18 +45,19 @@ You write a set using curly braces `{}` around comma-separated values, or by pas
 fruits = {"apple", "banana", "mango"}
 ```
 
-**Comparison Table: List vs Set**
+**Comparison Table: List vs Tuple vs Set**
 
-| Aspect | List | Set |
-|---|---|---|
-| Allows duplicates | Yes | **No** — duplicates are dropped automatically |
-| Preserves insertion order | Yes | **No** — order is not guaranteed |
-| Indexing / slicing | Yes (`my_list[0]`) | **No** — not subscriptable |
-| Membership check (`in`) speed | Slower as the list grows (scans from the start) | **Fast** — roughly constant time via hashing |
-| Written with | `[ ]` | `{ }` or `set()` |
-| Typical use case | Ordered data, data with intentional repeats | Uniqueness, membership checks, overlap between collections |
+| Aspect | List | Tuple | Set |
+|---|---|---|---|
+| Allows duplicates | Yes | Yes | **No** — duplicates are dropped automatically |
+| Preserves insertion order | Yes | Yes | **No** — order is not guaranteed |
+| Mutable | Yes | **No** — immutable | Yes, but its *elements* must each be immutable |
+| Indexing / slicing | Yes (`my_list[0]`) | Yes (`my_tuple[0]`) | **No** — not subscriptable |
+| Membership check (`in`) speed | Slower as the list grows (scans from the start) | Slower as the tuple grows (scans from the start) | **Fast** — roughly constant time via hashing |
+| Written with | `[ ]` | `( )` or just commas | `{ }` or `set()` |
+| Typical use case | Ordered data, data with intentional repeats | A fixed, related group of values that should never change | Uniqueness, membership checks, overlap between collections |
 
-### 3.2 Why This Concept Exists
+### 3.2 Why Uniqueness Matters
 
 Without a dedicated data structure for uniqueness, a programmer would have to write a manual check every single time duplicates mattered:
 
@@ -95,30 +96,99 @@ unique_numbers = set([1, 2, 2, 3, 3, 3])
 
 ### 3.4 Syntax
 
-| Syntax | What it does | Example |
-|---|---|---|
-| `{value1, value2, ...}` | Creates a set literal directly from listed values. | `{"red", "green", "blue"}` |
-| `set(iterable)` | Builds a set from any iterable (list, tuple, string), keeping only the distinct elements. | `set([1, 2, 2, 3])` → `{1, 2, 3}` |
-| `set()` | Creates an **empty set**. This is the only way to get an empty set — bare `{}` creates an empty dictionary instead. | `empty = set()` |
-| `value in my_set` | Checks membership — returns `True` or `False`. | `"red" in fruits` |
-| `a \| b` | **Union** — every element in `a` or `b` or both. | `{1,2} \| {2,3}` → `{1,2,3}` |
-| `a & b` | **Intersection** — only elements in both `a` and `b`. | `{1,2} & {2,3}` → `{2}` |
-| `a - b` | **Difference** — elements in `a` that are not in `b`. | `{1,2} - {2,3}` → `{1}` |
-| `a ^ b` | **Symmetric difference** — elements in exactly one of `a`, `b`. | `{1,2} ^ {2,3}` → `{1,3}` |
+**Creating a set:**
 
-**Set Operations**
-
-```mermaid
-flowchart TD
-    A["Set A: pincodes served by Restaurant X"] --> U["Union A | B<br/>everything served by X or Y"]
-    B["Set B: pincodes served by Restaurant Y"] --> U
-    A --> I["Intersection A & B<br/>pincodes both serve"]
-    B --> I
-    A --> D["Difference A - B<br/>pincodes only X serves"]
-    B --> D
-    A --> S["Symmetric Difference A ^ B<br/>pincodes served by exactly one"]
-    B --> S
+```python
+my_set = {value1, value2, value3}
 ```
+
+Example:
+
+```python
+your_friends = {"Aditi", "Rohan", "Meera"}
+print(your_friends)
+```
+
+Output:
+```
+{'Aditi', 'Rohan', 'Meera'}
+```
+
+Curly braces `{}` wrap comma-separated values to build a set directly. Just like a real friends list, it doesn't matter what order the names are stored in, and it wouldn't make sense to list the same friend twice — a set keeps only distinct values automatically.
+
+You can also build a set from something you already have — like a list with repeated values — using the `set()` constructor:
+
+```python
+set(iterable)
+```
+
+Example:
+
+```python
+numbers = [1, 2, 2, 3, 3, 3]
+unique_numbers = set(numbers)
+print(unique_numbers)
+```
+
+Output:
+```
+{1, 2, 3}
+```
+
+`set()` keeps only the distinct values from whatever iterable you pass it. To create an **empty set**, you must call `set()` with nothing inside — bare `{}` creates an empty *dictionary* instead, not an empty set:
+
+```python
+empty = set()
+```
+
+**Set operations:**
+
+Say you and a classmate each have your own set of friends:
+
+```python
+your_friends = {"Aditi", "Rohan", "Meera"}
+classmate_friends = {"Rohan", "Kabir", "Meera"}
+```
+
+Set operations let you compare the two directly, without writing a single loop:
+
+```python
+print(your_friends | classmate_friends)
+print(your_friends & classmate_friends)
+print(your_friends - classmate_friends)
+print(your_friends ^ classmate_friends)
+```
+
+Output:
+```
+{'Aditi', 'Rohan', 'Meera', 'Kabir'}
+{'Rohan', 'Meera'}
+{'Aditi'}
+{'Aditi', 'Kabir'}
+```
+
+- `your_friends | classmate_friends` is the **union** — everyone who is a friend of either of you, combined with no repeats.
+- `your_friends & classmate_friends` is the **intersection** — only the friends you both have in common.
+- `your_friends - classmate_friends` is the **difference** — friends you have that your classmate doesn't.
+- `your_friends ^ classmate_friends` is the **symmetric difference** — friends that belong to exactly one of you, not both.
+
+**In-place set operations:**
+
+Each of the four operations above also has a mutating counterpart — instead of returning a *new* set, it updates the set on the left directly:
+
+| Method | Equivalent to |
+|---|---|
+| `a.update(b)` | `a = a \| b` — but changes `a` in place instead of building a new set. |
+| `a.intersection_update(b)` | `a = a & b` — in place. |
+| `a.difference_update(b)` | `a = a - b` — in place. |
+| `a.symmetric_difference_update(b)` | `a = a ^ b` — in place. |
+
+```python
+your_friends.update(classmate_friends)
+print(your_friends)   # your_friends itself now holds the union — no new set was created
+```
+
+Reach for the in-place form when you genuinely want to grow or shrink the existing set itself (for example, merging a new batch of friends into your own set as it arrives); reach for the operator form (`|`, `&`, `-`, `^`) when you want to keep both original sets untouched and work with a fresh result instead.
 
 ### 3.5 Rules
 
@@ -147,7 +217,7 @@ flowchart TD
 - **Trying to put a mutable value (like a list) inside a set** — this raises `TypeError: unhashable type: 'list'`, since a set can only hold immutable, hashable elements.
 - **Using `remove()` on a value that might not exist.** This raises a `KeyError`. Use `discard()` when a missing value should simply be ignored.
 
-### 3.8 Membership Testing and Mutation
+### 3.8 Membership Testing, Mutation, and Comparison Methods
 
 **Membership testing** uses the same `in` operator you already know from lists and strings:
 
@@ -164,20 +234,29 @@ True
 False
 ```
 
-**Mutation** means changing a set's contents after it is created. Three methods handle this:
+**Mutation** means changing a set's contents after it is created:
 
 | Method | What it does | Behaviour on a missing/existing value |
 |---|---|---|
 | `add(value)` | Adds `value` to the set. | If `value` is already present, nothing changes — no error, no duplicate. |
 | `remove(value)` | Removes `value` from the set. | Raises `KeyError` if `value` is not present. |
 | `discard(value)` | Removes `value` from the set if present. | Does nothing if `value` is not present — no error. |
+| `pop()` | Removes and returns an arbitrary element from the set. | Raises `KeyError` if the set is already empty — there is no way to choose *which* element is removed, since a set has no order. |
+| `clear()` | Removes every element, leaving an empty set. | Works even if the set is already empty. |
+| `copy()` | Returns a new, independent set with the same elements. | Does not mutate the original — listed here because it is commonly used alongside the other set methods. |
 
 ```python
 cart_items = {"soap", "shampoo"}
 cart_items.add("toothpaste")
 cart_items.discard("shampoo")
 cart_items.discard("perfume")   # not present, but no error
+print(cart_items)
 
+backup = cart_items.copy()
+removed_item = cart_items.pop()
+print(len(cart_items), len(backup))
+
+cart_items.clear()
 print(cart_items)
 ```
 
@@ -185,9 +264,38 @@ Output:
 
 ```
 {'soap', 'toothpaste'}
+1 2
+set()
 ```
 
-Default to `discard()` unless a missing value would genuinely be a bug you want Python to flag with an error.
+Default to `discard()` unless a missing value would genuinely be a bug you want Python to flag with an error. `removed_item` holds whichever element `pop()` happened to remove — since a set has no order, this is never guaranteed to be a specific value, but `cart_items` reliably drops from 2 elements to 1, while `backup` (copied *before* the `pop()`) still holds both.
+
+**Comparing two sets:**
+
+| Method | What it does |
+|---|---|
+| `a.issubset(b)` | `True` if every element of `a` is also in `b` (`a <= b` is the operator form). |
+| `a.issuperset(b)` | `True` if `a` contains every element of `b` (`a >= b` is the operator form). |
+| `a.isdisjoint(b)` | `True` if `a` and `b` share **no** elements at all. |
+
+```python
+allowed_roles = {"admin", "editor", "viewer"}
+requested_roles = {"editor", "viewer"}
+
+print(requested_roles.issubset(allowed_roles))
+print(allowed_roles.issuperset(requested_roles))
+print(allowed_roles.isdisjoint({"guest"}))
+```
+
+Output:
+
+```
+True
+True
+True
+```
+
+`requested_roles.issubset(allowed_roles)` confirms every requested role is actually a permitted one — a common real check before granting access to a feature.
 
 ### 3.9 Set Comprehensions
 
@@ -462,9 +570,17 @@ Lower-casing every name before building each set ensures that `"Meera Iyer"` and
 
 ### Important Notes (Interview Insights)
 
-- A common fresher interview question: *"Why are sets unordered and unindexed?"* A set is built on a **hash table**, the same idea a dictionary uses internally. Elements are stored at positions computed from their hash value, not in the order you typed them, so there is no meaningful "first" or "second" element to index — that is the trade-off a set makes in exchange for very fast membership testing.
-- Another common question: *"When would you use a set instead of a list for de-duplication?"* Answer: whenever the collection is large or membership will be checked repeatedly. Removing duplicates via `list(set(data))` is a single readable line, and checking membership against a set stays fast (roughly constant time) even as the set grows, while checking membership against a list gets slower as the list grows, because Python has to scan it from the start each time.
-- Be ready to state clearly: **a set trades order and duplicates for speed and uniqueness** — that trade-off is the entire reason the data structure exists.
+**Q: "Why are sets unordered and unindexed?"**
+
+A set is built on a **hash table**, the same idea a dictionary uses internally. Elements are stored at positions computed from their hash value, not in the order you typed them, so there is no meaningful "first" or "second" element to index — that is the trade-off a set makes in exchange for very fast membership testing.
+
+**Q: "When would you use a set instead of a list for de-duplication?"**
+
+Whenever the collection is large or membership will be checked repeatedly. Removing duplicates via `list(set(data))` is a single readable line, and checking membership against a set stays fast (roughly constant time) even as the set grows, while checking membership against a list gets slower as the list grows, because Python has to scan it from the start each time.
+
+**Q: "What's the fundamental trade-off a set makes?"**
+
+A set trades order and duplicates for speed and uniqueness — that trade-off is the entire reason the data structure exists.
 
 ---
 
@@ -479,7 +595,7 @@ Lower-casing every name before building each set ensures that `"Meera Iyer"` and
 - A set only ever compares values exactly as they are — normalize data (same case, same spacing) yourself before relying on a set to catch "obvious" duplicates.
 - Choose a **list** for ordered or position-based data with intentional duplicates; choose a **set** for uniqueness, fast membership checks, and comparing overlap between collections.
 
-Coming next: Unit 3.4 — Dictionaries, a structure that pairs every value with its own key instead of just a position or a bare presence check.
+Coming next: Dictionaries, a structure that pairs every value with its own key instead of just a position or a bare presence check.
 
 ---
 

@@ -21,7 +21,7 @@ By the end of this unit, you will be able to:
 
 Every program you've written so far in this course runs each line exactly once, top to bottom. Real software rarely works that way. A banking app checks every transaction in a statement. A food delivery app polls an order's status again and again until it's delivered. An e-commerce site prints every item in an invoice, however many there are. Writing the same `print()` statement fifty times is not a solution — it doesn't scale, and it breaks the moment the number of items changes. What you need is a way to tell Python: "repeat this block, either while some condition holds, or once for every item in a sequence."
 
-That mechanism is called a **loop**, and it is one of the core control-flow structures, alongside the conditionals you learned in Unit 2.1. Python gives you exactly two loop keywords — `while`, which repeats *as long as* a condition stays `True`, and `for`, which repeats *once per item* in a sequence. Around these two keywords sit a small toolkit that makes looping practical in real code: `range()` to generate numbers to loop over, `enumerate()` to track position, `zip()` to walk two sequences together, and `break`/`continue` to redirect a loop's flow from inside its own body. Indian IT companies test loop fundamentals in nearly every entry-level coding round — this unit is the foundation for almost everything you will build from here on.
+That mechanism is called a **loop**, and it is one of the core control-flow structures, alongside conditionals, which you already learned. Python gives you exactly two loop keywords — `while`, which repeats *as long as* a condition stays `True`, and `for`, which repeats *once per item* in a sequence. Around these two keywords sit a small toolkit that makes looping practical in real code: `range()` to generate numbers to loop over, `enumerate()` to track position, `zip()` to walk two sequences together, and `break`/`continue` to redirect a loop's flow from inside its own body. Indian IT companies test loop fundamentals in nearly every entry-level coding round — this unit is the foundation for almost everything you will build from here on.
 
 ---
 
@@ -421,10 +421,21 @@ Roll `1` and roll `2` are `"Present"`, so both print normally. Roll `3` is `"Abs
 
 ### Important Notes (Interview Insights)
 
-- A common fresher interview question: *"What is the difference between `break` and `continue`?"* Answer precisely: `break` exits the loop entirely; `continue` skips only the current iteration and moves to the next one. Confusing the two is one of the fastest ways to lose marks in a coding round.
-- Be ready to explain **why `range(5)` produces five numbers, `0` to `4`, not `1` to `5`** — this exclusive-stop behavior is one of the most frequently tested "gotcha" questions for beginners.
-- Interviewers often ask you to trace through a nested loop by hand and state exactly how many total iterations run — the answer is always (outer iterations) × (inner iterations). Practicing this trace on paper builds real confidence.
-- Know that `while True:` combined with a `break` is a legitimate, common pattern — not a bug — used whenever a loop should run until some event happens rather than for a fixed number of times (for example, retrying a login until it succeeds).
+**Q: "What is the difference between `break` and `continue`?"**
+
+`break` exits the loop entirely; `continue` skips only the current iteration and moves to the next one. Confusing the two is one of the fastest ways to lose marks in a coding round.
+
+**Q: "Why does `range(5)` produce five numbers, `0` to `4`, not `1` to `5`?"**
+
+This exclusive-stop behavior is one of the most frequently tested "gotcha" questions for beginners — `range(5)` starts at `0` by default and stops before reaching `5`, producing exactly five values: `0, 1, 2, 3, 4`.
+
+**Q: "Can you trace through a nested loop by hand and state exactly how many total iterations run?"**
+
+The answer is always (outer iterations) × (inner iterations). Practicing this trace on paper builds real confidence.
+
+**Q: "Is `while True:` combined with a `break` a bug or a legitimate pattern?"**
+
+It's a legitimate, common pattern — not a bug — used whenever a loop should run until some event happens rather than for a fixed number of times (for example, retrying a login until it succeeds).
 
 ---
 
@@ -439,7 +450,7 @@ Roll `1` and roll `2` are `"Present"`, so both print normally. Roll `3` is `"Abs
 - Use a `for` loop when you know what you're iterating over; use a `while` loop when you're repeating until a condition changes.
 - The two most common loop bugs are the **infinite loop** (forgetting to update a `while` condition) and the **off-by-one error** (misreading `range()`'s exclusive stop).
 
-Coming next: Unit 2.3 — Functions, where you'll learn to package a block of logic — including loops — under a name, so you can reuse it by calling it instead of retyping it.
+Coming next: functions, where you'll learn to package a block of logic — including loops — under a name, so you can reuse it by calling it instead of retyping it.
 
 ---
 

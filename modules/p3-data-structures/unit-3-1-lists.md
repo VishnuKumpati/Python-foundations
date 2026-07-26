@@ -71,7 +71,7 @@ A list solves this with one mechanism: hold any number of values, of any type, u
 | **Alias** | A second variable name that refers to the exact same list in memory, not an independent copy. |
 | **`IndexError`** | The error Python raises when you access an index that does not exist in the list. |
 
-### 3.4 Syntax
+### 3.4 List Literals, Indexing & Slicing (and How Lists Differ from Arrays)
 
 **List literal:**
 
@@ -129,14 +129,6 @@ print(a[::-1])     # [9, 8, 7, 6, 5, 4, 3, 2, 1, 0] — a reversed copy
 
 Two slicing idioms come up so often that they are worth memorizing: `a[::2]` takes every second element, and `a[::-1]` produces the list reversed, because a negative step walks backward through the list. Since a slice always builds a *new* list, slicing itself never changes the original — this is different from the in-place methods you will meet in §3.6.
 
-**Common methods (a small sample — the full set is covered in §3.6):**
-
-| Method | What it does |
-|---|---|
-| `my_list.append(x)` | Adds `x` as one new element at the end. |
-| `my_list.remove(x)` | Deletes the first element equal to `x`. |
-| `my_list.sort()` | Sorts the list in place, in ascending order by default. |
-
 **Comparison Table: Python List vs. Array (Other Languages)**
 
 Many languages you may encounter later (C, Java, and others) have a data structure called an **array**, which looks similar to a Python list at first glance but behaves quite differently:
@@ -145,7 +137,7 @@ Many languages you may encounter later (C, Java, and others) have a data structu
 |---|---|---|
 | Fixed size? | No — grows and shrinks freely with `append`, `pop`, `insert`, etc. | Usually fixed at creation; resizing often needs a new array |
 | Mixed types allowed? | Yes — a single list can hold `int`, `str`, `bool`, even other lists, together | Usually no — most arrays hold only one declared type |
-| Declared in advance? | No — Python infers everything at run time (dynamic typing, as in Unit 1.2) | Often yes — many languages require declaring the element type up front |
+| Declared in advance? | No — Python infers everything at run time (dynamic typing, as you saw with variables and types) | Often yes — many languages require declaring the element type up front |
 | Built-in methods | Rich set: `append`, `sort`, `index`, comprehensions, and more | Typically minimal; extra behaviour needs separate library code |
 
 This is why Python lists are often described as more flexible but with some run-time overhead compared to a fixed, single-type array in a statically typed language.
@@ -173,7 +165,7 @@ To get an independent list, use a full slice (`b = a[:]`) or the `copy()` method
 
 ### 3.6 List Methods
 
-Lists carry built-in **methods** — functions attached to the list object, invoked with dot syntax: `my_list.method(...)`. The everyday set falls into three groups.
+Lists carry built-in **methods** — functions attached to the list object, invoked with dot syntax: `my_list.method(...)`. The everyday set falls into four groups.
 
 **Methods that add elements:**
 
@@ -192,15 +184,24 @@ Lists carry built-in **methods** — functions attached to the list object, invo
 - `index(x)` — returns the index of the first element equal to `x` (raises `ValueError` if not found).
 - `count(x)` — returns how many times `x` appears in the list.
 
+**Method that reorders elements:**
+
+- `reverse()` — reverses the list **in place**, permanently flipping the order of every element; unlike `sort()`, it does not compare values, so it works even on a list Python couldn't otherwise sort.
+
+**Method that copies the list:**
+
+- `copy()` — returns a new, independent **shallow copy** of the list, equivalent to the full slice `a[:]`; changing the copy does not affect the original (though, for a *nested* list, the inner lists are still shared — see §3.5 Mutability).
+
 ```python
 nums = [1, 2, 3]
 nums.append(4)         # [1, 2, 3, 4]
 nums.insert(0, 99)     # [99, 1, 2, 3, 4]
 nums.extend([5, 6])    # [99, 1, 2, 3, 4, 5, 6]
 last = nums.pop()      # last = 6, nums = [99, 1, 2, 3, 4, 5]
+nums.reverse()          # nums = [5, 4, 3, 2, 1, 99]
 ```
 
-Notice the difference between `append` and `extend`: `nums.append([5, 6])` adds the list `[5, 6]` as **one** nested element, whereas `nums.extend([5, 6])` unpacks it and adds `5` and `6` as two separate elements. All of `append`, `insert`, `extend`, `remove`, `pop`, and `clear` change the list *in place* — this is mutability at work — while `index` and `count` only read from the list and never change it.
+Notice the difference between `append` and `extend`: `nums.append([5, 6])` adds the list `[5, 6]` as **one** nested element, whereas `nums.extend([5, 6])` unpacks it and adds `5` and `6` as two separate elements. All of `append`, `insert`, `extend`, `remove`, `pop`, `clear`, and `reverse` change the list *in place* — this is mutability at work — while `index` and `count` only read from the list and never change it.
 
 ### 3.7 Sorting: `sort()` vs. `sorted()`
 
@@ -286,7 +287,7 @@ Reading this line by line: `for n in nums` walks through `1, 2, 3, 4, 5, 6` one 
 - A **slice** (`start:stop:step`) never raises an `IndexError` even if `start` or `stop` is out of range — Python simply clamps to the available elements, and an empty range produces an empty list `[]`.
 - `stop` in a slice is always **excluded** — `a[1:5]` gives you indices `1, 2, 3, 4`, not `5`.
 - Lists are **mutable**; assigning a list to a new name creates an **alias**, not a copy — use `.copy()` or a full slice `[:]` for an independent list.
-- Methods that change a list (`append`, `insert`, `extend`, `remove`, `pop`, `clear`, `sort`) act **in place** and typically return `None`; do not assign their result back to the list.
+- Methods that change a list (`append`, `insert`, `extend`, `remove`, `pop`, `clear`, `sort`, `reverse`) act **in place** and typically return `None`; do not assign their result back to the list.
 - `sorted()` and slicing always return a **new** list and never modify the argument they were given.
 - Never add or remove elements from a list while a `for` loop is directly iterating over it — doing so can skip elements or raise errors (see §3.12).
 
@@ -484,13 +485,23 @@ Number of students who passed: 4
 
 ## 4. Real-World Application
 
-- **Banking & FinTech:** A monthly statement is a list of transaction records, each perhaps itself a small nested list or a row of related values — filtered, summed, and sorted using exactly the operations covered in this unit.
-- **UPI / Payment Systems:** A payment gateway batches pending transactions in a list before processing them, and uses list comprehensions to pull out only the failed or pending ones for retry.
-- **E-commerce:** A shopping cart is a list of item prices or item records; `sorted(cart, reverse=True)[:3]` instantly gives the three most expensive items, and comprehensions apply discounts or GST to every item in one line.
-- **Healthcare:** A ward management system holds a list of patient temperature readings or vitals over a shift, sorted and filtered to flag anyone outside a safe range.
-- **Railway Booking (IRCTC-style systems):** As shown in the example above, a PNR's passenger list is naturally a nested list, iterated and filtered to calculate fares by age category.
-- **Education:** A gradebook is a list of student scores; sorting ranks the class, and a comprehension can compute a curved score for every student in one expression.
-- **AI/ML & Cloud Apps:** Batches of input data, model predictions, and API responses are almost always assembled and processed as lists before being handed to the next stage of a pipeline.
+**Scenario: A delivery rider's stop list for the day**
+
+Picture a food delivery rider whose app hands them today's stops, in the order they were assigned:
+
+```python
+stops = ["MG Road", "Indiranagar", "Koramangala", "HSR Layout"]
+```
+
+Throughout the day, the rider's app needs to answer a stream of simple questions — and every one of them is answered by a list operation you just learned:
+
+- **"A new pickup just came in — add it to the end of the route."** → `append()`: `stops.append("Whitefield")`.
+- **"A customer cancelled their order — drop that stop."** → `remove()`: `stops.remove("HSR Layout")`.
+- **"What are the next two stops from here?"** → **slicing**: `stops[0:2]`.
+- **"Re-order the remaining stops so the nearest ones come first."** → `sort()` with a `key=` based on distance.
+- **"Has this address already been visited today?"** → a **membership test**: `"MG Road" in stops`.
+
+That is the entire real-world application in one clear picture: a single, changing sequence of values, grown, shrunk, reordered, and searched using exactly the operations covered in this unit — no separate variables, no rebuilding the whole route from scratch on every change. Once this one example is clear, you will recognize the exact same shape again and again in production systems: a bank's monthly statement of transactions, an e-commerce cart of item prices, a hospital ward's shift-by-shift vitals readings, a class gradebook of student scores — all are this same delivery-route scenario wearing a different name.
 
 ---
 
@@ -561,10 +572,21 @@ Prices with GST: [208.95, 366.45, 628.95, 261.45, 156.45]
 
 ### Important Notes (Interview Insights)
 
-- A very common fresher interview question: *"Is a Python list mutable or immutable?"* Answer confidently: a list is **mutable** — its contents can change after creation, unlike the tuple you will study in Unit 3.2, which is **immutable** once built.
-- Interviewers frequently probe the **aliasing vs copying** distinction: `b = a` makes `b` a second name for the *same* list object; only `a.copy()` or `a[:]` (a **shallow copy**) creates an independent outer list. Be ready to explain that a shallow copy of a *nested* list still shares its inner lists with the original — a subtlety that trips up many candidates.
-- Be ready to explain why `list.sort()` returns `None` while `sorted()` returns a new list — this single question is asked constantly, and getting it wrong (`x = some_list.sort()`) is one of the most common real bugs in beginner code.
-- Know that list indexing runs in O(1) time (constant-time element access), while slicing runs in O(k) time (proportional to the length of the slice) — interviewers sometimes ask why lists are efficient for this kind of access.
+**Q: "Is a Python list mutable or immutable?"**
+
+A list is **mutable** — its contents can change after creation, unlike the tuple, which is **immutable** once built.
+
+**Q: "What is the difference between aliasing and copying a list?"**
+
+`b = a` makes `b` a second name for the *same* list object; only `a.copy()` or `a[:]` (a **shallow copy**) creates an independent outer list. A shallow copy of a *nested* list still shares its inner lists with the original — a subtlety that trips up many candidates.
+
+**Q: "Why does `list.sort()` return `None` while `sorted()` returns a new list?"**
+
+This single question is asked constantly, and getting it wrong (`x = some_list.sort()`) is one of the most common real bugs in beginner code. `sort()` mutates the list in place and returns nothing, while `sorted()` leaves the original untouched and returns a brand-new sorted list.
+
+**Q: "Why are lists efficient for indexing but not always for slicing?"**
+
+List indexing runs in O(1) time (constant-time element access), while slicing runs in O(k) time (proportional to the length of the slice).
 
 ---
 
@@ -579,7 +601,7 @@ Prices with GST: [208.95, 366.45, 628.95, 261.45, 156.45]
 - A **list comprehension** (`[expr for item in iterable if condition]`) maps and/or filters a sequence in a single line, replacing the longer empty-list-loop-`append` pattern.
 - Never modify a list while a `for` loop is directly iterating over it — iterate over a copy, or build a new list with a comprehension instead.
 
-Coming next: tuples — a collection that looks similar to a list but makes the opposite trade-off: no mutability, in exchange for a guarantee that its contents can never change out from under you (Unit 3.2 — Tuples).
+Coming next: tuples — a collection that looks similar to a list but makes the opposite trade-off: no mutability, in exchange for a guarantee that its contents can never change out from under you.
 
 ---
 

@@ -21,7 +21,7 @@ By the end of this unit, you will be able to:
 
 Every `for` loop you have written across this module — over lists, tuples, sets, and dictionaries — has quietly relied on one uniform mechanism you never had to name out loud. That mechanism is the **iterator protocol**, and this unit finally opens it up. Once you understand it, a `for` loop stops being "magic that walks a collection" and becomes a predictable, explainable sequence of function calls — a distinction that comes up constantly in technical interviews, because interviewers use it to check whether a candidate truly understands Python or has only memorized syntax.
 
-This unit also revisits **generators**, which you first met conceptually back in Unit 2.4, and shows exactly why they save memory when a dataset is large or arrives over time — think of a UPI app processing a live stream of transactions, or a system reading a multi-gigabyte log file one line at a time instead of loading it all at once.
+This unit also revisits **generators**, which you first met conceptually back in the unit on functional constructs, and shows exactly why they save memory when a dataset is large or arrives over time — think of a UPI app processing a live stream of transactions, or a system reading a multi-gigabyte log file one line at a time instead of loading it all at once.
 
 Finally, you will meet three ready-made tools from Python's `collections` module — `Counter`, `defaultdict`, and `namedtuple` — that quietly replace hand-written counting loops, error-prone dictionary key checks, and unreadable `tuple[0]`-style code with one clean line each. These are genuinely time-saving tools you will reach for in real projects, not just classroom exercises. This is also the final unit of Module P3 (Data Structures) — after this, Module P4 begins organizing data and behavior together with classes and objects.
 
@@ -37,15 +37,7 @@ A **generator** is a special, lazy kind of iterator: instead of holding all its 
 
 The **`collections` module** is a part of Python's standard library that ships ready-to-use, purpose-built versions of `dict` and `tuple` for patterns that come up constantly in real programs: **`Counter`** (tallying), **`defaultdict`** (grouping and counting without key errors), and **`namedtuple`** (tuples with readable, named fields).
 
-### 3.2 Why This Concept Exists
-
-Without a single uniform protocol, Python's `for` loop would need separate, special-cased logic for walking a list, a different kind of logic for a set, another for a dictionary, and yet another for a file opened on disk. Instead, Python designed one small contract — "give me an iterator, then let me call `next()` on it until it tells me to stop" — and made every loopable object honor that same contract. Learn the contract once, and it explains *every* `for` loop you will ever write, over *any* type, forever.
-
-Generators exist to solve a very practical problem: sometimes the full set of values you need is too large to fit comfortably in memory, or is not even fully known yet (a live sensor feed, an infinite counter, a huge log file). A generator produces "the next value, computed just now" instead of "the entire list, computed and stored in advance" — which is often the only way to make a program work at all, not just work faster.
-
-The `collections` module exists because three patterns are so common that Python's core team decided they deserved dedicated, well-tested tools rather than leaving every developer to hand-write the same few lines of counting and grouping logic — and to get them subtly wrong — over and over again.
-
-### 3.3 Key Terminology
+### 3.2 Key Terminology
 
 | Term | Simple Meaning |
 |---|---|
@@ -65,27 +57,157 @@ The `collections` module exists because three patterns are so common that Python
 | **Factory function** | The function you hand to `defaultdict` (commonly `list` or `int`) that produces the default value for a brand-new key. |
 | **`namedtuple`** | A function, from `collections`, that builds a tuple subclass whose positions also have readable field names. |
 
-### 3.4 Syntax
+### 3.3 Syntax
 
-**Comparison Table: Iterable vs Iterator**
+**Getting an iterator with `iter()`:**
 
-| Aspect | Iterable | Iterator |
-|---|---|---|
-| Definition | Any object you can loop over | The object that actually produces values one at a time |
-| Has `__next__`? | Not necessarily | Yes, always |
-| Can you call `next()` on it directly? | No — you must first call `iter()` on it | Yes, directly |
-| Reusable? | Yes — a fresh iterator is created each time you loop over it | No — exhausts after one full pass |
-| Examples | `list`, `tuple`, `set`, `dict`, `str` | The object returned by `iter(some_list)`, or any generator |
+```python
+it = iter(iterable)
+```
 
-| Syntax | Purpose | Example |
-|---|---|---|
-| `iter(obj)` | Get a fresh iterator from an iterable. | `it = iter([10, 20, 30])` |
-| `next(it)` | Get the iterator's next value; raises `StopIteration` once exhausted. | `next(it)` |
-| `def f(...):` … `yield value` | Define a generator function. | `def countdown(n):`<br>`    while n > 0:`<br>`        yield n`<br>`        n -= 1` |
-| `(expr for item in iterable)` | Write a generator expression — the lazy sibling of a list comprehension. | `(n * n for n in range(10))` |
-| `Counter(iterable)` | Tally occurrences of every item in one call. | `Counter(["A", "B", "A"])` |
-| `defaultdict(factory)` | Create a dict that auto-fills missing keys using `factory()`. | `defaultdict(list)` |
-| `namedtuple(typename, [fields])` | Create a tuple subclass with named, readable fields. | `namedtuple("Point", ["x", "y"])` |
+Example:
+
+```python
+numbers = [10, 20, 30]
+it = iter(numbers)
+```
+
+**Getting the next value with `next()`:**
+
+```python
+value = next(it)
+```
+
+Example:
+
+```python
+print(next(it))
+print(next(it))
+print(next(it))
+```
+
+Output:
+```
+10
+20
+30
+```
+
+**Defining a generator function:**
+
+```python
+def generator_name(...):
+    yield value
+```
+
+Example:
+
+```python
+def countdown(n):
+    while n > 0:
+        yield n
+        n -= 1
+
+for number in countdown(3):
+    print(number)
+```
+
+Output:
+```
+3
+2
+1
+```
+
+**Generator expression:**
+
+```python
+(expr for item in iterable)
+```
+
+Example:
+
+```python
+squares = (n * n for n in range(5))
+print(next(squares))
+print(next(squares))
+```
+
+Output:
+```
+0
+1
+```
+
+**`Counter`:**
+
+```python
+Counter(iterable)
+```
+
+Example:
+
+```python
+from collections import Counter
+
+tally = Counter(["A", "B", "A", "C", "B", "A"])
+print(tally)
+print(tally.most_common(2))
+```
+
+Output:
+```
+Counter({'A': 3, 'B': 2, 'C': 1})
+[('A', 3), ('B', 2)]
+```
+
+**`defaultdict`:**
+
+```python
+defaultdict(factory)
+```
+
+Example:
+
+```python
+from collections import defaultdict
+
+groups = defaultdict(list)
+groups["fruits"].append("apple")
+groups["fruits"].append("banana")
+groups["veggies"].append("carrot")
+
+print(groups)
+```
+
+Output:
+```
+defaultdict(<class 'list'>, {'fruits': ['apple', 'banana'], 'veggies': ['carrot']})
+```
+
+**`namedtuple`:**
+
+```python
+namedtuple(typename, [fields])
+```
+
+Example:
+
+```python
+from collections import namedtuple
+
+Point = namedtuple("Point", ["x", "y"])
+p = Point(3, 4)
+
+print(p.x, p.y)
+print(p[0], p[1])
+```
+
+Output:
+```
+3 4
+3 4
+```
 
 **The Iterator Protocol**
 
@@ -109,7 +231,7 @@ flowchart TD
     S5 --> S6["No yield left to reach<br/>→ StopIteration raised"]
 ```
 
-### 3.5 Rules
+### 3.4 Rules
 
 **Iterator and generator rules:**
 
@@ -119,13 +241,7 @@ flowchart TD
 - An iterator is itself iterable — calling `iter()` on an iterator returns that same iterator unchanged — which is why you can place an iterator directly inside a `for` loop.
 - A **generator is a special case of an iterator**, so everything above applies to it too: it can only be walked through once from start to finish.
 
-**`collections` module rules:**
-
-- `Counter` is a `dict` subclass: looking up a key that never appeared returns `0`, never `KeyError`.
-- `defaultdict` requires a **factory function** (a callable with no arguments, such as `list` or `int`) at creation time; that factory is called automatically the first time a new key is used.
-- `namedtuple` objects remain true tuples: they are **immutable** (you cannot reassign a field after creation), they can be unpacked (`name, marks = student`), and they support indexing (`student[0]`) in addition to named access (`student.name`).
-
-### 3.6 Best Practices
+### 3.5 Best Practices
 
 - Reach for **`Counter`** the moment you catch yourself writing `counts[key] = counts.get(key, 0) + 1` in a loop — it is the same result in one line, and it comes with `most_common()` built in.
 - Reach for **`defaultdict(list)`** whenever you are grouping items under keys, replacing the clunkier `if key not in dict: dict[key] = []` check every single time.
@@ -134,7 +250,7 @@ flowchart TD
 - Reach for **`namedtuple`** the moment a plain tuple's meaning depends on remembering "position 0 is the name, position 1 is the marks" — named access removes that guesswork for every future reader of the code.
 - If you genuinely need to reuse a generator's values more than once, materialize them explicitly with `list(...)` the first time, or call the generator function again to get a fresh one.
 
-### 3.7 Common Mistakes
+### 3.6 Common Mistakes
 
 - **Treating `StopIteration` as a bug to catch and suppress everywhere** — it is the *normal*, expected termination signal that a `for` loop already handles for you silently; you only see it directly when calling `next()` manually.
 - **Assuming `next()` on an exhausted iterator will restart it** — it will not; you must call `iter()` again on the original iterable to get a fresh iterator.
@@ -142,7 +258,7 @@ flowchart TD
 - **Creating a `defaultdict` without a factory function, or with the wrong one** — `defaultdict()` with no argument behaves like a plain `dict` and still raises `KeyError`; passing `0` instead of `int` raises a `TypeError`, because the factory must be callable.
 - **Trying to modify a `namedtuple` field like a list element** — `student.marks = 90` raises an `AttributeError`, because a `namedtuple`, like any tuple, is immutable.
 
-### 3.8 Code Examples
+### 3.7 Code Examples
 
 **Consolidated example** — running "Chennai Bites," a food-delivery app's order pipeline, from the raw iterator protocol all the way up to `Counter`, `defaultdict`, and `namedtuple`. One running scenario, built up step by step.
 
@@ -385,13 +501,29 @@ Only `Divya` (220) and `Farhan` (260) meet the `amount <= 260` condition, so the
 
 ## 4. Real-World Application
 
-- **Banking & FinTech:** A statement generator that streams thousands of transaction rows one at a time, instead of loading an entire year's history into memory at once, is a generator doing exactly what `countdown()` does — computing the next value only when asked.
-- **UPI / Payment Systems:** A dashboard showing "most-used payment method today" is `Counter` tallying every transaction's method in one pass and reading the top result off with `most_common()`.
-- **E-commerce:** Grouping today's orders by delivery city, with a new city key appearing at any moment, is exactly what `defaultdict(list)` is built for — no `KeyError`, no manual existence checks.
-- **Food Delivery:** Counting how many orders each restaurant received in a day, as shown in the example above, is a one-line `Counter` call instead of a hand-rolled tally loop.
-- **Healthcare:** A patient vitals reading — heart rate, temperature, timestamp — read together and passed around a monitoring script is a natural fit for `namedtuple`, so the code says `reading.heart_rate` instead of decoding what position `1` was supposed to mean.
-- **Railway Booking (IRCTC-style systems):** A seat allocation record with named fields, as shown above, keeps booking code readable across a large codebase maintained by many engineers over time.
-- **AI/ML & Cloud Apps:** Reading a multi-gigabyte training dataset or log file line by line uses a generator so the program never needs the whole file in memory at once — a core reason generators exist in the language at all.
+**Scenario: A food delivery platform's daily order log**
+
+Picture a stream of today's orders arriving across a city, each one a compact, named record:
+
+```python
+from collections import namedtuple
+
+Order = namedtuple("Order", ["restaurant", "city", "amount"])
+todays_orders = [
+    Order("Spice Villa", "Bengaluru", 450),
+    Order("Punjabi Tadka", "Delhi", 620),
+    Order("Spice Villa", "Bengaluru", 300),
+]
+```
+
+Every question the platform's dashboard needs answered maps to exactly one tool from this unit:
+
+- **"Which restaurant got the most orders today?"** → `Counter`: `Counter(o.restaurant for o in todays_orders).most_common(1)`.
+- **"Group today's orders by city — including a brand-new city with zero orders so far."** → `defaultdict(list)`: no `KeyError`, no manual "does this key exist yet?" check.
+- **"Read a field without memorizing what position it was stored at."** → a `namedtuple`: `order.restaurant` instead of the unreadable `order[0]`.
+- **"Scan through a year's worth of order logs — millions of rows — without running out of memory."** → a **generator**: it computes and yields one order at a time, only when asked, instead of holding the entire log in memory at once.
+
+That is the entire real-world application in one clear picture: a stream of compact, named records, tallied, grouped, and read one at a time without ever loading more into memory than the program actually needs right now. Once this one example is clear, you will recognize the exact same shape again and again in production systems: a bank's statement generator streaming transaction rows, a patient-vitals reading accessed as `reading.heart_rate` instead of a mystery index, a railway seat allocation record with named fields — all are this same order-log scenario wearing a different name.
 
 ---
 
@@ -474,10 +606,21 @@ Sara
 
 ### Important Notes (Interview Insights)
 
-- **"What is the difference between an iterable and an iterator?"** is one of the most frequently asked Python interview questions at the fresher level. Answer precisely: every iterator is iterable, but not every iterable is an iterator — a list is iterable but is not itself an iterator, because it has no `__next__` of its own and does not track a current position.
-- Be ready to explain that a `for` loop is simply syntax sugar: it calls `iter()` once, then `next()` repeatedly, and stops silently the moment `StopIteration` is raised — no error ever reaches your code.
-- A common follow-up: **"Why use a generator instead of a list?"** The correct answer is memory — a generator computes and yields one value at a time instead of holding the entire sequence in memory up front, which matters enormously once "the entire sequence" could be millions of rows or an unbounded stream.
-- Interviewers often test `Counter` and `defaultdict` with a quick coding question like "count word frequency in a sentence" — recognizing these tools instantly, instead of writing a manual loop, is a strong signal of practical Python fluency.
+**Q: "What is the difference between an iterable and an iterator?"**
+
+This is one of the most frequently asked Python interview questions at the fresher level. Answer precisely: every iterator is iterable, but not every iterable is an iterator — a list is iterable but is not itself an iterator, because it has no `__next__` of its own and does not track a current position.
+
+**Q: "What actually happens under the hood when you write a `for` loop?"**
+
+A `for` loop is simply syntax sugar: it calls `iter()` once, then `next()` repeatedly, and stops silently the moment `StopIteration` is raised — no error ever reaches your code.
+
+**Q: "Why use a generator instead of a list?"**
+
+The correct answer is memory — a generator computes and yields one value at a time instead of holding the entire sequence in memory up front, which matters enormously once "the entire sequence" could be millions of rows or an unbounded stream.
+
+**Q: "How would you count word frequency in a sentence?"**
+
+Recognizing `Counter` and `defaultdict` instantly, instead of writing a manual loop, is a strong signal of practical Python fluency — interviewers often test exactly this with a quick coding question like "count word frequency in a sentence."
 
 ---
 
@@ -493,7 +636,7 @@ Sara
 - **`namedtuple`** adds readable, named access to a tuple's positions while keeping it fully immutable, unpackable, and indexable.
 - "Iterable vs iterator" is one of the most common Python interview questions at fresher level — be ready to state, precisely, that every iterator is iterable but not every iterable is an iterator.
 
-Coming next: Unit 4.1 — Object-Oriented Foundations, where Module P4 begins organizing data and the behavior that acts on it together, using classes and objects, instead of keeping them separate.
+Coming next: Object-Oriented Foundations, where Module P4 begins organizing data and the behavior that acts on it together, using classes and objects, instead of keeping them separate.
 
 ---
 

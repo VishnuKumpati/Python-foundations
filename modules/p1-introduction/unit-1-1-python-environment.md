@@ -288,7 +288,7 @@ print("======================================")
   Status: ACTIVE
   ======================================
   ```
-- This mirrors something you have almost certainly seen for real: a payment app confirming a UPI transaction, or an HR system confirming a new joiner. In this unit, you are only printing fixed text — later units (starting with variables in Unit 1.2) will let you print information that *changes*, like a real employee ID pulled from a database instead of typed directly into the code.
+- This mirrors something you have almost certainly seen for real: a payment app confirming a UPI transaction, or an HR system confirming a new joiner. In this unit, you are only printing fixed text — later units (starting with variables) will let you print information that *changes*, like a real employee ID pulled from a database instead of typed directly into the code.
 
 #### Try It Yourself
 
@@ -416,9 +416,17 @@ Each `print()` call is executed by the interpreter one at a time, in the exact o
 
 ### Important Notes (Interview Insights)
 
-- A very common entry-level interview question is: *"Is Python compiled or interpreted?"* The accurate answer: Python source code is first compiled to an intermediate form called **bytecode**, which the Python interpreter then executes. For practical, day-to-day purposes, and for this course, it is fine — and expected — to describe Python as an **interpreted language**, since there is no separate compile step you manage yourself, unlike C or Java.
-- Interviewers often ask you to explain **REPL** — make sure you can expand the acronym (Read-Eval-Print Loop) and explain it in one sentence, not just recite the letters.
-- Knowing *why* Python is popular for AI/ML (readability + ecosystem) is a common conversational interview question, especially for freshers applying to data or AI-adjacent roles.
+**Q: "Is Python compiled or interpreted?"**
+
+Python source code is first compiled to an intermediate form called **bytecode**, which the Python interpreter then executes. For practical, day-to-day purposes, and for this course, it is fine — and expected — to describe Python as an **interpreted language**, since there is no separate compile step you manage yourself, unlike C or Java.
+
+**Q: "What does REPL stand for, and what does it mean?"**
+
+REPL stands for Read-Eval-Print Loop. Make sure you can expand the acronym and explain it in one sentence, not just recite the letters — interviewers often ask this directly.
+
+**Q: "Why is Python so popular for AI/ML?"**
+
+Its combination of readability and a rich, ready-made ecosystem of libraries makes it the default choice for data and AI-adjacent work. This is a common conversational interview question, especially for freshers applying to data or AI-adjacent roles.
 
 ---
 
@@ -434,7 +442,7 @@ Each `print()` call is executed by the interpreter one at a time, in the exact o
 - Reading and verifying your program's output — not just writing code — is a core, professional habit you are building from day one.
 - A very common fresher interview question is explaining the difference between compiled and interpreted languages — be ready to answer it in your own words, not just from memory.
 
-Coming next: the building blocks of the language itself — storing values and doing math (Unit 1.2 — Variables, Identifiers & Types).
+Coming next: the building blocks of the language itself — variables, identifiers, and types, where you'll learn to store values and do math with them.
 
 ---
 

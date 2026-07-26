@@ -2,7 +2,7 @@
 
 ---
 
-[← Previous: 4.2 Inheritance & Encapsulation](unit-4-2-inheritance-encapsulation.md) | [Go back to TOC](../../README.md) | [Next: 5.1 File Handling →](../p5-files-exception-handling/unit-5-1-file-handling.md)
+[← Previous: 4.2 The Four Pillars of OOP](unit-4-2-the-four-pillars-of-oop.md) | [Go back to TOC](../../README.md) | [Next: 5.1 File Handling →](../p5-files-exception-handling/unit-5-1-file-handling.md)
 
 ## 1. Learning Objectives
 
@@ -19,11 +19,11 @@ By the end of this unit, you will be able to:
 
 ## 2. Overview
 
-Think about something you do every single day while writing Python: `print(some_object)`. Have you ever wondered how Python decides *what* to show on screen? Or how `total = price1 + price2` works for plain numbers, but fails with a confusing error the moment you try `wallet1 + wallet2` on two custom objects? The answer to both lies in a small family of methods Python calls **special methods** — and this unit is about learning to control them.
+You already write `print(some_object)` and `total = price1 + price2` all the time. Now try the same two things on a class you built yourself — say a `Wallet` holding an `owner_name` and a `balance`. Both go wrong: `print(wallet)` shows something unreadable like `<__main__.Wallet object at 0x7f2a4c1b3d90>`, and `wallet_1 + wallet_2` raises a `TypeError`. Python has no way of knowing what "printing" or "adding" should mean for a class you just invented — unless you tell it.
 
-In real Indian IT projects — a banking platform, a UPI payment gateway, an e-commerce backend, a railway reservation system — engineers deal with hundreds of custom classes: `Account`, `Transaction`, `CartItem`, `Ticket`. Every one of them eventually needs to be printed in a log, compared for equality in a test, or combined using an operator like `+`. Special methods (also called **dunder methods**, short for "double underscore") are exactly how Python lets you plug your own class into these built-in behaviours, instead of writing separate helper functions like `print_account()` or `add_wallets()` everywhere.
+That's what a small family of methods called **special methods** are for. You'll also see them called **dunder methods** — short for "double underscore," because their names look like `__init__`, `__str__`, and `__add__`. You never call these methods directly by name. Instead, Python calls them for you behind the scenes: `print(wallet)` secretly calls `wallet.__str__()`, and `wallet_1 + wallet_2` secretly calls `wallet_1.__add__(wallet_2)`. Write the right dunder method on your class, and ordinary Python syntax starts working correctly for your own objects. This unit is about learning exactly which method to write for which behaviour.
 
-The second half of this unit solves a related, very practical problem: many classes in real projects are little more than a bundle of attributes with almost no custom behaviour — a config object, a DTO (data transfer object), a record fetched from a database. Writing `__init__`, `__repr__`, and `__eq__` by hand for every one of these is repetitive, and repetition is exactly where bugs creep in. The `@dataclass` decorator generates all of this for you. By the end of this unit, you will also know how to keep growing collections of classes organized into modules and packages, exactly as production codebases do.
+The second half of the unit solves a different, everyday problem: many classes — a `Wallet`, a `Point`, a record loaded from a database — are really just a bundle of attributes with little to no custom behaviour. Writing `__init__`, `__repr__`, and `__eq__` by hand for every one of these is repetitive, and repetitive code is exactly where typos and bugs hide. The `@dataclass` decorator generates these methods for you automatically. By the end of this unit, you'll also know how to split a growing set of classes across separate files (**modules**) and folders (**packages**), the way real projects do once a single file gets too big.
 
 ---
 
@@ -31,7 +31,7 @@ The second half of this unit solves a related, very practical problem: many clas
 
 ### 3.1 Definition
 
-A **dunder method** (also called a **magic method** or **special method**) is a method whose name begins and ends with two underscores, such as `__init__`, `__str__`, `__repr__`, `__eq__`, and `__add__`. You have already met one of these — `__init__` — since Unit 4.1: writing `Student(...)` calls `__init__` for you, without you ever typing `s.__init__(...)` yourself. Every dunder method works the same way — Python calls it implicitly, in response to some built-in syntax or function, rather than you calling it by name.
+A **dunder method** (also called a **magic method** or **special method**) is a method whose name begins and ends with two underscores, such as `__init__`, `__str__`, `__repr__`, `__eq__`, and `__add__`. You have already met one of these — `__init__` — since the object-oriented foundations unit: writing `Student(...)` calls `__init__` for you, without you ever typing `s.__init__(...)` yourself. Every dunder method works the same way — Python calls it implicitly, in response to some built-in syntax or function, rather than you calling it by name.
 
 **Operator overloading** is the specific technique of defining a dunder method (such as `__add__`) so that a standard Python operator (such as `+`) does something meaningful for your own class, instead of raising an error or doing nothing useful. Python does not let you write two methods with the same name that differ only in their parameter types (the way languages like Java and C++ allow "method overloading") — instead, each operator maps to exactly *one* dunder method slot per class, and you write the logic for that one slot.
 
@@ -244,7 +244,7 @@ print(repr(wallet_1))
 ```
 
 *Line-by-line explanation:*
-- `class Wallet:` starts a new class with two attributes, `owner_name` and `balance`, set in `__init__` exactly as in Unit 4.1.
+- `class Wallet:` starts a new class with two attributes, `owner_name` and `balance`, set in `__init__` exactly as in the object-oriented foundations unit.
 - `def __repr__(self):` defines the developer-facing description; `{self.owner_name!r}` uses the `!r` conversion to show the string with quotes, exactly as it would appear in code.
 - `def __str__(self):` defines the friendlier, end-user-facing description, formatting `balance` to two decimal places since this represents money.
 - `wallet_1 = Wallet("Rohit", 500.0)` creates one `Wallet` instance.
@@ -522,10 +522,21 @@ Ananya: Rs. 380.00 available
 
 ### Important Notes (Interview Insights)
 
-- *"What is the difference between `__str__` and `__repr__`?"* is one of the most frequently asked Python fresher interview questions. The clean answer: `__str__` is for the end user (readable), `__repr__` is for the developer (unambiguous, ideally re-creatable code); if only `__repr__` is defined, `print()` falls back to it automatically.
-- Interviewers often follow up with *"When would you choose a dataclass over a regular class?"* — the honest answer is: when the class is mainly a container for data with little or no custom behaviour. The moment a class needs validation logic, computed behaviour, or protects an invariant, a hand-written class (or a dataclass with added methods) communicates intent better.
-- Be ready to clarify that Python does not support classic "method overloading" (same method name, different parameter types, resolved at compile time, as in Java). What Python offers instead is **operator overloading** — one dunder method per operator, and your own logic inside it decides how to handle different situations.
-- A dataclass is still an ordinary class underneath the decorator — you can add plain methods to it, and inheritance still works exactly as covered in Unit 4.2, including a subclass with a hand-written `__init__` that calls `super().__init__(...)`.
+**Q: "What is the difference between `__str__` and `__repr__`?"**
+
+This is one of the most frequently asked Python fresher interview questions. The clean answer: `__str__` is for the end user (readable), `__repr__` is for the developer (unambiguous, ideally re-creatable code); if only `__repr__` is defined, `print()` falls back to it automatically.
+
+**Q: "When would you choose a dataclass over a regular class?"**
+
+The honest answer is: when the class is mainly a container for data with little or no custom behaviour. The moment a class needs validation logic, computed behaviour, or protects an invariant, a hand-written class (or a dataclass with added methods) communicates intent better.
+
+**Q: "Does Python support method overloading like Java does?"**
+
+No. Python does not support classic "method overloading" (same method name, different parameter types, resolved at compile time, as in Java). What Python offers instead is **operator overloading** — one dunder method per operator, and your own logic inside it decides how to handle different situations.
+
+**Q: "Can you still add custom methods or use inheritance with a dataclass?"**
+
+Yes — a dataclass is still an ordinary class underneath the decorator, so you can add plain methods to it, and inheritance still works exactly as covered in the four pillars of OOP, including a subclass with a hand-written `__init__` that calls `super().__init__(...)`.
 
 ---
 
@@ -540,7 +551,7 @@ Ananya: Rs. 380.00 available
 - Use a **regular class** when a class needs real behaviour or validation; use a **`@dataclass`** when a class is mostly a bundle of data.
 - **Modules** (separate `.py` files) and **packages** (directories of related modules) keep growing projects organized; `import`/`from module import Name` reaches a class defined elsewhere without redefining it.
 
-Coming next: Unit 5.1 — File Handling, where you move from data that lives only in memory to data read from and written to real files on disk.
+Coming next: File Handling, where you move from data that lives only in memory to data read from and written to real files on disk.
 
 ---
 
@@ -552,7 +563,7 @@ Coming next: Unit 5.1 — File Handling, where you move from data that lives onl
 - [Real Python — Data Classes in Python 3.7+](https://realpython.com/python-data-classes/)
 - [W3Schools — Python Classes and Objects](https://www.w3schools.com/python/python_classes.asp)
 
-[← Previous: 4.2 Inheritance & Encapsulation](unit-4-2-inheritance-encapsulation.md) | [Go back to TOC](../../README.md) | [Next: 5.1 File Handling →](../p5-files-exception-handling/unit-5-1-file-handling.md)
+[← Previous: 4.2 The Four Pillars of OOP](unit-4-2-the-four-pillars-of-oop.md) | [Go back to TOC](../../README.md) | [Next: 5.1 File Handling →](../p5-files-exception-handling/unit-5-1-file-handling.md)
 
 ---
 
