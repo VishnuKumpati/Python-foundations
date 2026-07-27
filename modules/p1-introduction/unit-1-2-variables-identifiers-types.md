@@ -1,485 +1,215 @@
-﻿# Variables, Identifiers & Types
+# Variables, Identifiers & Types
+
+In Unit 1.1 you opened Colab, typed `print("Namaste, world")` into a cell, ran it, and watched the interpreter answer back immediately. That was real progress — but notice what happens the moment the cell finishes: the value you printed is gone. Run the cell again and Python does the exact same work from scratch, remembering nothing about what happened last time. A banking app that forgot your balance the instant it displayed it, or a UPI app that forgot the amount you were about to pay, would be useless. Somewhere, a real program has to hold on to a value, not just display it once and move on.
+
+That is exactly the gap this chapter closes. You will learn how to give a value a name so your program can refer to it again — a **variable** — the rules Python enforces on what you're allowed to call that name, and the four basic kinds of value (`int`, `float`, `str`, `bool`) every Python program leans on constantly. You will meet a built-in tool, `type()`, that tells you exactly what kind of value you're holding instead of making you guess, and you will see why Python never asks you to announce that kind in advance — a behaviour called dynamic typing. Along the way you will collect your first value directly from a person using your program, with the built-in `input()` function.
+
+By the time you finish this chapter, "give it a name, use the name" — the single most-used idea in all of software development — will be something you have typed, run, and reasoned about yourself, not just read about.
 
 ---
 
-[← Previous: 1.1 The Python Environment](unit-1-1-python-environment.md) | [Go back to TOC](../../README.md) | [Next: 1.3 Operators & Expressions →](unit-1-3-operators-expressions.md)
+## The gap `print()` alone can't close
 
-## 1. Learning Objectives
+Think about what a handful of everyday apps actually have to remember, not just display once:
 
-By the end of this unit, you will be able to:
-
-- **Create** a variable using the assignment operator (`=`) and change its value by reassigning it.
-- **Apply** Python's naming rules and the `snake_case` convention to write legal, readable identifiers.
-- **Identify** the four basic value types — `int`, `float`, `str`, and `bool` — from how a value is written.
-- **Implement** the `type()` function to inspect the type of any value at any point in a program.
-- **Differentiate** between statically typed languages and Python's dynamically typed approach.
-- **Debug** the two most common beginner errors in this area — `NameError` from case mismatches and `SyntaxError` from illegal identifier names.
-
----
-
-## 2. Overview
-
-Working in the Python environment, you learned to type code into a Colab cell, run it, and use `print()` to see a result. That's a good start, but think about what a real application does — a banking app remembers your account balance, a food delivery app remembers your cart total, a UPI app remembers the amount you're about to pay. None of that is possible if every value disappears the moment it's printed.
-
-This is exactly the gap a **variable** fills. A variable gives a value a name, so your program can refer to it again and again, and update it in one place instead of hunting down every copy scattered across the code. This single idea — "give it a name, use the name" — is the single most-used concept in all of software development; you will use it in literally every program you ever write, from your first Colab cell to a production banking system.
-
-In this unit, you will learn how to create variables, the rules and conventions for naming them properly, the four basic types of values you'll use constantly (`int`, `float`, `str`, `bool`), how to check a value's type using the `type()` function, and why Python doesn't require you to declare a type in advance — a behaviour called dynamic typing. These are the true building blocks of every Python program you will write in this course and in your career.
-
----
-
-## 3. Description
-
-### 3.1 Definition
-
-A **variable** is a name that refers to a value stored in the computer's memory. Think of it like a labelled box: the label is the name you choose, and the box holds whatever value you put inside. You create a variable using the **assignment operator**, the single equals sign `=`, with the name on the left and the value on the right:
-
-**Example:**
-
-```python
-x = 5
-```
-
-Read this as "let `x` refer to the value `5`" — not "x equals 5" in the mathematical sense. In mathematics, `=` states a fact that is either true or false. In Python, `=` performs an **action**: it binds the name on the left to the value on the right.
-
-### 3.2 Why This Concept Exists
-
-Without variables, every program would be limited to `print()`-ing fixed text once and forgetting it — exactly the limitation you hit at the end of your first look at the Python environment. Real software constantly needs to:
-
-- **Remember** a value across multiple steps (a customer's cart total while they keep shopping).
-- **Reuse** a value in several places without retyping it (a tax rate applied to every item).
-- **Update** a value as the program runs (a bank balance after each transaction, a score after each level).
-
-A variable solves all three problems with one mechanism: give the value a name once, and let the rest of your program refer to that name instead of the raw value. This is why "variables and assignment" is universally the second thing every programming course teaches, right after "how do I run code at all."
-
-### 3.3 Key Terminology
-
-| Term | Simple Meaning |
+| App | What it has to remember |
 |---|---|
-| **Variable** | A name that refers to a value stored in memory. |
-| **Assignment operator (`=`)** | The symbol used to bind a name to a value. |
-| **Reassignment** | Giving an existing variable a new value, replacing the old one. |
-| **Identifier** | The technical term for the name you give a variable, function, or other object. |
-| **Reserved keyword** | A word Python has already claimed for its own grammar (e.g. `if`, `for`, `class`) — you cannot use it as a variable name. |
-| **Case sensitivity** | Python treats uppercase and lowercase letters as different, so `total` and `Total` are two unrelated names. |
-| **`snake_case`** | The Python naming convention: all lowercase words separated by underscores, e.g. `total_price`. |
-| **Type** | A category that says what kind of value something is — a number, text, or a true/false value. |
-| **`int`** | A whole number with no decimal point, e.g. `42`. |
-| **`float`** | A number written with a decimal point, e.g. `42.0`. |
-| **`str`** | Text data, written inside quotation marks, e.g. `"hello"`. |
-| **`bool`** | A truth value: exactly `True` or `False`. |
-| **`type()`** | A built-in function that tells you the type of any value. |
-| **`input()`** | A built-in function that pauses the program, displays an optional prompt, and returns whatever the user types — always as a `str`. |
-| **Dynamic typing** | Python's behaviour of determining a value's type automatically at assignment time, rather than requiring you to declare it in advance. |
-| **`NameError`** | The error Python raises when you try to use a variable that was never assigned. |
-| **`SyntaxError`** | The error Python raises when code breaks the language's grammar rules, such as an illegal variable name. |
+| UPI payment app | The amount you're about to pay, right up until you confirm it |
+| Food delivery app (Swiggy-style) | Every item's price as you keep adding to your cart |
+| Banking app | Your account balance, updated after each transaction |
+| Railway booking (IRCTC-style) | Whether your seat is confirmed, from the moment you pay to the moment you board |
 
-### 3.4 Syntax
+In every row, a value is created once and then used again later, often after something else has happened in between. `print()` cannot do that on its own — it shows you a value and then lets it go. What every one of these apps needs is a way to store a value under a name it can come back to, check, and change. Pick one row from the table and say out loud, in one sentence, what would break if the app simply couldn't remember that value between steps — that's the exact problem a variable exists to solve.
+
+## Giving a value a name: variables and assignment
+
+A **variable** is a name that refers to a value stored in the computer's memory. The simplest mental picture is a labelled box: the label is the name you choose, the box holds whatever value you put inside it. You create one with the **assignment operator** — a single equals sign, `=` — name on the left, value on the right:
 
 ```python
-name = value
+item_price = 149
+print(item_price)
 ```
 
-| Part | What it is | Why it's there |
+```
+149
+```
+
+Read `item_price = 149` as "let `item_price` refer to `149`" — never as "`item_price` equals `149`" in the mathematical sense. In maths, `=` states a fact that is either true or false. In Python, `=` performs an action: it binds the name on the left to the value on the right, and nothing is being compared. Once that binding exists, `print(item_price)` doesn't magically know the number 149 — it looks up whatever `item_price` currently refers to and displays that.
+
+**`=` in Python is an instruction, not a claim — you'll meet the symbol that actually checks equality (`==`) in the next unit, and mixing the two up is one of the most common early bugs.**
+
+## Reassignment: the same name, a new value
+
+Real values change. A customer edits their order, a bank balance drops after a withdrawal, a booking flips from unconfirmed to confirmed. **Reassignment** is giving a variable that already exists a new value, under the exact same name:
+
+```python
+item_price = 149
+print(item_price)
+
+item_price = 249
+print(item_price)
+```
+
+```
+149
+249
+```
+
+Before checking, predict for yourself: after these four lines run, does Python still remember `149` anywhere? It does not. The second `item_price = 249` is not a second variable — it's the same name, now pointing at a different value, and the old value `149` is simply gone unless you had saved it under some other name first. This is exactly how a running program keeps up with the real world: an account balance, a game score, a booking's confirmed status all change through reassignment of one name, not by creating a fresh variable every time something happens.
+
+## The rules for choosing a name
+
+The technical term for a variable's name is an **identifier**, and Python enforces a small, strict set of rules on it — break one, and your code fails before a single line runs:
+
+- May contain letters, digits, and the underscore `_`.
+- Must **not start with a digit** — `age2` is legal, `2age` is not.
+- May not contain spaces or symbols such as `-`, `!`, or `$`.
+- Must not be a **reserved keyword** — a word Python has already claimed for its own grammar, such as `if`, `for`, or `class`.
+
+Try it yourself before reading on: would `customer-name`, `2nd_item`, or `class` be legal Python identifiers? All three break one of the four rules above, and Python will refuse to run any of them, raising a **`SyntaxError`** — the same category of error you'd get from a missing parenthesis in Unit 1.1, just triggered by an illegal name instead.
+
+Identifier rules tell you what's *legal*. They say nothing about what's *readable* — that's where convention, not enforcement, takes over.
+
+| | Identifier rules (§ above) | `snake_case` convention |
 |---|---|---|
-| `name` | The **identifier** — the label you are choosing for this value. | This is what you will type later to retrieve the value. |
-| `=` | The **assignment operator**. | It tells Python "bind the name on my left to the value on my right." It is not a mathematical equals sign. |
-| `value` | Any expression Python can evaluate — a number, a string, another variable, or a calculation. | Python works this out completely first, *then* binds the name to the result. |
+| Who enforces it | Python itself | Nobody — it's a team agreement |
+| Break it and... | Code fails with a `SyntaxError` | Code still runs fine |
+| Source | Python's grammar | PEP 8, Python's official style guide |
+| Example | `2age` is illegal | `TotalPrice` is legal but discouraged |
 
-Reassignment uses the exact same syntax, just written again later in the program:
+PEP 8 recommends **`snake_case`**: all lowercase words, separated by underscores — `total_price`, not `TotalPrice` or `totalprice`. A good name also describes the value's *purpose*, not its type or a placeholder letter: `customer_age` tells the next reader far more than `x` ever could.
 
-**Example:**
+One more rule catches almost everyone at least once: Python is **case sensitive**, so `total`, `Total`, and `TOTAL` are three completely separate, unrelated names.
+
+**Typing `total_price` in one line and `Total_price` in another doesn't create a typo Python forgives — it creates two unrelated variables, and using the one that was never assigned raises a `NameError`.**
+
+Unlike a `SyntaxError`, a `NameError` doesn't stop your program before it starts — it happens mid-run, at the exact line where the unknown name gets used, because a variable must be assigned at least once before you're allowed to refer to it.
+
+## The four basic types of value
+
+Every value in Python belongs to a **type** — a category describing what kind of value it is. This unit introduces the four you'll use constantly, and in every case Python works out the type automatically from how you write the value:
+
+| Type | Meaning | How it's written | Example |
+|---|---|---|---|
+| `int` | A whole number, no decimal point | Digits only | `149`, `2`, `0` |
+| `float` | A number with a decimal point | Digits with a `.` | `29.50`, `745.5` |
+| `str` | Text data (a **string**) | Wrapped in quotes | `"Ananya Roy"`, `"SWG10234"` |
+| `bool` | A truth value | The literal word `True` or `False`, no quotes | `True`, `False` |
+
+Before reading on, guess: is `order_id = "SWG10234"` a `str` or an `int`? It's a `str` — the quotes are the only thing that matters here, not the digits inside them. Python treats it purely as text to display, never as a value you could calculate with. The same trap appears in miniature with `"5"` versus `5`: they look almost identical on the page but are entirely different types, one text, one number.
+
+## Checking a type instead of guessing: `type()`
+
+Rather than eyeballing quotes and decimal points, Python gives you a direct way to check: the built-in **`type()`** function, which reports the type of whatever value you hand it.
 
 ```python
-score = 100      # first assignment — score is created
-score = 150      # reassignment — score's old value (100) is replaced
+delivery_fee = 29.50
+print(type(delivery_fee))
 ```
 
-**Getting a value from the user: `input()`**
+```
+<class 'float'>
+```
 
-Every example so far has assigned a value you typed directly into the code. Real programs usually need to ask the *person running the program* for a value instead — a name, an age, an amount to pay. The built-in **`input()`** function does exactly this: it pauses the program, displays an optional prompt message, waits for the user to type something and press Enter, and then hands back whatever they typed.
+That output is Python's way of stating "this value belongs to the `float` type." Call `type()` on any variable, at any point in a program, whenever you're not fully sure what you're holding — it costs one line and removes all the guesswork.
 
-**Example:**
+## Same name, different type: dynamic typing
+
+Notice that nothing in this unit so far has told Python in advance, "this variable will hold a whole number" or "this variable will hold text." Python worked that out itself, the instant each assignment ran. That behaviour is called **dynamic typing**.
+
+| | Statically typed (e.g. Java, C) | Dynamically typed (Python) |
+|---|---|---|
+| Type declaration | Declared up front — `int age = 30;` | Never declared — Python infers it |
+| When the type is checked | Before the program runs | While the program runs |
+| Can a variable change type? | No — fixed forever | Yes — same name, different type later |
+
+The type belongs to the *value*, not to the *name* — so the exact same variable can refer to an `int` at one point and a `str` later, with nothing wrong happening at all:
+
+```python
+data = 100
+print(type(data))          # <class 'int'>
+
+data = "one hundred"
+print(type(data))          # <class 'str'>
+```
+
+A frequently asked entry-level interview question is exactly this: "Is Python statically or dynamically typed?" Try answering it out loud, in one sentence, before moving on — if you can explain it in your own words, you've understood the idea rather than memorised the label.
+
+## Asking the user for a value: `input()`
+
+Every example so far has assigned a value typed directly into the code. A real program usually needs to ask the *person running it* for a value instead — a name, an address, an answer. The built-in **`input()`** function does exactly that: it pauses the program, optionally shows a prompt, waits for the user to type something and press Enter, then hands back whatever they typed.
 
 ```python
 name = input("Enter your name: ")
 print("Hello,", name)
 ```
 
-*Line-by-line explanation:*
-- `input("Enter your name: ")` displays the text `Enter your name: ` on the screen and then pauses — the program does nothing further until the user types a response and presses Enter.
-- Whatever the user typed is returned by `input()` as a value, and `name = ...` immediately assigns that returned value to the variable `name`, exactly like any other assignment.
-- `print("Hello,", name)` then displays a greeting using whatever the user entered.
-- Sample run (user types `Ada` and presses Enter):
-  ```
-  Enter your name: Ada
-  Hello, Ada
-  ```
+Sample run (user types `Ada` and presses Enter):
 
-| Part | What it is | Why it's there |
-|---|---|---|
-| `input(...)` | The built-in function that reads one line of text typed by the user. | This is how a program collects information from a real person instead of having every value hard-coded. |
-| `"Enter your name: "` | An optional **prompt** string, shown before the program waits. | Tells the user what kind of value is expected; without it, the program would still wait, but with no visible message. |
-| Return value | **Always a `str`**, no matter what the user types — even `input("Enter your age: ")` with `20` typed in returns the *string* `"20"`, not the number `20`. | This is the single most important fact about `input()`: you must explicitly convert it (using `int()` or `float()`, covered later when we look at statements, conversion, and output) before using it as a number. |
+```
+Enter your name: Ada
+Hello, Ada
+```
 
-See this for yourself — even though the user types a number below, `type()` proves what `input()` actually handed back:
-
-**Example:**
+Here's the detail that catches almost every beginner once: `input()` **always** hands back a `str`, no matter what the user types — even digits that look exactly like a number. Predict the output of this before you check it:
 
 ```python
 age = input("Enter your age: ")
 print(type(age))
 ```
 
-*Line-by-line explanation:*
-- `age = input("Enter your age: ")` waits for the user to type a response. Suppose the user types `20` and presses Enter — it *looks* like a number was entered.
-- `print(type(age))` asks Python to report the actual type of whatever `age` refers to.
-- Sample run (user types `20` and presses Enter):
-  ```
-  Enter your age: 20
-  <class 'str'>
-  ```
-  Even though `20` looks exactly like a number, `type()` confirms it is a `str` — `input()` never returns anything but text. If you tried `age + 5` right now, Python would raise a `TypeError`, because you cannot add a number to a string; you would first need to convert `age` with `int(age)`.
+Sample run (user types `20` and presses Enter):
 
-**Use case:** `input()` is what turns a fixed script into an interactive program — a login prompt asking for a username, a calculator asking for two numbers, a quiz asking for an answer, or a food delivery app asking for a delivery address all start with `input()` collecting something directly from the person using the program.
-
-**Comparison Table: Statically Typed vs Dynamically Typed Languages**
-
-| Aspect | Statically Typed (e.g., Java, C) | Dynamically Typed (e.g., Python) |
-|---|---|---|
-| Type declaration | You must declare the type up front, e.g. `int age = 30;` | You never declare a type — Python infers it from the value |
-| When type is checked | Before the program runs (compile time) | While the program runs (run time) |
-| Can a variable change type? | No — a variable keeps its declared type forever | Yes — the same name can refer to an `int` now and a `str` later |
-| Beginner impact | More upfront typing, catches some mistakes earlier | Faster to write, but you must track types yourself using `type()` |
-
-**Dynamic Typing Over Time**
-
-```mermaid
-flowchart TD
-    S1["data = 100<br/>type(data) → int"] --> S2["data = 'one hundred'<br/>type(data) → str"]
-    S2 --> N["Same name, different type<br/>because type belongs to the VALUE, not the name"]
 ```
-
-### 3.5 Rules
-
-**Identifier rules (enforced by Python — break one and your code will not run):**
-
-- May contain letters, digits, and the underscore `_`.
-- Must **not start with a digit** — `age2` is legal, `2age` is not.
-- May not contain spaces or symbols such as `-`, `!`, or `$`.
-- Must not be a **reserved keyword** (`if`, `for`, `class`, `True`, `False`, etc.).
-
-**Assignment rules:**
-
-- A variable must be assigned at least once before you can use it — using it earlier raises a `NameError`.
-- The right-hand side is always fully evaluated *before* the name is bound or rebound.
-- Python is **case sensitive**: `total`, `Total`, and `TOTAL` are three completely separate variables.
-
-### 3.6 Best Practices
-
-- Follow **PEP 8** (Python's official style guide) and use `snake_case` for variable names: `total_price`, not `TotalPrice` or `totalprice`.
-- Choose names that describe the value's *purpose*, not its type: `customer_age` is better than `x` or `intvalue`.
-- Keep one spelling and one case per variable throughout your program — never switch between `total` and `Total` for the same value.
-- Use `type()` whenever you're unsure what a value's type is, rather than guessing from how it looks.
-- Assign a variable close to where it is first used, so a reader doesn't have to search far to understand it.
-
-### 3.7 Common Mistakes
-
-- **Using a variable before assigning it** — leads to `NameError: name '...' is not defined`. A variable only exists after its first assignment.
-- **Starting an identifier with a digit** (`2age = 30`) — Python cannot parse the name at all and raises a `SyntaxError` before running anything.
-- **Colliding with a reserved keyword** (`class = "10A"`) — causes a confusing `SyntaxError`; rename the identifier (`class_name` instead of `class`).
-- **Assuming case doesn't matter** — writing `total` in one line and `Total` in another creates two separate, unrelated variables, not a typo Python will forgive.
-- **Confusing `"5"` (a string) with `5` (an integer)** — they look similar but are different types; `type()` will immediately clear this up.
-
-### 3.8 Code Examples
-
-**Scenario:** we'll build one running example — tracking a Swiggy-style food delivery order — in four short stages. Each stage keeps every line from the stage before it and adds a few new ones, so by the end you can see the whole idea of variables, reassignment, types, and `input()` working together in a single program.
-
-**Stage 1 — create and print a single variable (the item's price):**
-
-```python
-item_price = 149
-print(item_price)
-```
-
-*Line-by-line explanation:*
-- `item_price = 149` — binds the name `item_price` to the value `149`.
-- `print(item_price)` — Python looks up what `item_price` refers to and displays it.
-- Output: `149`.
-
-**Stage 2 — the customer changes their order, so the price is reassigned:**
-
-```python
-item_price = 149
-print(item_price)
-
-item_price = 249
-print(item_price)
-```
-
-*Line-by-line explanation:*
-- The first two lines are unchanged from Stage 1 and still print `149`.
-- `item_price = 249` is a **reassignment** — the old value `149` is discarded, and `item_price` now refers to `249`.
-- The second `print(item_price)` shows the new value.
-- Output:
-  ```
-  149
-  249
-  ```
-
-**Stage 3 — store the rest of the order using one variable of each basic type, and inspect them with `type()`:**
-
-```python
-item_price = 149
-print(item_price)
-
-item_price = 249
-print(item_price)
-
-customer_name = "Ananya Roy"
-delivery_fee = 29.50
-order_id = "SWG10234"
-is_paid = False
-
-print(type(customer_name))
-print(type(delivery_fee))
-print(type(order_id))
-print(type(is_paid))
-```
-
-*Line-by-line explanation:*
-- `customer_name = "Ananya Roy"` — wrapped in quotes, so Python stores it as a `str`.
-- `delivery_fee = 29.50` — written with a decimal point, so Python stores it as a `float`.
-- `order_id = "SWG10234"` — quoted, so it's a `str`, even though it contains digits; it is text to display, not a number to calculate with.
-- `is_paid = False` — one of exactly two allowed values, so Python stores it as a `bool`, starting as "not yet paid."
-- The four `print(type(...))` lines report each stored type, with no need to declare any of them in advance — this is dynamic typing in action. Output:
-  ```
-  149
-  249
-  <class 'str'>
-  <class 'float'>
-  <class 'str'>
-  <class 'bool'>
-  ```
-
-**Stage 4 — ask the customer for their delivery address with `input()`, then confirm payment:**
-
-```python
-item_price = 149
-print(item_price)
-
-item_price = 249
-print(item_price)
-
-customer_name = "Ananya Roy"
-delivery_fee = 29.50
-order_id = "SWG10234"
-is_paid = False
-
-print(type(customer_name))
-print(type(delivery_fee))
-print(type(order_id))
-print(type(is_paid))
-
-address = input("Enter your delivery address: ")
-print("Deliver to:", address)
-print(type(address))
-
-is_paid = True
-print("Payment status:", is_paid)
-```
-
-*Line-by-line explanation:*
-- `address = input("Enter your delivery address: ")` displays the prompt and pauses until the user types a response and presses Enter; whatever they type is assigned to `address`.
-- `print("Deliver to:", address)` displays a label and the address together.
-- `print(type(address))` proves that `input()` always hands back a `str`, no matter what the user types.
-- `is_paid = True` is another reassignment — the same name that held `False` now refers to `True`, simulating the moment payment succeeds.
-- Sample run (user types `12 MG Road, Bengaluru` and presses Enter):
-  ```
-  149
-  249
-  <class 'str'>
-  <class 'float'>
-  <class 'str'>
-  <class 'bool'>
-  Enter your delivery address: 12 MG Road, Bengaluru
-  Deliver to: 12 MG Road, Bengaluru
-  <class 'str'>
-  Payment status: True
-  ```
-
-#### Try It Yourself
-
-Sticking with the same food delivery scenario, extend the program yourself. Attempt each part before checking the solution.
-
-**(a)** Create a variable `restaurant_name` holding the text `"Spice Route"`, print it, and then print its type.
-
-**Solution:**
-```python
-restaurant_name = "Spice Route"
-print(restaurant_name)
-print(type(restaurant_name))
-```
-Expected output:
-```
-Spice Route
+Enter your age: 20
 <class 'str'>
 ```
 
-**(b)** Add two more variables: `quantity` set to `3` (the number of items ordered) and `packing_charge` set to `15.0`. Print the type of `restaurant_name`, `quantity`, and `packing_charge`, one per line.
+Even though `20` looks exactly like a number, `type()` confirms it's a `str`. Try `age + 5` right now and Python raises a `TypeError`, because you cannot add a number to text — you would first need to convert `age` with `int(age)`, a step covered later when we look at statements and conversion. For now, the habit that matters is checking with `type()` rather than assuming, any time a value came from `input()`.
 
-**Solution:**
-```python
-restaurant_name = "Spice Route"
-quantity = 3
-packing_charge = 15.0
+## Try it yourself
 
-print(type(restaurant_name))
-print(type(quantity))
-print(type(packing_charge))
-```
-Expected output:
-```
-<class 'str'>
-<class 'int'>
-<class 'float'>
-```
-
-**(c)** Using `input()`, ask the customer to type their name into a variable called `customer_name`. Print a message that says `"Order for:"` followed by `customer_name`. Then create a variable `order_confirmed` starting as `False`, reassign it to `True` once the order is placed, and print `"Order confirmed:"` followed by `order_confirmed`.
-
-**Solution:**
-```python
-customer_name = input("Enter your name: ")
-print("Order for:", customer_name)
-
-order_confirmed = False
-order_confirmed = True
-print("Order confirmed:", order_confirmed)
-```
-Expected output (user types `Rahul` and presses Enter):
-```
-Enter your name: Rahul
-Order for: Rahul
-Order confirmed: True
-```
+Do this in a Colab cell before continuing. Model a small movie-ticket booking: create `movie_name` (a `str`), `ticket_price` (a `float`), `seats_booked` (an `int`), and `booking_confirmed` starting at `False`. Print the type of all four. Then reassign `booking_confirmed` to `True` and print a message showing the new value. Finally, use `input()` to collect a `customer_name`, and print its `type()` to confirm it reports `<class 'str'>` — even if you type nothing but digits when prompted.
 
 ---
 
-## 4. Real-World Application
+### Key Terminology
 
-The moment you start naming and storing values, you are doing exactly what production software does, just at a smaller scale:
+- **Variable** — a name that refers to a value stored in memory.
+- **Assignment operator (`=`)** — binds a name to a value; an action, not a mathematical equality.
+- **Reassignment** — giving an existing variable a new value, replacing the old one.
+- **Identifier** — the technical term for a variable's (or function's) name.
+- **Reserved keyword** — a word Python has already claimed for its own grammar (`if`, `for`, `class`, etc.) — illegal as a variable name.
+- **`snake_case`** — the PEP 8 naming convention: lowercase words separated by underscores.
+- **Case sensitivity** — Python treats uppercase and lowercase letters as different, so `total` and `Total` are unrelated names.
+- **Type** — a category describing what kind of value something is.
+- **`int` / `float` / `str` / `bool`** — whole number, decimal number, quoted text, and `True`/`False` respectively.
+- **`type()`** — the built-in function that reports a value's type.
+- **Dynamic typing** — Python inferring a value's type automatically at assignment time, rather than requiring it declared in advance.
+- **`input()`** — the built-in function that pauses a program, optionally shows a prompt, and returns whatever the user typed, always as a `str`.
+- **`NameError`** — raised when code refers to a variable that was never assigned.
+- **`SyntaxError`** — raised when code breaks Python's basic grammar rules, such as an illegal identifier.
 
-- **Banking & FinTech:** An account's balance, the account holder's name, and whether the account is active are stored as variables (or their database equivalent) of type `float`, `str`, and `bool` respectively — the very same types you just used.
-- **UPI / Payment Systems:** Every payment app tracks a payer name, an amount, a transaction ID, and a success flag — four variables, four types, exactly like the example above.
-- **E-commerce:** A shopping cart page holds an item price (`float`), a quantity (`int`), a product name (`str`), and whether a coupon was applied (`bool`) — four variables, four different jobs.
-- **Healthcare:** A patient record system stores a patient's name (`str`), age (`int`), temperature reading (`float`), and whether they are currently admitted (`bool`).
-- **Railway Booking (IRCTC-style systems):** A booking stores the passenger's name, the fare, the number of seats requested, and whether the booking is confirmed — precisely the shape of the worked example below.
-- **AI/ML:** Every model you will later call in this program stores its inputs and outputs in variables first — a prompt (`str`), a confidence score (`float`), a token count (`int`) — before doing anything else with them.
+### Mastery Checkpoint
 
-The pattern never really changes as you move into more advanced software: name a value, store it in the right type, reuse and update it as needed.
+Before moving to Unit 1.3, check that you can answer these without looking back:
 
----
+1. What's the difference between how `=` behaves in Python and how it behaves in a maths class?
+2. Why is `order_id = "SWG10234"` a `str` rather than a number, even though it's made entirely of digits?
+3. `total_price` was assigned earlier in your program. You then write `print(Total_price)`. What happens, and why?
+4. What is the one fact about `input()` that's true no matter what the user types in — and what problem does it cause if you forget it?
+5. Is Python statically or dynamically typed, and what does that mean for a variable that's assigned an `int` and later reassigned a `str`?
 
-## 5. Worked Example
+### Summary
 
-### Problem Statement
+You now know how to give a value a name that survives past a single `print()`, the rules Python enforces on that name versus the `snake_case` convention that keeps it readable, and the four basic types — `int`, `float`, `str`, `bool` — that cover almost everything you'll store in this course. You've used `type()` to check a value instead of guessing, seen why Python's dynamic typing lets the same name hold different kinds of value over time, and collected your first value directly from a user with `input()` — along with the one gotcha, "it's always a `str`," that trips up nearly everyone the first time. From here, the next step is learning how to combine and compare the values you now know how to store — starting with operators and expressions.
 
-You are asked to model the core details of a single railway ticket booking, similar to what an IRCTC-style booking confirmation page shows: the passenger's name, the ticket fare, the number of seats booked, and whether the booking is currently confirmed. After creating these variables, you must verify each one's type, and then update the booking status once payment goes through.
+### Additional Resources
 
-### Step 1: Understand the Problem
-
-You need four separate pieces of information, each naturally a different type: text (the passenger's name), a decimal amount (the fare), a whole number (the seat count), and a true/false flag (whether the booking is confirmed). No calculations are required yet — only correct storage, correct typing, and one reassignment.
-
-### Step 2: Plan the Solution
-
-Create one variable for each piece of information, using `snake_case` names that describe their purpose. Print each variable's type to confirm Python inferred it correctly. Then simulate the booking being confirmed by reassigning the status variable from `False` to `True`.
-
-### Step 3: Write the Python Code
-
-```python
-passenger_name = "Priya Nair"
-ticket_fare = 745.50
-seats_booked = 2
-booking_confirmed = False
-
-print(type(passenger_name))
-print(type(ticket_fare))
-print(type(seats_booked))
-print(type(booking_confirmed))
-
-booking_confirmed = True
-print("Booking confirmed status:", booking_confirmed)
-```
-
-### Step 4: Explain Each Line
-
-- `passenger_name = "Priya Nair"` — a `str`, because it is text wrapped in quotes.
-- `ticket_fare = 745.50` — a `float`, because it is written with a decimal point.
-- `seats_booked = 2` — an `int`, because it is a whole number with no decimal point.
-- `booking_confirmed = False` — a `bool`, starting as "not yet confirmed."
-- The four `print(type(...))` lines each ask Python to report the type it inferred, with no need for you to declare anything up front — this is dynamic typing in action.
-- `booking_confirmed = True` — a **reassignment**. The old value (`False`) is discarded, and the same name now refers to `True`, simulating the moment payment succeeds.
-- The final `print()` displays a label and the updated value together.
-
-### Step 5: Sample Input
-
-None. All values are assigned directly in the code; no user input is involved in this unit yet.
-
-### Step 6: Expected Output
-
-```
-<class 'str'>
-<class 'float'>
-<class 'int'>
-<class 'bool'>
-Booking confirmed status: True
-```
-
-### Step 7: Why the Output Is Produced
-
-Each `type()` call reports exactly the type Python inferred at the moment of assignment — a quoted value becomes `str`, a decimal value becomes `float`, a whole number becomes `int`, and `True`/`False` becomes `bool`. The final line reflects the reassignment: `booking_confirmed` was created as `False`, then explicitly reassigned to `True` before the last `print()` ran, so the *old* value is never seen again — only the current one is shown.
-
----
-
-### Important Notes (Interview Insights)
-
-**Q: "Is Python statically typed or dynamically typed?"**
-
-Python is **dynamically typed** — you never declare a variable's type in advance; Python determines it automatically from the assigned value, and the same name can refer to different types at different times in the program.
-
-**Q: "What is the difference between an identifier rule and a naming convention?"**
-
-Identifier rules are enforced by the language (violating one stops your program from running at all), while `snake_case` is a convention — a team agreement that keeps code consistent and readable, not something Python itself checks.
-
-**Q: "Does `=` mean the same thing in Python as it does in mathematics?"**
-
-No — `=` in Python is *assignment*, not mathematical equality. Comparison uses a different operator (`==`), which you will meet when we cover operators and expressions. Interviewers sometimes probe whether you understand this distinction.
-
----
-
-## 6. Key Takeaways
-
-- A **variable** is a name bound to a value using the assignment operator `=`; **reassignment** replaces the old value with a new one under the same name.
-- **Identifiers** must follow Python's rules (letters, digits, underscores; no leading digit; no reserved keywords) and should follow the **`snake_case`** convention from PEP 8.
-- Python is **case sensitive** — `total` and `Total` are two unrelated variables, a common source of `NameError` bugs.
-- The four basic types are **`int`**, **`float`**, **`str`**, and **`bool`**; the built-in **`type()`** function reports the type of any value.
-- Python uses **dynamic typing**: you never declare a type in advance, and the type belongs to the value, not to the name — so the same variable can hold different types at different points in a program.
-- A `NameError` means you used a variable before assigning it; a `SyntaxError` on a variable name usually means it starts with a digit or clashes with a reserved keyword.
-- Being ready to explain *dynamic vs static typing* in your own words is a very common entry-level interview question.
-
-Coming next: operators and expressions — how you combine and compare the values you now know how to store.
-
----
-
-## 7. Reference Links
-
-- [The Python Tutorial — An Informal Introduction (Variables, Numbers, Strings)](https://docs.python.org/3/tutorial/introduction.html)
+- [Python Tutorial — official docs: "An Informal Introduction to Python" (numbers, strings, first steps)](https://docs.python.org/3/tutorial/introduction.html)
 - [Python 3 Documentation — Built-in Types](https://docs.python.org/3/library/stdtypes.html)
+- [Python 3 Documentation — `input()` built-in function](https://docs.python.org/3/library/functions.html#input)
 - [PEP 8 — Style Guide for Python Code (Naming Conventions)](https://peps.python.org/pep-0008/#naming-conventions)
-- [Real Python — Variables in Python](https://realpython.com/python-variables/)
 - [W3Schools — Python Variables](https://www.w3schools.com/python/python_variables.asp)
-
-[← Previous: 1.1 The Python Environment](unit-1-1-python-environment.md) | [Go back to TOC](../../README.md) | [Next: 1.3 Operators & Expressions →](unit-1-3-operators-expressions.md)
-
----
-
-*© 2026 Revature · AI Native Engineering — Foundations · Unit 1.2 · Version 2.0*
+- [W3Schools — Python Data Types](https://www.w3schools.com/python/python_datatypes.asp)
+- [W3Schools — Python User Input](https://www.w3schools.com/python/python_user_input.asp)
