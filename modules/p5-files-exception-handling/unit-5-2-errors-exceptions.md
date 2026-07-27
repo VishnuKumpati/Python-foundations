@@ -1,50 +1,25 @@
-﻿# Errors & Exceptions
+# Errors & Exceptions
+
+Unit 5.1 taught you to open a file, read it line by line, parse it as CSV, or load it as JSON — genuinely useful skills. But look back at every example in that chapter and notice a shared, unstated assumption: the file was always exactly where you expected it, and every value inside it was always exactly the type you expected. Real files, and real users, rarely cooperate that reliably. A teammate deletes `sales.csv` an hour before your script runs. A customer at a shop counter types "five hundred" into a payment app instead of `500`. A railway booking system is asked to look up a PNR that was never actually booked. The moment your code depends on something outside its own control — a file that might not exist, a user who might type garbage, a dictionary key nobody ever added — your program is one bad input away from crashing outright with a raw traceback, unless you plan for that failure deliberately.
+
+That planning is exactly what this chapter equips you to do. You will learn to tell apart two very different kinds of "something went wrong" — a mistake in the code itself versus a problem that only surfaces while otherwise-valid code is running — and then meet the four keywords Python gives you to detect a problem, respond to it on your own terms, and keep the program alive afterward: `try`, `except`, `else`, and `finally`. You will see how to handle more than one kind of failure from the same risky block, meet the handful of built-in exceptions you will run into constantly for the rest of your career, and learn to `raise` a problem yourself — including one Python has no built-in name for — with a custom exception class.
+
+By the time you finish, the very `open()` calls from Unit 5.1 will survive a missing file instead of crashing on it, and every risky line you write from here on will fail on your terms, not by accident.
 
 ---
 
-[← Previous: 5.1 File Handling](unit-5-1-file-handling.md) | [Go back to TOC](../../README.md) | [Next: 5.3 Case Study →](unit-5-3-case-study.md)
+## Two kinds of "something went wrong"
 
-## 1. Learning Objectives
+Picture a shop's card-payment terminal. A customer taps their card, and the terminal's network connection drops for half a second. What should happen next? The worst possible outcome is that the entire terminal freezes and needs a hard restart, locking out every customer waiting in line behind that one unlucky tap. The right outcome is that the terminal notices this one specific problem, shows a clear message such as "Please try again," and is completely ready for the very next customer a second later. That difference — crash everything, versus notice the problem and keep going — is what this whole chapter is about, and it starts with a distinction Python draws sharply between two very different kinds of failure.
 
-By the end of this unit, you will be able to:
+The word **error** is the general umbrella term for anything that stops your program from doing what it's supposed to do. Underneath that umbrella, Python splits errors into two categories that behave completely differently, and knowing which one you're facing changes what you can actually do about it.
 
-- **Differentiate** between a syntax error and a runtime exception, and explain why one stops your program before it even starts.
-- **Explain** what each part of a `try`/`except`/`else`/`finally` block actually guarantees.
-- **Implement** exception handling to catch multiple, specific failures from the same `try` block.
-- **Identify** common built-in exceptions — `ValueError`, `TypeError`, `ZeroDivisionError`, `FileNotFoundError`, `KeyError`, `IndexError` — and the situation that triggers each one.
-- **Apply** the `raise` keyword to signal a problem your own code detects, including through a custom exception class.
-- **Debug** code that hides real bugs behind a bare `except:`, and rewrite it to catch specific exceptions instead.
-
----
-
-## 2. Overview
-
-In File Handling, you learned to open files, read CSV data, and parse JSON — but every example assumed the file was exactly where you expected it, and every value inside it was exactly the type you expected. Real files, and real users, are rarely that well-behaved. A teammate deletes `sales.csv` before your script runs. A customer typing into a UPI payment form enters "five hundred" instead of `500`. A railway booking system is asked to look up a PNR number that was never actually booked. In production software — a payment gateway, an e-commerce checkout, a hospital record system — none of these situations gets to crash the entire application for every other user at the same time. The system must detect the problem, respond sensibly, and keep running.
-
-This is exactly what **exception handling** gives you. Instead of writing code and hoping nothing ever goes wrong, you explicitly plan for the specific ways it *can* go wrong, and write a response for each one — the same way good logic branches on `if`/`elif` rather than one generic `else`.
-
-This unit builds directly on File Handling: you will revisit the very same `open()` calls from that unit, now protected against a missing file with `FileNotFoundError`. You will also learn the full `try`/`except`/`else`/`finally` toolkit, how to catch several distinct failures from one block, the most common built-in exceptions you will meet constantly, and how to `raise` your own exception when your code detects a problem no built-in exception describes. By the end, you will be writing code that behaves the way real, professional software must: it survives bad input instead of dying on it.
-
----
-
-## 3. Description
-
-### 3.1 Definition
-
-An **error** is a general term for anything that stops your program from doing what it's supposed to do. Python actually gives you two very different kinds of errors, and telling them apart matters:
-
-- A **syntax error** happens *before* your program runs at all. Python reads your code, cannot make sense of its structure — a missing colon, a misspelled keyword — and refuses to start executing even the first line.
-- A **runtime exception** (usually just called an **exception**) happens *while* the program is running. The code itself was valid Python — it started executing successfully — but something went wrong partway through: a file wasn't found, a value couldn't be converted to a number, a calculation tried to divide by zero.
-
-**Exception handling** is the set of Python tools — `try`, `except`, `else`, `finally`, and `raise` — that let you detect a runtime exception, respond to it in a planned way, and keep your program running instead of letting it crash.
+A **syntax error** happens *before* your program runs at all. Python reads through your code first, checking that it obeys the grammar rules of the language — a colon after an `if` line, correctly spelled keywords — and if that check fails, Python refuses to run even the very first line. You already met this back in Units 1.1–1.4, every time a missing colon or a stray typo produced a `SyntaxError`.
 
 ```python
-# This next line is missing the colon Python's grammar requires:
 if 5 > 3
-    print("hello")
+    print("It is warm.")
 ```
-
-Output:
 
 ```
   File "<cell>", line 1
@@ -53,194 +28,52 @@ Output:
 SyntaxError: expected ':'
 ```
 
-That's a syntax error — nothing ran. Compare it to this, which is perfectly valid Python that fails *during* execution:
+A **runtime exception** — usually just called an **exception** — is a completely different animal. The code itself is valid Python; it starts running successfully, but partway through, something goes wrong: a file isn't where it's expected, a number is divided by zero, a piece of text can't be turned into a number. You have already met several of these without necessarily naming the category — `ZeroDivisionError` in Unit 1.3, `ValueError` and `TypeError` in Unit 1.4, `IndexError` in Unit 3.1, `KeyError` in Unit 3.4, and `FileNotFoundError` in Unit 5.1. Every single one of those is a runtime exception.
 
 ```python
 print(10 / 0)
 ```
 
-Output:
-
 ```
 ZeroDivisionError: division by zero
 ```
 
-### 3.2 Why This Concept Exists
-
-Without exception handling, the first bad file, bad input, or bad calculation in a program's entire lifetime would stop it completely — for every user, every time. Real software constantly needs to:
-
-- **Detect** a specific failure (a missing file, an invalid amount) the moment it happens.
-- **Respond** to it in a planned, appropriate way instead of crashing outright.
-- **Continue** serving everyone else, or at least fail in a controlled, informative manner.
-
-This is why a UPI payment app rejects an invalid amount with a clear message instead of crashing the whole app for the customer standing at a shop counter, and why a data-processing script can skip three bad rows out of a million instead of stopping dead at row 40,502. Exception handling is what makes that behaviour possible.
-
-### 3.3 Key Terminology
-
-| Term | Simple Meaning |
-|---|---|
-| **Error** | A general term for anything that stops normal program execution. |
-| **Syntax error** | An error caught before the program runs at all — invalid Python grammar, such as a missing colon or misspelled keyword. |
-| **Runtime error / Exception** | A problem that occurs *while* otherwise-valid code is executing — e.g. dividing by zero, a missing file. |
-| **Exception handling** | The set of tools (`try`, `except`, `else`, `finally`, `raise`) used to detect and respond to exceptions instead of letting the program crash. |
-| **`try` block** | The section of code you attempt to run, which might fail. |
-| **`except` block** | The section that runs only if a specific exception (or a subclass of it) was raised inside `try`. |
-| **`else` block** | Runs only if the `try` block completed with zero exceptions. |
-| **`finally` block** | Runs unconditionally — whether `try` succeeded, an `except` fired, or a new exception was raised inside `except`. |
-| **Exception object** | The actual object Python creates when an exception occurs, carrying details such as the error message — e.g. the `e` in `except ValueError as e:`. |
-| **`raise`** | The keyword used to trigger an exception deliberately from your own code. |
-| **Exception class hierarchy** | The tree of built-in exception classes, all ultimately inheriting from `BaseException`; catching a parent class also catches every child beneath it. |
-| **Bare `except:`** | An `except` clause with no exception type named — catches literally everything, including bugs you never anticipated. |
-| **Custom exception** | A user-defined class, inheriting from `Exception`, used to signal a problem specific to your own program. |
-
-### 3.4 Syntax
-
-```python
-try:
-    risky_code()
-except SomeError:
-    handle_it()
-except (OtherError, AnotherError) as e:
-    handle_those(e)
-else:
-    only_if_no_exception()
-finally:
-    always_runs()
-```
-
-| Part | What it is | Why it's there |
+| | Syntax error | Runtime exception |
 |---|---|---|
-| `try:` | Marks the start of the code you want to attempt. | Nothing below is "protected" until it is wrapped this way. |
-| `except SomeError:` | Catches `SomeError` (or any of its subclasses) if raised inside `try`. | Naming the type makes this a *targeted* response, not a generic one. |
-| `except (A, B):` | Catches either exception type `A` or `B` with one shared response. | Useful when two different failures deserve an identical reaction. |
-| `except SomeError as e:` | Same as above, but also binds the exception object to the name `e`. | Lets you inspect or log the actual error message. |
-| `else:` | Runs only if `try` finished with no exception at all. | Keeps "only-on-success" code separate from the risky code in `try`. |
-| `finally:` | Runs no matter what happened above. | The one place to put cleanup code you can always count on running. |
-| `raise SomeError("message")` | Deliberately triggers an exception with a custom message. | Lets your own code signal a problem — built-in or custom. |
+| When it happens | Before the program runs at all | While otherwise-valid code is executing |
+| What triggers it | Broken grammar — a missing colon, a typo in a keyword | A value or situation the code meets while running — bad input, a missing file, a zero divisor |
+| Can your code catch it? | No — the program never started | Yes — this is exactly what this chapter teaches |
+| Where you met it before | A missing `:` or misspelled `if` in Units 1.1–1.4 | `ZeroDivisionError`, `ValueError`, `KeyError`, `FileNotFoundError`, and more |
 
-**`try` / `except` / `else` / `finally` Control Flow**
+**Only a runtime exception can be anticipated and handled in your own code — a syntax error means your program never started running, so there is nothing left to "catch."** That single fact is the reason this entire chapter is about exceptions, not syntax errors: the tools you're about to learn only ever apply once code is genuinely running.
 
-```mermaid
-flowchart TD
-    A["Start: try block runs"] --> B{"Did an exception occur?"}
-    B -->|No| C["else block runs, if present"]
-    B -->|Yes| D{"Does a matching except exist?"}
-    D -->|Yes — first match, top to bottom| E["Matching except block runs"]
-    D -->|No matching except| F["Exception propagates upward, uncaught"]
-    C --> G["finally block runs"]
-    E --> G
-    F --> G
-    G --> H["Program continues normally,<br/>or the exception propagates further if it was never caught"]
-```
-*No matter which path is taken above, `finally` always executes before the block is truly done.*
+## `try` and `except`: a safety net under the tightrope walker
 
-**Comparison Table: Common Exception Types**
+Think of risky code the way you'd think of a tightrope walker. The walker still attempts the crossing — that's the whole point of the act — but a safety net is stretched underneath first, so a fall doesn't end the show. **Exception handling** is Python's version of that net: it lets you attempt something that might fail, while having a planned response ready the instant it does, so a single bad input doesn't end your entire program.
 
-| Exception | When it happens | Example |
-|---|---|---|
-| `ValueError` | A value has the right type but an inappropriate value | `int("abc")` |
-| `TypeError` | An operation is applied to a value of the wrong type entirely | `"5" + 5` |
-| `ZeroDivisionError` | A number is divided by zero | `10 / 0` |
-| `FileNotFoundError` | You try to open a file that doesn't exist | `open("sales.csv")` when the file was deleted |
-| `KeyError` | You access a dictionary key that doesn't exist | `student_marks["Rohit"]` when `"Rohit"` isn't a key |
-| `IndexError` | You access a list/tuple index that is out of range | `marks[10]` when the list only has 3 items |
-
-A useful pair to keep straight for interviews: `ValueError` means *right type, wrong content* (`int("cat")` — a string, just not a numeric one); `TypeError` means *wrong type entirely* (`len(5)` — an integer has no length at all).
-
-A custom exception is just a class that inherits from `Exception`, exactly like the class inheritance you built in Part 4:
-
-```python
-class InvalidMarksError(Exception):
-    pass
-```
-
-Raising it (`raise InvalidMarksError("150 is not a valid mark")`) works exactly like raising any built-in exception, and whoever calls your function can catch it specifically with `except InvalidMarksError:`.
-
-### 3.5 Rules
-
-- Every `except` needs a `try` above it in the same block — you cannot use one without the other.
-- Python checks `except` clauses top to bottom and stops at the **first type match**. Order matters when types are related: list the specific exception before a broader parent, or the parent will catch it first and the specific block never runs.
-- `else` only makes sense directly after all `except` clauses, and before `finally`.
-- `finally`, if present, is always the last part of the block, and it always runs — even through a `return` inside `try`, or a brand-new exception raised inside `except`.
-- `raise` used with no arguments is only valid inside an `except` block — it re-raises the exception currently being handled.
-- Every exception raised, whether built-in or your own, is an object built from a class; `ValueError`, `FileNotFoundError`, and every other built-in exception ultimately inherit from a base class called `Exception`.
-
-```mermaid
-graph TD
-    BaseException["<b>BaseException</b>"]
-    Exception["<b>Exception</b>"]
-    ArithmeticError["<b>ArithmeticError</b>"]
-    ZeroDivisionError["<b>ZeroDivisionError</b>"]
-    LookupError["<b>LookupError</b>"]
-    IndexError["<b>IndexError</b>"]
-    KeyError["<b>KeyError</b>"]
-    OSError["<b>OSError</b>"]
-    FileNotFoundError["<b>FileNotFoundError</b>"]
-    ValueError["<b>ValueError</b>"]
-    TypeError["<b>TypeError</b>"]
-
-    BaseException --> Exception
-    Exception --> ArithmeticError
-    Exception --> LookupError
-    Exception --> OSError
-    Exception --> ValueError
-    Exception --> TypeError
-    ArithmeticError -->|catch parent, catch child too| ZeroDivisionError
-    LookupError -->|catch parent, catch child too| IndexError
-    LookupError -->|catch parent, catch child too| KeyError
-    OSError -->|catch parent, catch child too| FileNotFoundError
-
-    classDef start fill:#a5d8ff,stroke:#4a9eed,stroke-width:2px;
-    classDef auto fill:#d0bfff,stroke:#8b5cf6,stroke-width:2px;
-    classDef done fill:#b2f2bb,stroke:#22c55e,stroke-width:2px;
-    class BaseException,Exception start;
-    class ArithmeticError,LookupError,OSError auto;
-    class ZeroDivisionError,IndexError,KeyError,FileNotFoundError,ValueError,TypeError done;
-```
-*A simplified slice of Python's exception tree — catching a parent class such as `OSError` also catches every child beneath it, including `FileNotFoundError`.*
-
-### 3.6 Best Practices
-
-- Catch specific exceptions (`except ValueError:`) rather than a bare `except:` — never hide a bug you didn't anticipate.
-- Use `finally` (or a `with` block, as covered in File Handling) for cleanup that must always happen — closing a file, releasing a resource, logging that an attempt was made.
-- Never silently swallow an exception (`except: pass`) — at minimum, log it so the failure stays visible somewhere.
-- Catch the narrowest exception type that fits the situation — catching `Exception` broadly is only a small improvement over a bare `except:`.
-- Keep the `try` block small — wrap only the risky line(s), not your entire program, so you know precisely what failed.
-- Raise a **custom exception** when a built-in type doesn't describe your problem well, so callers can catch exactly that situation.
-
-### 3.7 Common Mistakes
-
-- **Bare `except:` hiding real bugs** — a typo in a variable name gets silently reported as "something went wrong" instead of surfacing the actual `NameError`.
-- **Catching an exception too broadly** (`except Exception:`) when a specific type would have caught the real problem while letting genuine, unanticipated bugs surface.
-- **Assuming `finally` is optional** — forgetting that it always runs, on every path out of the block, not just when nothing failed.
-- **Listing a parent exception class before a child** in multiple `except` clauses, so the child's specific block never actually executes.
-- **Forgetting that `else` is skipped** entirely the moment any exception occurs, even one caught by a different `except` than expected.
-
-### 3.8 Code Examples
-
-All four examples below build **one single scenario** — a shop counter accepting a UPI payment — adding one new piece of the `try`/`except` toolkit at a time. By the end, one function has grown to use every tool from §3.4.
-
-**Step 1 — a basic `try`/`except`:** just convert the text the customer typed into a number.
+The core tool is the **`try` block**: the section of code you are deliberately attempting, because you know it *might* fail.
 
 ```python
 amount_text = "499.00"
 
 try:
     amount = float(amount_text)
-    print("Amount entered:", amount)
+    print("Amount entered: Rs.", amount)
 except ValueError:
     print("Please enter a valid number.")
 ```
 
-*Line-by-line explanation:*
-- `amount_text = "499.00"` — stands in for whatever a customer types into a payment app's amount field; it arrives as text.
-- `try:` — marks the start of the code Python should attempt.
-- `amount = float(amount_text)` — `"499.00"` converts cleanly to the number `499.0`, so this line succeeds.
-- `print("Amount entered:", amount)` — runs normally since no exception occurred.
-- `except ValueError:` — this block is skipped entirely, because nothing went wrong above it.
-- Output: `Amount entered: 499.0`
+```
+Amount entered: Rs. 499.0
+```
 
-**Step 2 — multiple `except` clauses:** the shop also needs to look up the customer's account balance, which can fail in a completely different way (an unknown customer) than a bad amount.
+`"499.00"` converts cleanly to `499.0`, so every line inside `try` succeeds, and the matching `except ValueError:` block underneath is simply skipped — it never runs at all when nothing went wrong. Before checking, predict what happens if `amount_text` were `"five hundred"` instead: `float()` cannot parse that text into a number, so it raises `ValueError` right there, Python immediately jumps to the matching `except ValueError:` block, prints "Please enter a valid number," and the program carries on to whatever comes after the whole `try`/`except` — it does not crash, and it does not re-attempt the line that failed.
+
+**Nothing is "protected" against an exception until it is written inside a `try` block — wrapping the risky line is what activates the safety net, not merely knowing an exception is possible.** A `try` with no matching `except` for the exception that actually occurs offers no protection at all; the exception still escapes and crashes the program exactly as if there had been no `try` there.
+
+## Catching more than one kind of failure
+
+A single `try` block often protects more than one risky line, and different lines can fail in completely different ways. Picture a shop accepting a UPI payment: converting the typed amount to a number can fail one way, and looking up the customer's account balance can fail in an entirely unrelated way. Python lets you list several `except` clauses after one `try`, each naming its own exception type, so each kind of failure gets its own specific response.
 
 ```python
 balances = {"Rohit Verma": 300, "Asha Singh": 1000, "Karan Mehta": 5000}
@@ -260,20 +93,32 @@ process_payment("Unknown User", "200")
 process_payment("Asha Singh", "five hundred")
 ```
 
-*Line-by-line explanation:*
-- `balances = {...}` — a small dictionary standing in for a real account-balance lookup, exactly the kind of dictionary you built in earlier units.
-- `amount = float(amount_text)` — fails with `ValueError` if the text isn't numeric.
-- `current_balance = balances[payer]` — fails with `KeyError` if `payer` isn't a key in `balances`.
-- `except ValueError:` — runs only if the amount conversion failed.
-- `except KeyError:` — runs only if the balance lookup failed; Python checks these top to bottom and runs the first one that matches.
-- Output:
-  ```
-  Rohit Verma wants to pay Rs.150.0; balance is Rs.300.
-  No account found for Unknown User.
-  Please enter a valid number.
-  ```
+```
+Rohit Verma wants to pay Rs.150.0; balance is Rs.300.
+No account found for Unknown User.
+Please enter a valid number.
+```
 
-**Step 3 — adding `else` and `finally`:** decide whether to approve the payment only once both lines in `try` succeeded, and log every attempt no matter what happened.
+`float(amount_text)` can fail with `ValueError` if the text isn't numeric; `balances[payer]` can fail with `KeyError` if `payer` was never added to the dictionary — two unrelated problems, each caught by its own clause. **Python checks `except` clauses top to bottom and runs only the first one that matches** — it never runs more than one `except` block for a single exception, and it never checks the clauses below the one that already matched.
+
+When two or more exception types genuinely deserve an identical response, you don't need a separate clause for each — group them in a tuple instead:
+
+```python
+try:
+    amount = float("five hundred")
+except (ValueError, TypeError) as e:
+    print("Conversion failed:", e)
+```
+
+```
+Conversion failed: could not convert string to float: 'five hundred'
+```
+
+`except (ValueError, TypeError) as e:` catches either type with one shared block, and `as e` binds whichever exception object actually occurred to the local name `e`. That object is real — Python builds it the moment the exception fires, and it carries the underlying message, so you can print it, log it, or inspect it, rather than only reacting to the bare fact that *something* went wrong. Try predicting, before you check, what `e` would hold if the failure had instead come from an incompatible type operation rather than a bad conversion — whatever message Python normally shows for that exception is exactly what prints.
+
+## `else` and `finally`: the rest of the safety net
+
+Two more pieces complete the toolkit, and neither is optional decoration — each guarantees something the other three parts cannot. The **`else` block** runs only if the entire `try` block finished with *zero* exceptions, and it exists so "only do this once everything above succeeded" logic can be kept visibly separate from the risky attempt itself. The **`finally` block** runs unconditionally — whether `try` succeeded, an `except` fired, or even a brand-new exception occurred that nothing caught — which makes it the one place you can always rely on for cleanup or logging.
 
 ```python
 def process_payment(payer, amount_text):
@@ -290,335 +135,207 @@ def process_payment(payer, amount_text):
         else:
             print(f"Insufficient balance: Rs.{current_balance} available.")
     finally:
-        print(f"Payment attempt for {payer} logged.\n")
+        print(f"Payment attempt for {payer} logged.")
 
 process_payment("Rohit Verma", "150")
 process_payment("Unknown User", "200")
-process_payment("Asha Singh", "five hundred")
 process_payment("Karan Mehta", "99999")
 ```
 
-*Line-by-line explanation:*
-- `else:` — runs only when *both* lines inside `try` succeeded with zero exceptions; here it decides approve-or-reject using the amount and balance that are now safely available.
-- `finally:` — runs after every single call, regardless of which of the three outcomes above occurred, logging that an attempt was made for this payer.
-- Output:
-  ```
-  Payment of Rs.150.0 by Rohit Verma approved.
-  Payment attempt for Rohit Verma logged.
+```
+Payment of Rs.150.0 by Rohit Verma approved.
+Payment attempt for Rohit Verma logged.
+No account found for Unknown User.
+Payment attempt for Unknown User logged.
+Insufficient balance: Rs.5000 available.
+Payment attempt for Karan Mehta logged.
+```
 
-  No account found for Unknown User.
-  Payment attempt for Unknown User logged.
+Trace the three calls by hand before trusting that output. For Rohit Verma, both lines inside `try` succeed, so `else` runs and approves the payment — then `finally` logs the attempt regardless. For the unknown user, `balances[payer]` raises `KeyError`, so its `except` runs instead of `else` — and `finally` still logs the attempt afterward. For Karan Mehta, both conversions succeed, `else` runs, but `99999` exceeds his balance of `5000`, so the inner `if`/`else` inside the `else` block itself prints the rejection — and once again, `finally` logs the attempt no matter which of these three outcomes actually happened.
 
-  Please enter a valid number.
-  Payment attempt for Asha Singh logged.
+**`finally` is the one guarantee in this entire chapter that holds no matter what — it runs after a clean success, after a caught exception, and even after an exception nothing caught, right before that exception is allowed to keep propagating.** This is exactly why it's the right place for logging "an attempt was made," closing a resource, or anything else that must happen on every single path, not just the successful one.
 
-  Insufficient balance: Rs.5000 available.
-  Payment attempt for Karan Mehta logged.
+## Catching a parent also catches the child: the exception family tree
 
-  ```
+Every exception in Python — built-in or your own — is built from a class, exactly the concept from Unit 4.1 onward: a class defines a blueprint, and an exception object is one instance of it. Exception classes form a tree, all ultimately inheriting from a common ancestor called `BaseException`, using the same inheritance mechanism you'll formalise in Unit 4.2. `Exception` is a direct child of `BaseException`, and nearly everything you will ever catch — `ValueError`, `TypeError`, `ZeroDivisionError`, `KeyError`, `IndexError`, `FileNotFoundError` — descends from `Exception`. A relevant slice of that tree looks like this:
 
-**Step 4 — `raise` for a custom validation:** a zero/negative amount and an over-the-balance amount are not describable by any built-in exception, so the function detects each itself and deliberately `raise`s a custom `InvalidAmountError`.
+```
+BaseException
+ └── Exception
+      ├── ArithmeticError
+      │     └── ZeroDivisionError
+      ├── LookupError
+      │     ├── IndexError
+      │     └── KeyError
+      ├── OSError
+      │     └── FileNotFoundError
+      ├── ValueError
+      └── TypeError
+```
+
+Why this matters in practice: **catching a parent class in an `except` clause also catches every one of its children.** `FileNotFoundError` inherits from `OSError`, so `except OSError:` would also catch a `FileNotFoundError` — the exact same "catch the parent, catch the child too" idea you'll see formally with class inheritance in Unit 4.2.
+
+```python
+try:
+    with open("sales.csv") as file:
+        data = file.read()
+except OSError:
+    print("Could not open sales.csv - check that the file exists.")
+```
+
+```
+Could not open sales.csv - check that the file exists.
+```
+
+This directly revisits the exact `open()` calls from Unit 5.1, now protected: a missing file no longer crashes the whole script, it prints a clear message and moves on. This also explains why **order matters** across multiple `except` clauses: if you list a broader parent exception before a more specific child, the parent's clause matches first, top to bottom, and the child's clause never runs at all — even though it would have matched too. Before writing several related `except` clauses, ask yourself which one is the specific case and which is the broader parent, and list the specific one first.
+
+## Six exceptions worth knowing exactly
+
+A handful of exceptions come up constantly enough across real Python code to be worth memorising precisely what triggers each one — and you've already met every one of them by name in an earlier unit.
+
+| Exception | Triggered by | Example | First met in |
+|---|---|---|---|
+| `ValueError` | A value has the *right type* but an *inappropriate value* | `int("abc")` — a string, just not a numeric one | Unit 1.4 |
+| `TypeError` | An operation is applied to a value of the *wrong type entirely* | `"5" + 5` — you cannot add text and a number directly | Unit 1.4 |
+| `ZeroDivisionError` | A number is divided by zero | `10 / 0` | Unit 1.3 |
+| `FileNotFoundError` | `open()` is called on a file that doesn't exist at that path | `open("sales.csv")` after the file was deleted | Unit 5.1 |
+| `KeyError` | A dictionary is accessed with a key that isn't in it | `balances["Unknown User"]` | Unit 3.4 |
+| `IndexError` | A list or tuple is accessed with a position outside its range | `marks[10]` on a 3-item list | Unit 3.1 |
+
+A distinction worth keeping precise, because it's easy to blur the two: **`ValueError` means right type, wrong content; `TypeError` means wrong type entirely.** `int("cat")` raises `ValueError` because a string was expected and given, but its content isn't numeric text; `len(5)` raises `TypeError` because an integer has no length concept at all — no amount of "fixing the content" of `5` would ever make `len()` work on it. Before moving on, try predicting which of the two `"5" + 5` raises — it's `TypeError`, because text and numbers can never be combined with `+` no matter what either one contains.
+
+## Raising your own exceptions with `raise`
+
+Sometimes the problem your code detects isn't something a built-in exception already describes. A negative payment amount, or one that exceeds a customer's balance, isn't a `ValueError` or a `KeyError` — it's a rule specific to *your* program. The **`raise`** keyword lets your own code deliberately trigger an exception the moment it detects exactly this kind of problem.
+
+```python
+raise ValueError("amount cannot be negative")
+```
+
+For a problem with no good built-in match at all, define a **custom exception**: a class that inherits from `Exception`, using precisely the class-inheritance syntax you'll formalise in Unit 4.2.
 
 ```python
 class InvalidAmountError(Exception):
     pass
 
-def process_payment(payer, amount_text):
-    try:
-        amount = float(amount_text)
-        current_balance = balances[payer]
+def validate_amount(amount):
+    if amount <= 0:
+        raise InvalidAmountError(f"Rs.{amount} is not a valid payment amount.")
 
-        if amount <= 0:
-            raise InvalidAmountError(f"Rs.{amount} is not a valid payment amount.")
-        if amount > current_balance:
-            raise InvalidAmountError(f"Insufficient balance: Rs.{current_balance} available.")
-
-    except ValueError:
-        print("Please enter a valid number.")
-    except KeyError:
-        print(f"No account found for {payer}.")
-    except InvalidAmountError as e:
-        print("Payment rejected:", e)
-    else:
-        print(f"Payment of Rs.{amount} by {payer} approved.")
-    finally:
-        print(f"Payment attempt for {payer} logged.\n")
-
-process_payment("Rohit Verma", "-150")
-process_payment("Unknown User", "200")
-process_payment("Asha Singh", "five hundred")
-process_payment("Karan Mehta", "99999")
-process_payment("Rohit Verma", "150")
+try:
+    validate_amount(-150)
+except InvalidAmountError as e:
+    print("Payment rejected:", e)
 ```
 
-*Line-by-line explanation:*
-- `class InvalidAmountError(Exception):` — a custom exception, inheriting from `Exception` exactly like the class inheritance from Part 4, used for problems no built-in exception describes well.
-- `if amount <= 0: raise InvalidAmountError(...)` — the code detects a problem itself (a zero or negative amount) and deliberately raises its own exception with `raise`.
-- `if amount > current_balance: raise InvalidAmountError(...)` — a second, different condition that raises the *same* custom exception type with a different message.
-- `except InvalidAmountError as e:` — catches either `raise` above, and `e` holds whichever message was attached to it.
-- `else:` now only prints "approved" once nothing above — not even a custom-raised exception — went wrong.
-- `finally:` — still logs every single attempt, exactly as in Step 3.
-- Output:
-  ```
-  Payment rejected: Rs.-150.0 is not a valid payment amount.
-  Payment attempt for Rohit Verma logged.
+```
+Payment rejected: Rs.-150 is not a valid payment amount.
+```
 
-  No account found for Unknown User.
-  Payment attempt for Unknown User logged.
+Raising `InvalidAmountError` works exactly like raising any built-in exception, and any code that calls `validate_amount()` can catch it specifically, by name, with `except InvalidAmountError:` — exactly as it would catch a `ValueError` or `KeyError`. **Always inherit your own custom exceptions from `Exception`, not `BaseException`** — `BaseException` also covers a couple of special signals, such as the program being told to exit, that you almost never want to accidentally catch alongside your own errors.
 
-  Please enter a valid number.
-  Payment attempt for Asha Singh logged.
+Say out loud, in one sentence, why `InvalidAmountError` needed to be its own class at all, rather than just raising a plain `ValueError` with a descriptive message — the answer is that a custom class lets a caller catch *this specific rule violation* with its own dedicated `except` clause, distinct from every other reason a `ValueError` might occur elsewhere in the same program.
 
-  Payment rejected: Insufficient balance: Rs.5000 available.
-  Payment attempt for Karan Mehta logged.
+One further form is worth knowing, even though you'll use it rarely at this stage: `raise` used with no arguments at all, written bare inside an `except` block, re-raises whichever exception is currently being handled — useful when you want to log that a problem occurred but still let it propagate upward afterward. The everyday form you will reach for constantly is `raise SomeException("message")`, exactly as used above.
 
-  Payment of Rs.150.0 by Rohit Verma approved.
-  Payment attempt for Rohit Verma logged.
+## The bare `except:` anti-pattern
 
-  ```
-
-#### Try It Yourself
-
-Extend the UPI payment scenario above to enforce a **Rs.20,000 daily transaction limit** per customer. Use this dictionary of how much each customer has already spent today:
+A **bare `except:`** is an `except` clause with no exception type named at all. It matches literally anything that goes wrong inside `try` — including problems you never anticipated and never intended to hide.
 
 ```python
-already_spent_today = {"Rohit Verma": 15000, "Asha Singh": 500}
+try:
+    total = blances[payer]   # a typo: this should read "balances"
+except:
+    print("Something went wrong.")
 ```
 
-**Part 1 (basic `try`/`except`):** Write `check_new_amount(amount_text)` that converts `amount_text` to a number and prints `"Amount accepted: Rs.<amount>"`, or, if the text isn't a valid number, prints `"Please enter a valid number."`. Test it with `"2000"` and `"two thousand"`.
+```
+Something went wrong.
+```
 
-**Solution:**
+The danger here is not stylistic — it is that a genuine bug, in this case a simple typo (`blances` instead of `balances`), actually raises a `NameError`, the same kind of exception you met back in Unit 1.2 whenever code refers to a variable that was never assigned. A bare `except:` swallows that `NameError` silently and reports it as if it were an expected, planned-for situation, exactly the same as any deliberate `KeyError`. The fix is always to name the specific exception you actually expect:
 
 ```python
-def check_new_amount(amount_text):
-    try:
-        amount = float(amount_text)
-        print(f"Amount accepted: Rs.{amount}")
-    except ValueError:
-        print("Please enter a valid number.")
-
-check_new_amount("2000")
-check_new_amount("two thousand")
+try:
+    total = blances[payer]   # the same typo, left in on purpose
+except KeyError:
+    print("No account found.")
 ```
 
-Expected output:
 ```
-Amount accepted: Rs.2000.0
-Please enter a valid number.
+NameError: name 'blances' is not defined
 ```
 
-**Part 2 (multiple `except` clauses, plus `else`/`finally`):** Write `check_daily_limit(payer, amount_text)` that converts `amount_text`, looks up `already_spent_today[payer]`, and adds them together. Catch `ValueError` for bad text and `KeyError` for an unknown customer. Use `else` to print `"Amount accepted. Total spent today would be Rs.<total>."` only when nothing failed, and `finally` to print `"Checked limit for <payer>."` on every call.
+| | Bare `except:` | `except KeyError:` |
+|---|---|---|
+| What it catches | Absolutely everything, planned for or not | Only a missing dictionary key |
+| A typo (`blances`) inside `try` | Silently reported as "something went wrong" | Surfaces as an uncaught `NameError` — a visible crash you can actually investigate |
+| Right for | Almost nothing in real code | Any situation where you know exactly what can fail |
 
-**Solution:**
+**Never write a bare `except:` — always name the specific exception type you actually expect, so anything else still surfaces as a visible crash you can investigate.** Catching `Exception` broadly is only a marginal improvement over this and should be reserved for genuinely last-resort logging, not everyday use.
 
-```python
-def check_daily_limit(payer, amount_text):
-    try:
-        amount = float(amount_text)
-        spent_so_far = already_spent_today[payer]
-        total = spent_so_far + amount
-    except ValueError:
-        print("Please enter a valid number.")
-    except KeyError:
-        print(f"No spending record found for {payer}.")
-    else:
-        print(f"Amount accepted. Total spent today would be Rs.{total}.")
-    finally:
-        print(f"Checked limit for {payer}.\n")
+## Exception handling in the real world
 
-check_daily_limit("Rohit Verma", "2000")
-check_daily_limit("Unknown User", "500")
-check_daily_limit("Asha Singh", "five hundred")
-```
+The same toolkit protects real, working software everywhere data meets the unpredictable outside world:
 
-Expected output:
-```
-Amount accepted. Total spent today would be Rs.17000.0.
-Checked limit for Rohit Verma.
+- **UPI and payment systems** — validate the entered amount (`ValueError` if it isn't numeric), look up the account (`KeyError` if it's unknown), and reject an over-the-limit amount with a custom exception raised via `raise` — logging every single attempt in `finally`, regardless of the outcome.
+- **Banking and fintech** — a funds-transfer service rejects a non-existent destination account or an invalid amount without ever crashing the entire banking application for every other customer being served at that same moment.
+- **E-commerce checkout** — reading a discount-coupon configuration file gracefully handles the exact `FileNotFoundError` from Unit 5.1's `open()` calls, instead of blocking every customer's checkout because one file happened to go missing.
+- **IRCTC-style railway booking** — a lookup for a PNR or seat that doesn't exist is caught with `KeyError`, exactly as it would be for a missing account balance, so one bad lookup never takes down the whole booking page.
+- **Data processing and AI/ML pipelines** — a script processing a large file of rows catches one row's specific bad value, logs it, and continues to the next row rather than crashing on the first malformed line partway through a million-row file. Building a complete version of exactly this pattern — reading a file, skipping and logging bad rows, and continuing — is what Unit 5.3 covers next.
 
-No spending record found for Unknown User.
-Checked limit for Unknown User.
+A short list of mistakes worth watching for deliberately while this is still new:
 
-Please enter a valid number.
-Checked limit for Asha Singh.
+- Writing a bare `except:` instead of naming the specific exception you expect, silently hiding genuine bugs alongside planned-for failures.
+- Wrapping an entire program in one giant `try` block instead of just the risky line, making it impossible to tell which operation actually failed.
+- Listing a broader parent exception (`OSError`) before a more specific child (`FileNotFoundError`) across separate `except` clauses, so the specific block never runs.
+- Assuming `finally` is optional cleanup rather than a genuine guarantee — it runs on every path out of the block, not only when nothing failed.
+- Reaching for a custom exception when a built-in one, such as `ValueError`, already describes the situation perfectly well.
 
-```
+## Try it yourself
 
-**Part 3 (`raise` for a custom validation):** Add a custom exception class `DailyLimitExceededError(Exception)`. Inside the `try`, once `total` is computed, `raise DailyLimitExceededError(...)` whenever `total` exceeds `20000`, with a message stating how much over the limit it is. Catch it with its own `except` block that prints `"Transaction blocked:"` followed by the message. Test with `("Rohit Verma", "6000")` and `("Asha Singh", "1000")`.
-
-**Solution:**
-
-```python
-DAILY_LIMIT = 20000
-
-class DailyLimitExceededError(Exception):
-    pass
-
-def check_daily_limit_v2(payer, amount_text):
-    try:
-        amount = float(amount_text)
-        spent_so_far = already_spent_today[payer]
-        total = spent_so_far + amount
-        if total > DAILY_LIMIT:
-            raise DailyLimitExceededError(
-                f"Rs.{total - DAILY_LIMIT} over the Rs.{DAILY_LIMIT} daily limit."
-            )
-    except ValueError:
-        print("Please enter a valid number.")
-    except KeyError:
-        print(f"No spending record found for {payer}.")
-    except DailyLimitExceededError as e:
-        print("Transaction blocked:", e)
-    else:
-        print(f"Amount accepted. Total spent today would be Rs.{total}.")
-    finally:
-        print(f"Checked limit for {payer}.\n")
-
-check_daily_limit_v2("Rohit Verma", "6000")
-check_daily_limit_v2("Asha Singh", "1000")
-```
-
-Expected output:
-```
-Transaction blocked: Rs.1000.0 over the Rs.20000 daily limit.
-Checked limit for Rohit Verma.
-
-Amount accepted. Total spent today would be Rs.1500.0.
-Checked limit for Asha Singh.
-
-```
+Do this in a Colab cell before moving on. Using `already_spent_today = {"Rohit Verma": 15000, "Asha Singh": 500}` and a `DAILY_LIMIT = 20000`, write `check_daily_limit(payer, amount_text)`. Inside one `try` block: convert `amount_text` to a `float`, look up `already_spent_today[payer]`, add the two together into `total`, and — if `total` exceeds `DAILY_LIMIT` — `raise` a custom `DailyLimitExceededError` carrying a message stating how far over the limit it is. Catch `ValueError` (bad text), `KeyError` (unknown payer), and your new `DailyLimitExceededError`, each with its own message. Use `else` to print `"Amount accepted. Total spent today would be Rs.<total>."` only when nothing above failed, and `finally` to print `"Checked limit for <payer>."` on every single call. Test it with `("Rohit Verma", "6000")`, `("Asha Singh", "1000")`, `("Unknown User", "500")`, and `("Asha Singh", "five hundred")`, predicting each outcome before you run it.
 
 ---
 
-## 4. Real-World Application
+### Key Terminology
 
-- **Banking & FinTech:** A funds-transfer service must reject a transfer to a non-existent account (`KeyError` on the account lookup) or an invalid amount (a custom exception via `raise`) without ever crashing the banking app for the customer standing in the queue behind them.
-- **UPI / Payment Systems:** The consolidated example above is precisely what a real UPI backend does — validate the amount, check the balance, and log every attempt via `finally`, whether the payment was approved or rejected.
-- **E-commerce:** A checkout page that reads a discount-coupon file must handle `FileNotFoundError` gracefully instead of blocking every customer's checkout because one configuration file went missing.
-- **Healthcare:** A patient-record lookup by ID must handle a missing record (`KeyError`) distinctly from a corrupted data file (`FileNotFoundError` or a JSON parsing exception), so hospital staff see a meaningful message instead of a crash.
-- **Railway Booking (IRCTC-style systems):** The same pattern — a missing lookup key caught with `KeyError`, or a missing file caught with `FileNotFoundError` — is exactly the kind of failure a real booking-status page must handle every day, at massive scale, whether the record being looked up is an account balance or a PNR.
-- **Data engineering / AI-ML pipelines:** A script processing a million rows and skipping the three malformed ones, instead of crashing at row 40,502, is running a specific, named `except` inside a loop — catch the one bad row, log it, and continue to the next.
+- **Error** — the general umbrella term for anything that stops a program from doing what it's supposed to do.
+- **Syntax error** — an error caught before the program runs at all, from broken Python grammar such as a missing colon.
+- **Runtime exception (exception)** — a problem that arises while otherwise-valid code is executing, and — unlike a syntax error — can be anticipated and handled.
+- **Exception handling** — the set of tools (`try`, `except`, `else`, `finally`, `raise`) used to detect and respond to a runtime exception instead of letting the program crash.
+- **`try` block** — the section of code you deliberately attempt, knowing it might fail; nothing is protected until it is written here.
+- **`except` block** — runs only if the specific exception type named after `except` was raised somewhere inside the `try` block above it.
+- **Exception object** — the real object Python constructs when an exception occurs, carrying the error message; bound to a name with `as e`.
+- **`else` block** — runs only if the entire `try` block finished with zero exceptions.
+- **`finally` block** — runs unconditionally on every path — success, a caught exception, or even an uncaught one.
+- **Exception class hierarchy** — the tree of exception classes, all inheriting from `BaseException`; catching a parent class also catches every child beneath it.
+- **`BaseException` / `Exception`** — the root of every exception class; custom exceptions should inherit from `Exception`, not `BaseException`.
+- **Custom exception** — a user-defined class inheriting from `Exception`, used to signal a problem specific to your own program.
+- **`raise`** — the keyword that deliberately triggers an exception, built-in or custom, from your own code.
+- **Bare `except:`** — an `except` clause naming no exception type, which matches literally anything, including bugs you never anticipated.
+- **`ValueError`** — raised when a value has the right type but an inappropriate value, such as `int("abc")`.
+- **`TypeError`** — raised when an operation is applied to a value of the wrong type entirely, such as `"5" + 5`.
+- **`KeyError`** / **`IndexError`** — raised for a missing dictionary key, or a list/tuple position outside its valid range, respectively.
 
-The inverse also shows up in real production incidents: teams whose code used a blanket `except Exception: pass` have had genuine bugs silently swallowed for months before anyone noticed — the exact danger described in §3.7, at a scale where it actually costs money and trust.
+### Mastery Checkpoint
 
----
+Before moving to Unit 5.3, check that you can answer these without looking back:
 
-## 5. Worked Example
+1. Why can a runtime exception be caught and handled in your own code, while a syntax error cannot?
+2. A `try` block has two lines that can each fail differently. What happens if you write one `except` clause for a type not raised by either line, and the actual exception raised is a different type entirely?
+3. `FileNotFoundError` inherits from `OSError`. If you write `except OSError:` before `except FileNotFoundError:` in the same `try`, which clause actually runs when a file is missing — and why does the second one become unreachable?
+4. What is the one guarantee `finally` gives you that neither `except` nor `else` can, and why does that make it the right place for logging or cleanup?
+5. A bare `except:` silently reports a `NameError` from a typo as "something went wrong." What should the code have written instead, and what would that change have revealed?
 
-### Problem Statement
+### Summary
 
-Build a function `safe_divide(a_text, b_text)` that takes two pieces of text (as if typed by a user), attempts to divide them as numbers, and handles two genuinely different problems — an invalid number, and division by zero — with two distinct, specific messages. Every attempt, whatever the outcome, must be logged.
+You now know how to tell a syntax error, caught before your program ever runs, apart from a runtime exception, which arises during otherwise-valid code and — unlike a syntax error — can be planned for. You've used `try` and `except` as a safety net around risky code, handled several distinct failure types from one block with multiple `except` clauses or a shared tuple, and used `else` and `finally` to separate success-only logic from cleanup that must run on every path. You've seen how Python's exception classes form a family tree where catching a parent also catches its children, memorised exactly what triggers `ValueError`, `TypeError`, `ZeroDivisionError`, `FileNotFoundError`, `KeyError`, and `IndexError`, and learned to `raise` your own exceptions — including a custom class — for problems no built-in exception describes. You've also seen precisely why a bare `except:` is a real bug risk, not just a style preference. From here, the next step is putting file handling and exception handling together into one complete program — Unit 5.3, a case study building a robust file reader that survives real, messy data instead of crashing on the first bad line.
 
-### Step 1: Understand the Problem
+### Additional Resources
 
-Two things can go wrong here, and they are *not* the same problem: the text might not convert to a whole number at all (`ValueError`), or the second number might legitimately convert but equal zero (`ZeroDivisionError`). Each deserves its own message. Regardless of which happens — or whether nothing goes wrong at all — the attempt must be logged exactly once.
-
-### Step 2: Plan the Solution
-
-Wrap the two conversions and the division inside one `try`. Add one `except ValueError:` and one `except ZeroDivisionError:`, each with its own message. Add an `else:` to print the result only when nothing failed. Add a `finally:` that always logs the attempt, since that must happen on every path.
-
-### Step 3: Write the Python Code
-
-```python
-def safe_divide(a_text, b_text):
-    try:
-        a = int(a_text)
-        b = int(b_text)
-        result = a / b
-    except ValueError:
-        print("Both inputs must be valid whole numbers.")
-    except ZeroDivisionError:
-        print("Cannot divide by zero.")
-    else:
-        print("Result:", result)
-    finally:
-        print(f"Attempted: {a_text} / {b_text}")
-
-safe_divide("100", "5")
-safe_divide("100", "0")
-safe_divide("100", "abc")
-```
-
-### Step 4: Explain Each Line
-
-- `def safe_divide(a_text, b_text):` — defines a function taking two text arguments, deliberately named to make clear they arrive as raw text, not numbers yet.
-- `a = int(a_text)` / `b = int(b_text)` — convert both inputs to whole numbers; either line can fail with `ValueError` if the text isn't a valid integer.
-- `result = a / b` — divides the two numbers; fails with `ZeroDivisionError` if `b` is `0`.
-- `except ValueError:` — runs only if one of the two conversions failed.
-- `except ZeroDivisionError:` — runs only if the division itself failed (both conversions had already succeeded).
-- `else:` — runs only when all three lines inside `try` succeeded with zero exceptions, printing the actual result.
-- `finally:` — runs after every single call, regardless of which of the three outcomes occurred, logging exactly which two values were attempted.
-- The three calls at the bottom exercise all three outcomes: a clean division, a division by zero, and an invalid number.
-
-### Step 5: Sample Input
-
-```
-safe_divide("100", "5")
-safe_divide("100", "0")
-safe_divide("100", "abc")
-```
-
-### Step 6: Expected Output
-
-```
-Result: 20.0
-Attempted: 100 / 5
-Cannot divide by zero.
-Attempted: 100 / 0
-Both inputs must be valid whole numbers.
-Attempted: 100 / abc
-```
-
-### Step 7: Why the Output Is Produced
-
-The first call converts `"100"` and `"5"` cleanly, divides them with no error, so `else` runs and prints the result — then `finally` logs the attempt. The second call converts both numbers fine, but dividing by `0` raises `ZeroDivisionError`, so that specific `except` runs instead of `else` — and `finally` still logs the attempt afterward. The third call fails at the very first conversion, since `"abc"` isn't a valid integer, raising `ValueError` before `b` or `result` are ever computed — its matching `except` runs, and once again `finally` logs the attempt regardless. In every case, exactly one of `except`/`else` ran, and `finally` ran every single time without exception.
-
----
-
-### Important Notes (Interview Insights)
-
-**Q: "What's the difference between an error and an exception?"**
-
-A **syntax error** prevents the program from running at all; a **runtime exception** occurs during execution of otherwise-valid code and can be caught and handled — an error is the broader umbrella term, and an exception is the specific, handleable kind.
-
-**Q: "Does `finally` run if `return` is used inside `try`?"**
-
-Yes — `finally` runs before the function actually hands back its value, on literally every path out of the block, including an uncaught exception propagating upward.
-
-**Q: "Why is a bare `except:` dangerous?"**
-
-Be ready to explain, with a concrete example, rather than just reciting "it's bad practice" — interviewers often ask for the actual failure mode: a real bug (like a typo) getting silently reported as expected behaviour.
-
-**Q: "Should custom exceptions inherit from `Exception` or `BaseException`?"**
-
-All built-in exceptions descend from `BaseException`, but `Exception` is the practical class you should inherit from for your own custom exceptions — not `BaseException` directly, which also covers things like `SystemExit` and `KeyboardInterrupt` that you almost never want to accidentally catch.
-
----
-
-## 6. Key Takeaways
-
-- **Syntax errors** stop your program before it runs at all; **runtime exceptions** happen mid-execution and can be caught and handled.
-- **`try`/`except`/`else`/`finally`** each guarantee something specific: `try` attempts, `except` catches a named failure, `else` runs only on success, `finally` runs unconditionally — even through a `return` or a new exception inside `except`.
-- **A bare `except:` is a real bug risk**, not just a style nitpick — it silently swallows failures you never anticipated, including your own typos.
-- **Multiple, specifically-named `except` blocks**, checked top to bottom, let one `try` handle several distinct failure types correctly, each with its own response.
-- **Order matters**: list a specific exception before a related parent class, or the parent catches it first.
-- **`raise`**, including through a custom class inheriting from `Exception`, lets your own code signal a problem no built-in exception describes.
-- The most common built-in exceptions — `ValueError`, `TypeError`, `ZeroDivisionError`, `FileNotFoundError`, `KeyError`, `IndexError` — each map to one specific, recognizable situation worth memorizing.
-- Combining file handling with this unit's exception handling is exactly how real programs read messy, real-world data safely.
-
-Coming next: Case Study — Building a Robust File Reader, which pulls file handling and exception handling together into one program that reads real, messy data and survives it instead of crashing on the first bad line.
-
----
-
-## 7. Reference Links
-
-- [The Python Tutorial — Errors and Exceptions](https://docs.python.org/3/tutorial/errors.html)
+- [Python Tutorial — official docs: "Errors and Exceptions"](https://docs.python.org/3/tutorial/errors.html)
+- [Python Tutorial — official docs: "Handling Exceptions"](https://docs.python.org/3/tutorial/errors.html#handling-exceptions)
+- [Python Tutorial — official docs: "User-defined Exceptions"](https://docs.python.org/3/tutorial/errors.html#user-defined-exceptions)
 - [Python 3 Documentation — Built-in Exceptions](https://docs.python.org/3/library/exceptions.html)
-- [Real Python — Python Exceptions: An Introduction](https://realpython.com/python-exceptions/)
 - [W3Schools — Python Try Except](https://www.w3schools.com/python/python_try_except.asp)
-
-[← Previous: 5.1 File Handling](unit-5-1-file-handling.md) | [Go back to TOC](../../README.md) | [Next: 5.3 Case Study →](unit-5-3-case-study.md)
-
----
-
-*© 2026 Revature · AI Native Engineering — Foundations · Unit 5.2 · Version 2.0*

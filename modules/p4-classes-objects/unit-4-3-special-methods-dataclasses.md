@@ -1,230 +1,49 @@
-﻿# Special Methods & Dataclasses
+# Special Methods & Dataclasses
+
+Unit 4.2 covered the four pillars of OOP — encapsulation, abstraction, inheritance, polymorphism. But a plain class you write yourself still behaves oddly next to Python's own built-in types: print an object and you get a cryptic memory address, not a readable summary; try to add two of them and Python has no idea what that should mean; and every class you've written so far has needed a hand-written `__init__` with every attribute typed out by hand. None of this means your classes are broken — it means Python is waiting for you to answer a few specific questions it can never guess on its own.
+
+This unit answers those questions. You'll meet **dunder methods** — the small, specially named methods Python calls automatically behind the scenes whenever you use `print()`, `==`, or `+` on an object — and learn exactly which one to write for which behaviour. Then you'll meet a shortcut: the `@dataclass` decorator, which generates the most common of these methods for you, so a class that is mostly just a bundle of attributes doesn't need dozens of hand-typed lines to behave sensibly.
+
+By the time you finish, you'll be able to make your own classes print, compare, and combine exactly the way you intend — and you'll know when to stop writing that boilerplate by hand entirely. This is also the final unit of Module IV: once you're done here, you'll have covered everything from a plain class and its objects, through the four pillars, to this last layer of polish — a complete picture of object-oriented Python.
 
 ---
 
-[← Previous: 4.2 The Four Pillars of OOP](unit-4-2-the-four-pillars-of-oop.md) | [Go back to TOC](../../README.md) | [Next: 5.1 File Handling →](../p5-files-exception-handling/unit-5-1-file-handling.md)
+## Why `print()` and `+` don't just work on your own classes
 
-## 1. Learning Objectives
-
-By the end of this unit, you will be able to:
-
-- **Explain** what a dunder (special) method is and why Python calls methods like `__init__`, `__str__`, and `__add__` automatically instead of you calling them by name.
-- **Implement** `__str__` and `__repr__` to control how an object prints, and explain what happens when only one of the two is defined.
-- **Apply** `__eq__` so two objects with matching data compare as equal instead of falling back to identity.
-- **Implement** operator overloading using `__add__`, so a custom class responds meaningfully to the `+` operator.
-- **Create** simple data-holding classes using the `@dataclass` decorator, and identify exactly which methods it generates — and which it does not.
-- **Differentiate** between a hand-written class and a `@dataclass`, and organize related classes into their own modules and packages.
-
----
-
-## 2. Overview
-
-You already write `print(some_object)` and `total = price1 + price2` all the time. Now try the same two things on a class you built yourself — say a `Wallet` holding an `owner_name` and a `balance`. Both go wrong: `print(wallet)` shows something unreadable like `<__main__.Wallet object at 0x7f2a4c1b3d90>`, and `wallet_1 + wallet_2` raises a `TypeError`. Python has no way of knowing what "printing" or "adding" should mean for a class you just invented — unless you tell it.
-
-That's what a small family of methods called **special methods** are for. You'll also see them called **dunder methods** — short for "double underscore," because their names look like `__init__`, `__str__`, and `__add__`. You never call these methods directly by name. Instead, Python calls them for you behind the scenes: `print(wallet)` secretly calls `wallet.__str__()`, and `wallet_1 + wallet_2` secretly calls `wallet_1.__add__(wallet_2)`. Write the right dunder method on your class, and ordinary Python syntax starts working correctly for your own objects. This unit is about learning exactly which method to write for which behaviour.
-
-The second half of the unit solves a different, everyday problem: many classes — a `Wallet`, a `Point`, a record loaded from a database — are really just a bundle of attributes with little to no custom behaviour. Writing `__init__`, `__repr__`, and `__eq__` by hand for every one of these is repetitive, and repetitive code is exactly where typos and bugs hide. The `@dataclass` decorator generates these methods for you automatically. By the end of this unit, you'll also know how to split a growing set of classes across separate files (**modules**) and folders (**packages**), the way real projects do once a single file gets too big.
-
----
-
-## 3. Description
-
-### 3.1 Definition
-
-A **dunder method** (also called a **magic method** or **special method**) is a method whose name begins and ends with two underscores, such as `__init__`, `__str__`, `__repr__`, `__eq__`, and `__add__`. You have already met one of these — `__init__` — since the object-oriented foundations unit: writing `Student(...)` calls `__init__` for you, without you ever typing `s.__init__(...)` yourself. Every dunder method works the same way — Python calls it implicitly, in response to some built-in syntax or function, rather than you calling it by name.
-
-**Operator overloading** is the specific technique of defining a dunder method (such as `__add__`) so that a standard Python operator (such as `+`) does something meaningful for your own class, instead of raising an error or doing nothing useful. Python does not let you write two methods with the same name that differ only in their parameter types (the way languages like Java and C++ allow "method overloading") — instead, each operator maps to exactly *one* dunder method slot per class, and you write the logic for that one slot.
-
-A **dataclass** is an ordinary Python class, decorated with `@dataclass` from the built-in `dataclasses` module, that has some of its dunder methods (`__init__`, `__repr__`, `__eq__`) generated automatically from a short list of type-hinted attributes, instead of you writing them by hand.
-
-### 3.2 Why This Concept Exists
-
-Create a plain object with no special methods defined at all, and try two very ordinary things with it:
+Try this in a Colab cell with any class you've written so far — say a `Wallet` that stores a UPI user's `owner_name` and `balance`:
 
 ```python
-class Student:
-    def __init__(self, name, roll_number):
-        self.name = name
-        self.roll_number = roll_number
-
-priya = Student("Priya", 101)
-print(priya)
-print(priya == Student("Priya", 101))
-```
-
-Output:
-
-```
-<__main__.Student object at 0x7f2a4c1b3d90>
-False
-```
-
-Neither line is broken — both are Python's honest default behaviour, inherited from `object`, the base class every class ultimately extends. `object` has no idea what your data means, so:
-
-- Printing gives you a bare memory address — technically correct, practically useless for debugging.
-- `==` checks whether the two names refer to the *same object in memory* (identity), not whether the two objects hold equal data.
-- Trying `priya + priya` would raise a `TypeError`, because `object` has no idea what "adding" two students should mean either.
-
-Real software constantly needs better answers than this: a crash log needs to show *what* an object contained, a test needs to confirm two records with the same data are "equal," and a billing system needs to combine two `Money` amounts using ordinary `+`. Special methods exist so you — the class author — get to define exactly what "printing," "equality," and "addition" mean for your own data, instead of settling for defaults that were never written with your class in mind. Dataclasses exist because, once a class becomes purely a bundle of attributes, writing these same three methods by hand, for every such class, is pure repetition — and repetition is where copy-paste bugs hide (forget to add a new field to a hand-written `__eq__` after adding it to `__init__`, and equality quietly stops checking it).
-
-### 3.3 Key Terminology
-
-| Term | Simple Meaning |
-|---|---|
-| **Dunder / magic method** | A method whose name starts and ends with `__`, called implicitly by Python in response to built-in syntax, e.g. `__init__`, `__str__`. |
-| **`__str__`** | The special method called by `print()`, `str()`, and f-strings to get a human-readable, user-facing description of an object. |
-| **`__repr__`** | The special method called by `repr()` — meant to give a precise, developer-facing description, ideally showing how the object could be recreated in code. |
-| **`__eq__`** | The special method called by the `==` operator; defining it lets two objects compare equal based on their data instead of their identity. |
-| **`__add__`** | The special method called by the `+` operator when the left-hand operand is an instance of your class. |
-| **Operator overloading** | Defining a dunder method so a built-in operator (`+`, `==`, etc.) behaves meaningfully for a custom class. |
-| **Dataclass** | A class, decorated with `@dataclass`, that gets `__init__`, `__repr__`, and `__eq__` generated automatically from its type-hinted attributes. |
-| **`@dataclass` decorator** | The decorator, imported from the built-in `dataclasses` module, that turns a plain class definition into a dataclass. |
-| **Field** | One type-hinted attribute declared inside a dataclass — each field becomes a parameter of the generated `__init__`. |
-| **Module** | A single `.py` file; classes and functions defined in it can be imported and reused from other files. |
-| **Package** | A directory of related modules, grouped so other code can import from the collection as one unit. |
-| **`NotImplemented`** | A special value a dunder method can return to tell Python "I don't know how to handle this combination of types" — a detail worth recognising, though rarely required for beginner-level classes. |
-
-### 3.4 Syntax
-
-**Defining a dunder method** — it looks like any ordinary method, with `self` as the first parameter and, for binary operators, one more parameter for the other operand:
-
-```python
-class ClassName:
-    def __dunder_name__(self, other):
-        # build and return a value
-        return result
-```
-
-| Part | What it is | Why it's there |
-|---|---|---|
-| `def __dunder_name__` | The reserved method name Python looks for automatically. | Python calls this method by name whenever the matching built-in syntax is used — you never call it directly by that name. |
-| `self` | The object the operator/function was used *on* (the left-hand side for operators). | Gives the method access to this object's own attributes. |
-| `other` | The second value involved (only present for two-operand special methods like `__eq__`, `__add__`). | Lets the method compare or combine `self` with whatever was on the other side. |
-| `return result` | A value the calling code receives back. | `print()`, `==`, and `+` all *use* what your dunder method returns — forgetting to `return` means they silently get `None`. |
-
-**Comparison Table: `__str__` vs `__repr__`**
-
-| Aspect | `__str__` | `__repr__` |
-|---|---|---|
-| Audience | End user / human reading output | Developer debugging or logging |
-| Called by | `print()`, `str()`, f-strings (when defined) | `repr()`, interactive shell echoing a value, and as the fallback for `print()` |
-| Goal | Readable, friendly description | Unambiguous, ideally code-like description |
-| If missing | Falls back to `__repr__` (via `object`'s default `__str__`) | No further fallback — defaults to `<ClassName object at 0x...>` |
-| Typical content | `"Priya (Roll No. 101)"` | `"Student(name='Priya', roll_number=101)"` |
-
-**How `print(obj)` Resolves to a Dunder Method**
-
-```mermaid
-flowchart TD
-    A["print(obj) is called"] --> B{"Does the class define __str__?"}
-    B -- Yes --> C["Python calls obj.__str__()"]
-    B -- No --> D{"Does the class define __repr__?"}
-    D -- Yes --> E["object's default __str__ calls obj.__repr__() instead"]
-    D -- No --> F["Falls back to object's own default:<br/>ClassName object at 0x..."]
-```
-
-**Defining a dataclass** — a decorator plus type-hinted class attributes, with no `__init__` written by hand:
-
-```python
-from dataclasses import dataclass
-
-@dataclass
-class ClassName:
-    field_one: type
-    field_two: type = default_value
-```
-
-| Part | What it is | Why it's there |
-|---|---|---|
-| `from dataclasses import dataclass` | Imports the decorator from Python's built-in `dataclasses` module. | `@dataclass` is not a built-in keyword — it must be imported like anything else from the standard library. |
-| `@dataclass` | The decorator, placed directly above the class definition. | Tells Python to inspect this class's type-hinted attributes and generate `__init__`, `__repr__`, and `__eq__` from them. |
-| `field_one: type` | A **field** — a class attribute written with a type hint but no default value. | Becomes a required parameter, in this order, in the generated `__init__`. |
-| `field_two: type = default_value` | A field with a default value. | Becomes an optional parameter; every defaulted field must come *after* every required one. |
-
-**Comparison Table: Regular Class vs `@dataclass`**
-
-| Aspect | Regular (hand-written) Class | `@dataclass` |
-|---|---|---|
-| `__init__` | Written by hand | Generated automatically from type-hinted fields |
-| `__repr__` / `__eq__` | Written by hand, if wanted at all | Generated automatically |
-| `__str__` | Written by hand, if wanted | Never generated — must still be written by hand |
-| Best suited for | Classes with custom behaviour, validation, or invariants | Classes that are mostly data (configs, records, DTOs) |
-| Boilerplate | More typing, more places to introduce bugs | Minimal — a short, type-hinted field list |
-| Extra features | None built in | `frozen=True` for immutability, `order=True` for `<`, `<=`, `>`, `>=` |
-
-**What `@dataclass` Generates**
-
-```mermaid
-flowchart LR
-    F["Type-hinted fields<br/>name: str<br/>roll_number: int"] --> D["@dataclass decorator<br/>reads the fields"]
-    D --> I["Generates __init__"]
-    D --> R["Generates __repr__"]
-    D --> E["Generates __eq__"]
-    D --> N["Does NOT generate __str__"]
-```
-
-### 3.5 Rules
-
-- A dunder method must actually `return` a value — `__str__` and `__repr__` must return a `str`; if you forget the `return`, Python will complain (`TypeError: __str__ returned non-string (type NoneType)`) rather than silently printing nothing.
-- `object`'s own default `__str__` is implemented to call `self.__repr__()`. So a class that defines `__repr__` but not `__str__` still prints something useful — only when a class defines *both* does `print()` prefer the friendlier `__str__`.
-- `__eq__` receives the other operand as a plain parameter (commonly named `other`) with no guarantee it is even the same type — always check `isinstance(other, ClassName)` before touching its attributes.
-- `__add__` should normally build and return a *new* object rather than modifying `self` in place — `+` is expected to produce a new value, exactly like `3 + 4` never changes `3`.
-- Every field in a `@dataclass` must carry a type hint — a plain attribute with no type hint is not recognized as a field at all.
-- Inside a `@dataclass`, every field with a default value must be declared *after* every field without one, because the generated `__init__` places fields as parameters in that same order.
-- `@dataclass` never generates `__str__` — printing a plain dataclass instance shows the same text `repr()` would, purely because of the fallback rule above.
-
-### 3.6 Best Practices
-
-- Always implement `__repr__` for any class you expect to debug or log — an unambiguous representation saves enormous time when something goes wrong in production.
-- Implement `__str__` only when the human-facing message genuinely differs from the debugging one; otherwise, relying on the `__repr__` fallback is perfectly fine.
-- Use `@dataclass` for classes that are mostly data — configuration objects, records, DTOs — and reserve hand-written classes for ones with real behaviour and invariants to protect.
-- When implementing `__eq__`, always guard with `isinstance(other, ClassName)` first, so comparing against an unrelated type returns `False` cleanly instead of crashing.
-- When implementing `__add__`, keep the returned object the same type as the operands, so the result can itself be printed, compared, or added again.
-
-### 3.7 Common Mistakes
-
-- **Confusing `__str__` and `__repr__`** — treating them as interchangeable, then being surprised that `print()` and `repr()` show different things once both are defined.
-- **Forgetting to `return` a value from a dunder method** — a `__str__` or `__add__` that runs code but never returns anything causes a `TypeError` or an unexpected `None`.
-- **Overusing `@dataclass` where real behaviour is needed** — forcing a class with genuine validation logic, custom methods, or invariants into a dataclass just to save typing, when a hand-written class would communicate the design better.
-- **Leaving a dataclass field without a type hint** — the decorator silently ignores it as a field, so it never appears in the generated `__init__`, `__repr__`, or `__eq__`.
-- **Placing a required field after a defaulted one in a dataclass** — raises a `TypeError` at class-definition time, before the program even runs.
-- **Assuming `+` works automatically between custom objects** — without `__add__` defined, `obj1 + obj2` raises `TypeError: unsupported operand type(s)`, since `object` has no idea what "adding" your class should mean.
-
-### 3.8 Organizing Classes into Modules and Packages
-
-With `Student`, `Point`, `Wallet`, and `Ticket` all defined, a natural question follows: where should these classes actually live as a project grows? A **module** is simply a `.py` file. As a project grows past one or two classes, cramming everything into a single file becomes its own problem — so related classes get grouped into their own modules, and other files reach them with `import`.
-
-```python
-# wallet.py
-from dataclasses import dataclass
-
-@dataclass
 class Wallet:
-    owner_name: str
-    balance: float
+    def __init__(self, owner_name, balance):
+        self.owner_name = owner_name
+        self.balance = balance
+
+wallet_1 = Wallet("Rohit", 500.0)
+print(wallet_1)
 ```
 
-```python
-# main.py
-from wallet import Wallet
-
-my_wallet = Wallet("Rohit", 500.0)
-print(my_wallet.owner_name)
+```
+<__main__.Wallet object at 0x7f2a4c1b3d90>
 ```
 
-Output:
+Nothing here is broken. `object` — the base class every class in Python ultimately extends, whether you write it explicitly or not — has to have *some* default behaviour for printing an object it knows nothing about, and a memory address is the only honest thing it can show. Try `wallet_1 == Wallet("Rohit", 500.0)` next, and you get `False`, even though the data is identical — because `object`'s default `==` checks whether two names point to the *literal same object in memory*, not whether their data matches. Try `wallet_1 + wallet_1`, hoping to combine two balances the way you'd add two numbers, and Python refuses outright with a `TypeError`.
 
-```
-Rohit
-```
+Before reading on, predict what all three of these would look like for a plain `int` or `str` instead of a `Wallet` — `print(500)`, `500 == 500`, `500 + 500` all behave exactly as you'd expect, because Python's *own* built-in types already answer these questions for themselves. Your job in this unit is to give your own classes the same courtesy.
 
-`from wallet import Wallet` tells Python: locate a module named `wallet` (it finds `wallet.py` in the same directory), run that file once, and bind the name `Wallet` into this file's own namespace. Import the same module a second time from anywhere else in the program, and Python reuses the module object it already built rather than re-running the file. A **library** — a broader term you will hear constantly in the industry — is simply a collection of modules (often distributed as a **package**, a directory of related modules) written to be reused across many projects; the `dataclasses` module you have been importing throughout this unit is itself one small part of Python's own **standard library**, the large collection of modules that ships with Python itself. As a project grows, you might end up with `wallet.py`, `ticket.py`, and `student.py` sitting side by side — or grouped further into a package such as `banking/` containing `account.py` and `transaction.py` together.
+## Dunder methods: hooks Python calls for you
 
-### 3.9 Code Examples
+A **dunder method** (short for "double underscore," also called a **magic method** or **special method**) is a method whose name begins and ends with two underscores — `__init__`, `__str__`, `__repr__`, `__eq__`, and `__add__` are all examples. You've already used one without necessarily naming it: writing `Wallet("Rohit", 500.0)` triggers `__init__` automatically — you never type `wallet.__init__(...)` yourself. Every other dunder method works the same way.
 
-One running example — a UPI `Wallet` — builds up every feature in this unit, one at a time, instead of jumping between unrelated classes. Each step adds one dunder method to the same class.
+Think of dunder methods as hooks: sockets Python has already wired up throughout the language, waiting for you to plug your own logic into them. `print(obj)` is Python quietly asking your class "how do you want to be displayed?" `obj1 == obj2` is Python asking "what makes two of you equal?" `obj1 + obj2` is Python asking "what does combining two of you even mean?" If you never plug anything into that socket, Python falls back to `object`'s generic default — which is exactly the memory address, identity check, and `TypeError` you just saw above.
 
-**Step 1: `__repr__` and `__str__` — controlling how a `Wallet` prints**
+**You never call a dunder method by its own name — you write ordinary Python (`print()`, `==`, `+`) and Python calls the matching dunder method for you, behind the scenes.** Say out loud, in one sentence, what `wallet_1 + wallet_2` is actually doing underneath — it's calling `wallet_1.__add__(wallet_2)`, whether you ever type that or not.
+
+## Two different audiences: `__str__` versus `__repr__`
+
+Two separate dunder methods control how an object gets displayed, and they exist because printing an object serves two genuinely different audiences.
+
+- **`__str__`** is called by `print()`, by `str()`, and by f-strings, whenever it's defined. Its job is a **readable, human-facing** description — something a non-technical end user would find friendly.
+- **`__repr__`** is called by `repr()`, and by an interactive shell echoing a value back at you. Its job is a **precise, developer-facing** description, ideally one that looks like the code needed to recreate the object.
 
 ```python
 class Wallet:
@@ -243,18 +62,29 @@ print(wallet_1)
 print(repr(wallet_1))
 ```
 
-*Line-by-line explanation:*
-- `class Wallet:` starts a new class with two attributes, `owner_name` and `balance`, set in `__init__` exactly as in the object-oriented foundations unit.
-- `def __repr__(self):` defines the developer-facing description; `{self.owner_name!r}` uses the `!r` conversion to show the string with quotes, exactly as it would appear in code.
-- `def __str__(self):` defines the friendlier, end-user-facing description, formatting `balance` to two decimal places since this represents money.
-- `wallet_1 = Wallet("Rohit", 500.0)` creates one `Wallet` instance.
-- `print(wallet_1)` calls `__str__` since it is defined. `repr(wallet_1)` calls `__repr__` directly. Output:
 ```
 Rohit's wallet: Rs. 500.00
 Wallet(owner_name='Rohit', balance=500.0)
 ```
 
-**Step 2: `__eq__` — comparing two wallets by data, not identity**
+`__repr__` uses the `!r` conversion inside the f-string, which wraps a string value in quotes — `owner_name={self.owner_name!r}` shows `owner_name='Rohit'`, exactly as you'd type it into code yourself. `__str__` formats `balance` to two decimal places instead, because this value represents money and a human reader expects `500.00`, not `500.0`.
+
+| | `__str__` | `__repr__` |
+|---|---|---|
+| Audience | End user | Developer, logs, debugging |
+| Called by | `print()`, `str()`, f-strings | `repr()`, an interactive shell |
+| Goal | Friendly, readable | Unambiguous, code-like |
+| If missing | Falls back to `__repr__` | Falls back to `object`'s memory address |
+
+That fallback matters: `object`'s own default `__str__` is written to simply call `self.__repr__()`. So a class that defines `__repr__` but never defines `__str__` still prints something useful — `print()` silently falls back to whatever `__repr__` produces. Only when *both* are defined does `print()` prefer the friendlier `__str__`, while `repr()` still shows the developer-facing version when asked directly. Before checking, predict what `print(wallet_1)` would show if only `__repr__` existed above — it would show the exact same `Wallet(owner_name='Rohit', balance=500.0)` line that `repr()` shows, because there's nothing else for `print()` to fall back on.
+
+**A dunder method meant to produce text must actually `return` a string — forgetting the `return` doesn't silently fail; Python raises `TypeError: __str__ returned non-string (type NoneType)` the moment the value is used.**
+
+## Comparing by data, not by memory address: `__eq__`
+
+`==` between two custom objects, with no dunder method involved, checks **identity**: are these literally the same object sitting at the same place in memory? Two separately created objects holding identical attribute values still compare `False`, because they're two different objects, even though their data matches exactly — the same gap you saw at the very start of this unit.
+
+**`__eq__`** is the dunder method called by `==`. Defining it lets you redefine what "equal" means for your class — typically, "same type, and every attribute matches":
 
 ```python
 class Wallet:
@@ -262,27 +92,33 @@ class Wallet:
         self.owner_name = owner_name
         self.balance = balance
 
-    def __repr__(self):
-        return f"Wallet(owner_name={self.owner_name!r}, balance={self.balance})"
-
-    def __str__(self):
-        return f"{self.owner_name}'s wallet: Rs. {self.balance:.2f}"
-
     def __eq__(self, other):
-        return isinstance(other, Wallet) and self.owner_name == other.owner_name and self.balance == other.balance
+        return (isinstance(other, Wallet)
+                and self.owner_name == other.owner_name
+                and self.balance == other.balance)
 
 wallet_1 = Wallet("Rohit", 500.0)
 wallet_2 = Wallet("Rohit", 500.0)
 print(wallet_1 == wallet_2)
+print(wallet_1 is wallet_2)
 ```
 
-*Line-by-line explanation:*
-- `def __eq__(self, other):` defines what `==` should do whenever the left-hand side is a `Wallet`.
-- `isinstance(other, Wallet)` is checked first — `and` short-circuits left to right, so if `other` is not even a `Wallet`, the expression returns `False` immediately without ever touching `other.owner_name`, which might not exist.
-- `self.owner_name == other.owner_name and self.balance == other.balance` compares both fields; only if both match is the overall result `True`.
-- `wallet_1 == wallet_2` calls `wallet_1.__eq__(wallet_2)` implicitly. Since both wallets hold the same data, output: `True` — even though `wallet_1` and `wallet_2` are two separate objects in memory.
+```
+True
+False
+```
 
-**Step 3: `__add__` — combining two wallets with `+`**
+Two details matter here. First, `other` — the second value being compared — arrives as an ordinary parameter, with no guarantee it's even a `Wallet` at all; writing `wallet_1 == 5` is perfectly legal Python, so `__eq__` must handle it gracefully rather than crash. That's exactly why `isinstance(other, Wallet)` is checked *first*: `and` evaluates left to right and stops the moment one side is `False`, so if `other` isn't a `Wallet`, the expression returns `False` immediately without ever touching `other.owner_name` — an attribute that might not even exist on `other`, and would otherwise raise an `AttributeError` like the one you met in Unit 4.2. Second, once `isinstance` confirms the type, every attribute you care about is compared with plain `==`, and only if *all* of them match does the whole expression become `True`.
+
+This is exactly how a healthcare system would spot a duplicate patient record submitted from two different hospital counters — two `PatientRecord` objects arrive as two separate objects in memory, but a custom `__eq__` comparing patient ID, name, and date of birth can still recognise them as "the same patient," where the default identity check never would.
+
+**Without `__eq__`, two objects holding identical data still compare `False` — and that silent gap is one of the most common surprises for anyone testing their own classes for the first time.**
+
+## Operator overloading: teaching `+`, `<`, and friends what to do
+
+**Operator overloading** is the general technique you've just been using one operator at a time: defining a dunder method so a standard Python operator does something meaningful for your own class, instead of raising an error. `__eq__` is operator overloading for `==`; `__add__` is the same idea applied to `+`.
+
+Python does not support what languages like Java or C++ call "method overloading" — writing several methods with the *same name* that differ only by parameter type, resolved automatically. Python has no equivalent mechanism. Instead, each operator maps to exactly *one* dunder method slot per class — `+` always calls `__add__`, `<` always calls `__lt__` — and whatever logic you write inside that one slot decides how to handle the situation.
 
 ```python
 class Wallet:
@@ -290,14 +126,8 @@ class Wallet:
         self.owner_name = owner_name
         self.balance = balance
 
-    def __repr__(self):
-        return f"Wallet(owner_name={self.owner_name!r}, balance={self.balance})"
-
     def __str__(self):
         return f"{self.owner_name}'s wallet: Rs. {self.balance:.2f}"
-
-    def __eq__(self, other):
-        return isinstance(other, Wallet) and self.owner_name == other.owner_name and self.balance == other.balance
 
     def __add__(self, other):
         combined_balance = self.balance + other.balance
@@ -310,99 +140,106 @@ total_wallet = wallet_1 + cashback_wallet
 print(total_wallet)
 ```
 
-*Line-by-line explanation:*
-- `def __add__(self, other):` defines what `+` should do whenever the left-hand operand is a `Wallet` — this is operator overloading in action.
-- `combined_balance = self.balance + other.balance` adds the two plain `float` balances using ordinary numeric `+` — this line does not overload anything, it just uses `+` on numbers as usual.
-- `return Wallet(...)` builds and returns a brand-new `Wallet`, rather than modifying `wallet_1` in place — matching the rule that `+` should produce a new value.
-- `total_wallet = wallet_1 + cashback_wallet` calls `wallet_1.__add__(cashback_wallet)` implicitly, producing a new combined `Wallet`.
-- `print(total_wallet)` calls `__str__` on the result. Output: `Rohit + Rohit-Cashback's wallet: Rs. 545.50`.
-
-**Step 4: the same `Wallet`, rewritten as a `@dataclass`**
-
-`Wallet` is mostly data (`owner_name`, `balance`) with a little custom behaviour (`__str__`, `__add__`) layered on top. `@dataclass` can generate the data-only parts — `__init__`, `__repr__`, `__eq__` — while `__str__` and `__add__` are still written by hand, exactly as the comparison table in section 3.4 predicts:
-
-```python
-from dataclasses import dataclass
-
-@dataclass
-class Wallet:
-    owner_name: str
-    balance: float
-
-    def __str__(self):
-        return f"{self.owner_name}'s wallet: Rs. {self.balance:.2f}"
-
-    def __add__(self, other):
-        return Wallet(f"{self.owner_name} + {other.owner_name}", self.balance + other.balance)
-
-wallet_1 = Wallet("Rohit", 500.0)
-wallet_2 = Wallet("Rohit", 500.0)
-cashback_wallet = Wallet("Rohit-Cashback", 45.50)
-
-print(wallet_1)
-print(repr(wallet_1))
-print(wallet_1 == wallet_2)
-print(wallet_1 + cashback_wallet)
 ```
-
-*Line-by-line explanation:*
-- `@dataclass` turns the class below it into a dataclass — `__init__`, `__repr__`, and `__eq__` are all generated from the two type-hinted fields, `owner_name: str` and `balance: float`, replacing the hand-written versions from Steps 1–2.
-- `def __str__(self):` and `def __add__(self, other):` are still written by hand inside the dataclass body — `@dataclass` never generates `__str__`, and it has no idea what "adding" two wallets should mean, so both stay exactly as in Step 3. A dataclass is still an ordinary class underneath the decorator; you can always add plain methods to it.
-- `wallet_1 = Wallet("Rohit", 500.0)` calls the generated `__init__`.
-- `print(wallet_1)` calls the hand-written `__str__`; `repr(wallet_1)` calls the generated `__repr__`; `wallet_1 == wallet_2` calls the generated `__eq__`; `wallet_1 + cashback_wallet` calls the hand-written `__add__`. Output:
-```
-Rohit's wallet: Rs. 500.00
-Wallet(owner_name='Rohit', balance=500.0)
-True
 Rohit + Rohit-Cashback's wallet: Rs. 545.50
 ```
 
-#### Try It Yourself
+Writing `wallet_1 + cashback_wallet` calls `wallet_1.__add__(cashback_wallet)` implicitly — `self` is the left-hand operand, `other` is the right-hand one. Notice `self.balance + other.balance` inside the method body is plain numeric addition on two `float` values; nothing there is being overloaded — the overloading is the outer `__add__` definition itself. The method builds and returns a **brand-new** `Wallet` rather than modifying `self` in place, matching how `+` behaves for ordinary numbers: `3 + 4` never changes the value `3`. Without `__add__` defined at all, `wallet_1 + cashback_wallet` raises `TypeError: unsupported operand type(s) for +: 'Wallet' and 'Wallet'` — a real UPI wallet-recharge feature relies on exactly this pattern to combine a main balance and a cashback balance in one clean expression.
 
-Using the final `@dataclass` version of `Wallet` from Step 4 as your starting point, complete the following three parts.
-
-**Part 1 (straightforward):** Create `priya_wallet = Wallet("Priya", 200.0)` and `bonus_wallet = Wallet("Priya-Bonus", 15.75)`. Add them together with `+` and `print()` the result.
-
-**Solution:**
+The same idea extends to comparison operators. Suppose a bank wants to rank a list of `Wallet` objects by balance for a report:
 
 ```python
-priya_wallet = Wallet("Priya", 200.0)
-bonus_wallet = Wallet("Priya-Bonus", 15.75)
+class Wallet:
+    def __init__(self, owner_name, balance):
+        self.owner_name = owner_name
+        self.balance = balance
 
-combined_wallet = priya_wallet + bonus_wallet
-print(combined_wallet)
+    def __repr__(self):
+        return f"Wallet({self.owner_name!r}, {self.balance})"
+
+    def __lt__(self, other):
+        return self.balance < other.balance
+
+wallets = [Wallet("Rohit", 500.0), Wallet("Ananya", 1200.0), Wallet("Priya", 90.0)]
+print(sorted(wallets))
 ```
 
-Expected output:
-
 ```
-Priya + Priya-Bonus's wallet: Rs. 215.75
+[Wallet('Priya', 90.0), Wallet('Rohit', 500.0), Wallet('Ananya', 1200.0)]
 ```
 
-**Part 2 (moderate):** Create `wallet_a = Wallet("Priya", 200.0)` and `wallet_b = Wallet("Priya", 200.0)` — two separate objects holding identical data. Print `wallet_a == wallet_b` and `wallet_a is wallet_b`, and be ready to explain in one sentence why the two results differ.
+`sorted()` needs some way to decide which of two `Wallet` objects comes first, and `__lt__` (the dunder method behind `<`) is exactly what it calls to find out. Before checking, predict what `sorted(wallets, reverse=True)` would produce — the same three wallets, but ordered from the highest balance down to the lowest.
 
-**Solution:**
+| Operator | Dunder method called |
+|---|---|
+| `==` | `__eq__` |
+| `<` | `__lt__` |
+| `+` | `__add__` |
+| `print()` / `str()` | `__str__` |
+| `repr()` | `__repr__` |
+
+One advanced detail worth naming without dwelling on: a dunder method can return the special value `NotImplemented` to tell Python "I don't know how to combine these two types," letting Python try other options before giving up. This matters for library authors supporting many mixed-type operations; it's rarely needed for the straightforward classes you're writing here, so treat it as a name to recognise rather than a technique to master right now.
+
+## Dataclasses: when a class is mostly just data
+
+Many classes in real projects are little more than a labelled bundle of attributes with almost no custom behaviour — a product listing, a configuration object, a confirmed railway booking. Writing `__init__`, `__repr__`, and `__eq__` by hand for every such class is repetitive, and repetition is exactly where bugs hide: add a new attribute to `__init__` but forget to add it to a hand-written `__eq__`, and equality silently stops checking that attribute.
+
+A **dataclass** is an ordinary class, decorated with `@dataclass` from Python's built-in `dataclasses` module, that has `__init__`, `__repr__`, and `__eq__` generated automatically from a short list of type-hinted attributes, instead of you writing them by hand:
 
 ```python
-wallet_a = Wallet("Priya", 200.0)
-wallet_b = Wallet("Priya", 200.0)
+from dataclasses import dataclass
 
-print(wallet_a == wallet_b)
-print(wallet_a is wallet_b)
+@dataclass
+class Wallet:
+    owner_name: str
+    balance: float
+
+wallet_1 = Wallet("Rohit", 500.0)
+wallet_2 = Wallet("Rohit", 500.0)
+
+print(wallet_1)
+print(wallet_1 == wallet_2)
 ```
 
-Expected output:
-
 ```
+Wallet(owner_name='Rohit', balance=500.0)
 True
-False
 ```
 
-`==` calls the dataclass-generated `__eq__`, which compares data — both wallets hold the same `owner_name` and `balance`, so it is `True`. `is` checks identity — whether both names refer to the exact same object in memory — and since `wallet_a` and `wallet_b` were built from two separate `Wallet(...)` calls, it is `False`.
+No `__init__`, `__repr__`, or `__eq__` appears anywhere in that class body — `@dataclass` read the two type-hinted attributes, called **fields**, and generated all three from them. `owner_name: str` and `balance: float` each become one parameter, in the same order, of the generated `__init__`.
 
-**Part 3 (challenging):** Add a `__sub__` method to `Wallet`, following the same pattern as `__add__`, so that `wallet_1 - spent_wallet` returns a new `Wallet` with the same `owner_name` as `wallet_1` and a `balance` reduced by `spent_wallet`'s balance. Test it with `wallet_1 = Wallet("Rohit", 500.0)` and `spent_wallet = Wallet("Rohit-Spent", 120.0)`.
+An e-commerce cart shows the same pattern with a different shape of data:
 
-**Solution:**
+```python
+from dataclasses import dataclass
+
+@dataclass
+class CartItem:
+    product_name: str
+    price: float
+    quantity: int = 1
+
+item = CartItem("Notebook", 149.0)
+print(item)
+```
+
+```
+CartItem(product_name='Notebook', price=149.0, quantity=1)
+```
+
+`quantity: int = 1` gives that field a **default value**, making it optional — leave it out of the call, as above, and it falls back to `1`. **Every field with a default must be declared after every field without one**, because the generated `__init__` places parameters in exactly the order the fields were declared. Try writing `price: float = 0.0` *before* `product_name: str` with no default, and Python raises a `TypeError` at the moment the class itself is defined — before your program even runs — because a required parameter can never come after an optional one in a valid function signature. This same shape shows up constantly in AI/ML work: a model's hyperparameters — `batch_size`, `learning_rate`, `epochs` — are almost always modelled as a dataclass, since a configuration is pure data with no behaviour of its own.
+
+Two limits matter just as much as what `@dataclass` generates. First, a plain attribute with no type hint is not recognised as a field at all — it's silently left out of the generated `__init__`, `__repr__`, and `__eq__`. Second, and easy to forget: **`@dataclass` never generates `__str__`.** If you print a dataclass instance without writing `__str__` yourself, you see exactly what `__repr__` produces — purely because of the same fallback rule you met earlier in this unit. A dataclass is still an ordinary class underneath the decorator: you can add hand-written methods like `__str__` or `__add__` to it exactly as you would to any class, and it still supports inheritance the same way Unit 4.2 covered.
+
+| | Hand-written class | `@dataclass` |
+|---|---|---|
+| `__init__` | Written by hand | Generated from type-hinted fields |
+| `__repr__` / `__eq__` | Written by hand, if wanted at all | Generated automatically |
+| `__str__` | Written by hand, if wanted | **Never generated** — falls back to `__repr__` |
+| Best suited for | Classes with real behaviour, validation, invariants | Classes that are mostly data — configs, records |
+| Boilerplate | More typing, more places for a bug to hide | A short, type-hinted field list |
+
+Putting it together, `Wallet` itself is mostly data (`owner_name`, `balance`) with a little genuine custom behaviour layered on top (`__str__`, `__add__`). `@dataclass` can generate the purely data-driven parts while you keep writing the parts that are genuinely yours to decide:
 
 ```python
 from dataclasses import dataclass
@@ -418,153 +255,68 @@ class Wallet:
     def __add__(self, other):
         return Wallet(f"{self.owner_name} + {other.owner_name}", self.balance + other.balance)
 
-    def __sub__(self, other):
-        return Wallet(self.owner_name, self.balance - other.balance)
-
 wallet_1 = Wallet("Rohit", 500.0)
-spent_wallet = Wallet("Rohit-Spent", 120.0)
-
-remaining_wallet = wallet_1 - spent_wallet
-print(remaining_wallet)
+cashback_wallet = Wallet("Rohit-Cashback", 45.50)
+print(wallet_1 + cashback_wallet)
 ```
 
-Expected output:
-
 ```
-Rohit's wallet: Rs. 380.00
+Rohit + Rohit-Cashback's wallet: Rs. 545.50
 ```
 
-`__sub__` is the dunder method Python calls for `-`, following exactly the same pattern as `__add__`: it builds and returns a brand-new `Wallet` rather than changing `wallet_1` in place, keeping `owner_name` from `self` and subtracting `other.balance` from `self.balance` (`500.0 - 120.0 = 380.0`).
+**Reach for `@dataclass` when a class is mostly a bundle of attributes with little custom logic; keep writing a hand-written class the moment real validation or behaviour is genuinely part of what makes that class what it is.**
+
+## How every library you'll use next builds on exactly this
+
+Nothing in this unit is classroom-only ceremony. The moment you start importing real libraries — later in this programme, that will mean things like `pandas` for data analysis or `requests` for talking to a web API — you'll find their objects behaving exactly the way this unit taught you to make your own objects behave: a `pandas` DataFrame prints as a neat table because someone implemented `__repr__` for it; comparing two `datetime` objects with `==` or `<` works because `__eq__` and `__lt__` are implemented underneath; adding two NumPy arrays with `+` combines them element-by-element because `__add__` was overloaded to mean exactly that for that type. Every well-designed Python package leans on this same small set of hooks — what you've learned here isn't a beginner-only trick, it's the actual mechanism the entire ecosystem is built on.
+
+A short list of mistakes worth watching for deliberately while this is still new:
+
+- Confusing `__str__` and `__repr__`, then being surprised that `print()` and `repr()` show different things once both are defined.
+- Forgetting to `return` a value from a dunder method, producing a `TypeError` or a silent `None`.
+- Writing `__eq__` without an `isinstance` guard, then crashing the moment someone compares your object to an unrelated type.
+- Forcing a class with genuine validation logic or custom behaviour into `@dataclass` just to save typing, when a hand-written class communicates the design better.
+- Leaving a dataclass field without a type hint, so it silently vanishes from the generated `__init__`, `__repr__`, and `__eq__`.
+- Placing a required field after a defaulted one inside a dataclass, triggering a `TypeError` before the program even runs.
+
+## Try it yourself
+
+Do this in a Colab cell before moving on. Write a plain `Wallet` class with only `__init__`, confirm `print()` shows a memory address and `==` compares by identity. Then add `__repr__`, confirm `print()` now falls back to it usefully. Add `__str__` and confirm `print()` now prefers the friendlier line instead. Add `__eq__`, guarded with `isinstance`, and confirm two separately created wallets with identical data now compare `True` while `is` still says `False`. Add `__add__` and combine two wallets with `+`. Finally, rewrite the whole class as a `@dataclass`, keeping only `__str__` and `__add__` hand-written, and confirm every printed, compared, and combined result is unchanged.
 
 ---
 
-## 4. Real-World Application
+### Key Terminology
 
-- **Banking & FinTech:** An `Account` class implements `__repr__` so a crash log shows `Account(id=48213, balance=15420.75)` instead of a bare memory address — giving an engineer enough detail to understand the object without re-running the program.
-- **UPI / Payment Systems:** Two payment receipt objects compare equal through a custom `__eq__` that checks transaction IDs, not whether they are literally the same object — exactly the identity-vs-data distinction this unit opened with. A wallet-recharge feature overloads `__add__` to combine a main balance with a cashback balance in one clean expression.
-- **E-commerce:** A `CartItem` dataclass holds `product_name`, `price`, and `quantity` — pure data, generated `__repr__` and `__eq__` included for free, no custom behaviour needed.
-- **Healthcare:** A `PatientRecord` class overrides `__eq__` to detect duplicate patient entries submitted from two different hospital counters, even though they arrive as separate objects.
-- **Railway Booking (IRCTC-style systems):** A `Ticket` dataclass, exactly like the example above, models a confirmed booking as pure data, ready to be printed, compared, or stored.
-- **AI/ML:** A model's hyperparameter configuration — `batch_size`, `learning_rate`, `epochs` — is almost always a dataclass, since configuration is pure data with no custom behaviour, precisely the case `@dataclass` exists for.
-- **Cloud Applications:** Microservices routinely pass small, well-defined data objects (dataclasses) between services, relying on their auto-generated `__repr__` to make request/response logging readable.
+- **Dunder / magic / special method** — a method whose name starts and ends with `__`, called implicitly by Python in response to built-in syntax, such as `print()`, `==`, or `+`.
+- **`__str__`** — called by `print()`, `str()`, and f-strings; produces a readable, human-facing description.
+- **`__repr__`** — called by `repr()` and an interactive shell; produces a precise, developer-facing description.
+- **`__eq__`** — called by `==`; lets two objects compare equal based on data instead of memory identity.
+- **`__add__`** — called by `+` when the left-hand operand is an instance of your class.
+- **`__lt__`** — called by `<`, and used by `sorted()` to decide ordering between two instances.
+- **Operator overloading** — defining a dunder method so a built-in operator behaves meaningfully for a custom class.
+- **`@dataclass`** — a decorator from Python's `dataclasses` module that generates `__init__`, `__repr__`, and `__eq__` from a class's type-hinted fields.
+- **Field** — a type-hinted attribute declared inside a dataclass; becomes one parameter of the generated `__init__`.
+- **`NotImplemented`** — a special value a dunder method can return to tell Python it doesn't know how to handle a given combination of types.
 
----
+### Mastery Checkpoint
 
-## 5. Worked Example
+Before moving to Unit 5.1, check that you can answer these without looking back:
 
-### Problem Statement
+1. Why does `print(my_object)` show a bare memory address for a plain class, and what dunder method fixes it?
+2. If a class defines `__repr__` but not `__str__`, what does `print()` show, and why?
+3. Why must `__eq__` check `isinstance(other, ClassName)` before comparing any attributes of `other`?
+4. What three methods does `@dataclass` generate for you, and which common method does it never generate?
+5. In a dataclass, why must every field with a default value come after every field without one?
 
-A food-delivery app keeps a customer's spendable balance in two places: the main wallet and a separate cashback wallet. Before checkout, the app needs to combine both into one total using plain `+`, and print a human-readable summary. Build this, discover why `+` does not work by default, then fix it.
+### Summary
 
-### Step 1: Understand the Problem
+You now know why a plain class's default printing, comparing, and adding behaviour looks the way it does, and how dunder methods let you redefine every one of those behaviours for your own classes: `__str__` and `__repr__` for two different printing audiences, `__eq__` for comparing by data instead of identity, and `__add__`/`__lt__` as two examples of operator overloading in general. You've also seen how `@dataclass` generates `__init__`, `__repr__`, and `__eq__` automatically from a short, type-hinted field list — saving you from repetitive, bug-prone boilerplate — while still leaving room for hand-written methods like `__str__` on top of it. That closes out Module IV: you've now gone from a plain class and its objects, through encapsulation, abstraction, inheritance, and polymorphism, to this final layer of polish that makes your own objects behave as naturally as Python's built-in types. From here, the next step is a genuinely new topic — Unit 5.1, File Handling — where your programs start reading from, and writing to, real files on disk instead of holding everything only in memory.
 
-Two `Wallet` objects need to be added together with the `+` operator, and the result needs to print as a friendly, readable line — not a memory address. Neither behaviour exists automatically for a custom class, so both must be added deliberately using dunder methods.
-
-### Step 2: Plan the Solution
-
-First, write a plain `Wallet` class with only `__init__`, and confirm that `+` fails between two instances. Then add `__add__`, which should build and return a new `Wallet` holding the combined balance, and add `__str__`, which should return a friendly summary line for `print()`.
-
-### Step 3: Write the Python Code
-
-```python
-class Wallet:
-    def __init__(self, owner_name, balance):
-        self.owner_name = owner_name
-        self.balance = balance
-
-main_wallet = Wallet("Ananya", 320.0)
-cashback_wallet = Wallet("Ananya-Cashback", 60.0)
-
-# total_wallet = main_wallet + cashback_wallet   # would raise: TypeError: unsupported operand type(s) for +: 'Wallet' and 'Wallet'
-
-class Wallet:
-    def __init__(self, owner_name, balance):
-        self.owner_name = owner_name
-        self.balance = balance
-
-    def __add__(self, other):
-        return Wallet(self.owner_name, self.balance + other.balance)
-
-    def __str__(self):
-        return f"{self.owner_name}: Rs. {self.balance:.2f} available"
-
-main_wallet = Wallet("Ananya", 320.0)
-cashback_wallet = Wallet("Ananya-Cashback", 60.0)
-
-total_wallet = main_wallet + cashback_wallet
-print(total_wallet)
-```
-
-### Step 4: Explain Each Line
-
-- The first `Wallet` class defines only `__init__` — no dunder method tells Python what `+` should do between two instances, so the commented-out line would raise a `TypeError` if uncommented; it is left as a comment here purely to show what *would* happen, without introducing formal error handling ahead of Module P5.
-- The second `Wallet` class is the fixed version: `def __add__(self, other):` defines addition, returning a brand-new `Wallet` built from `self.owner_name` and the combined balance — the two original wallets are left untouched.
-- `def __str__(self):` returns a friendly, formatted line using an f-string; `{self.balance:.2f}` formats the balance to exactly two decimal places, as money should always be displayed.
-- `main_wallet = Wallet("Ananya", 320.0)` and `cashback_wallet = Wallet("Ananya-Cashback", 60.0)` create the two wallets to be combined.
-- `total_wallet = main_wallet + cashback_wallet` calls `main_wallet.__add__(cashback_wallet)` implicitly, producing a new `Wallet` with a combined balance of `380.0`.
-- `print(total_wallet)` calls `__str__` on the result.
-
-### Step 5: Sample Input
-
-`main_wallet` balance: `320.0`; `cashback_wallet` balance: `60.0`. Both are fixed values written directly in the code — no external input is involved in this unit.
-
-### Step 6: Expected Output
-
-```
-Ananya: Rs. 380.00 available
-```
-
-### Step 7: Why the Output Is Produced
-
-`__add__` combines the two balances (`320.0 + 60.0 = 380.0`) and returns a new `Wallet` carrying `self.owner_name` — here, simply `"Ananya"`, since the example did not rename the owner on combination. `print(total_wallet)` then calls `__str__`, which formats that combined balance to two decimal places. Without `__add__` defined at all, the very same `main_wallet + cashback_wallet` expression would have raised a `TypeError`, because `object` — the default every class inherits from — has no built-in idea of what "adding" two custom objects should mean.
-
----
-
-### Important Notes (Interview Insights)
-
-**Q: "What is the difference between `__str__` and `__repr__`?"**
-
-This is one of the most frequently asked Python fresher interview questions. The clean answer: `__str__` is for the end user (readable), `__repr__` is for the developer (unambiguous, ideally re-creatable code); if only `__repr__` is defined, `print()` falls back to it automatically.
-
-**Q: "When would you choose a dataclass over a regular class?"**
-
-The honest answer is: when the class is mainly a container for data with little or no custom behaviour. The moment a class needs validation logic, computed behaviour, or protects an invariant, a hand-written class (or a dataclass with added methods) communicates intent better.
-
-**Q: "Does Python support method overloading like Java does?"**
-
-No. Python does not support classic "method overloading" (same method name, different parameter types, resolved at compile time, as in Java). What Python offers instead is **operator overloading** — one dunder method per operator, and your own logic inside it decides how to handle different situations.
-
-**Q: "Can you still add custom methods or use inheritance with a dataclass?"**
-
-Yes — a dataclass is still an ordinary class underneath the decorator, so you can add plain methods to it, and inheritance still works exactly as covered in the four pillars of OOP, including a subclass with a hand-written `__init__` that calls `super().__init__(...)`.
-
----
-
-## 6. Key Takeaways
-
-- A **dunder method** is a method Python calls implicitly in response to built-in syntax — `__init__` for construction, `__str__`/`__repr__` for printing, `__eq__` for `==`, `__add__` for `+`.
-- **`__repr__`** gives a precise, debugging-friendly representation; **`__str__`** gives a human-readable one. Without `__str__`, `print()` falls back to `__repr__`, because `object`'s default `__str__` calls `self.__repr__()`.
-- **`__eq__`** redefines `==` to compare data instead of identity; without it, two objects with identical fields still compare as `False`.
-- **Operator overloading** means defining a dunder method like `__add__` so a built-in operator behaves meaningfully for your own class — Python does not support Java-style method overloading by parameter type.
-- A dunder method that fails to `return` a value produces a broken or `None` result — always confirm the `return` statement is present.
-- **`@dataclass`** generates `__init__`, `__repr__`, and `__eq__` from type-hinted fields — but never `__str__` — provided every field carries a type hint, and every defaulted field comes after every required one.
-- Use a **regular class** when a class needs real behaviour or validation; use a **`@dataclass`** when a class is mostly a bundle of data.
-- **Modules** (separate `.py` files) and **packages** (directories of related modules) keep growing projects organized; `import`/`from module import Name` reaches a class defined elsewhere without redefining it.
-
-Coming next: File Handling, where you move from data that lives only in memory to data read from and written to real files on disk.
-
----
-
-## 7. Reference Links
+### Additional Resources
 
 - [Python Data Model — Special Method Names](https://docs.python.org/3/reference/datamodel.html#special-method-names)
 - [Python 3 Documentation — `dataclasses` Module](https://docs.python.org/3/library/dataclasses.html)
-- [Real Python — Python's Magic Methods](https://realpython.com/python-magic-methods/)
-- [Real Python — Data Classes in Python 3.7+](https://realpython.com/python-data-classes/)
+- [Python 3 Documentation — `object.__repr__` and `object.__str__`](https://docs.python.org/3/reference/datamodel.html#object.__repr__)
+- [Python 3 Documentation — Built-in Exceptions (`TypeError`)](https://docs.python.org/3/library/exceptions.html#TypeError)
 - [W3Schools — Python Classes and Objects](https://www.w3schools.com/python/python_classes.asp)
-
-[← Previous: 4.2 The Four Pillars of OOP](unit-4-2-the-four-pillars-of-oop.md) | [Go back to TOC](../../README.md) | [Next: 5.1 File Handling →](../p5-files-exception-handling/unit-5-1-file-handling.md)
-
----
-
-*© 2026 Revature · AI Native Engineering — Foundations · Unit 4.3 · Version 2.0*
+- [W3Schools — Python Operator Overloading](https://www.w3schools.com/python/python_polymorphism.asp)

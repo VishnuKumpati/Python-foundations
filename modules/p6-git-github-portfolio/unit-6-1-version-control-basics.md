@@ -1,361 +1,181 @@
-﻿﻿# Version Control Basics
+# Version Control Basics
+
+Unit 5.3 closed out Module V with a file reader robust enough to survive a missing file, a malformed line, and a dozen other things that could go wrong — real, working software, built entirely by you. Every program across all five modules has lived the same way, though: as a file, or a handful of files, sitting on your own machine or inside your own Colab session. Nobody else has ever seen how any of it came together. If you had rewritten a working function into a broken one last week, there would be no way back — the good version simply isn't there anymore, overwritten the moment you saved. And if a teammate ever asked "wait, who changed this, and why?", the honest answer would be "I have no idea."
+
+This unit, opening Module VI, is different in kind from everything before it. There is no new Python syntax here at all — not one keyword, not one function. What you're about to learn instead is a professional habit that every single software team on earth relies on, from a five-person startup to a bank's core engineering division: **version control**. You'll meet Git, the tool that keeps a permanent history of your work, and GitHub, the website that hosts that history online so it survives past your laptop and can be shown to anyone. And because this entire module is taught through the GitHub website rather than any command line, everything you learn here you'll practise with nothing more than a browser and a few careful clicks.
+
+By the end, you'll understand exactly what a repository, a commit, and a commit message are, how GitHub Classroom hands you your assignments in this course, and the habits that separate a messy history from one a recruiter would actually want to read.
 
 ---
 
-[← Previous: 5.3 Case Study](../p5-files-exception-handling/unit-5-3-case-study.md) | [Go back to TOC](../../README.md) | [Next: 6.2 Portfolio & Diagnostic →](unit-6-2-portfolio-diagnostic.md)
+## The problem hiding in plain sight
 
-## 1. Learning Objectives
+Think about how you've probably already been "saving versions" of your own work, without ever calling it that. You finish a script, and before making a risky change you copy the file and rename it — `average_calculator_v2.py`. A week later you tweak it again — `average_calculator_v2_final.py`. Then you fix one more bug the night before a deadline — `average_calculator_v2_final_REALLY_final.py`. If this already sounds painfully familiar, that's because nearly everyone who has ever written code has done exactly this at least once.
 
-By the end of this unit, you will be able to:
+This approach quietly fails in several ways at once:
 
-- **Explain** what problem version control solves, and why "my code changed and I don't know why" is a career-defining problem for a professional developer.
-- **Differentiate** between Git and GitHub — what each one actually is, and how they work together.
-- **Describe** the basic Git loop — add, commit, push — conceptually, and how it maps onto the GitHub web interface.
-- **Identify** the role of GitHub Classroom in distributing and collecting coursework through private repositories.
-- **Apply** good commit habits by writing clear, specific commit messages for small, logical changes.
-- **Analyze** a repository's commit history to understand what changed, when, and why.
+- You end up with a folder full of near-duplicate files, and no clean way to tell, months later, what actually changed between `v2` and `v2_final`.
+- If you delete or overwrite a file by mistake, whatever you hadn't separately copied is simply gone — there is no safety net underneath a normal save.
+- On a real team, two people editing "the same" file under different names have no way of knowing whose copy is the current one, or of combining both sets of changes without a lot of manual, error-prone work.
 
----
+**A file that gets silently overwritten every time you save it offers no way back to what it looked like a moment ago — and on a real project, that isn't a rare accident, it's a certainty waiting to happen.** Picture a five-person startup in Bengaluru shipping a payments feature, or a much larger team at an IT services company like TCS or Infosys maintaining a banking system used by millions — in both cases, dozens of people touch the same files, every single day, for years. Naming conventions and manual copies cannot survive that scale. Something has to actually keep the history for you.
 
-## 2. Overview
-Have you ever edited a file, saved it, and later realized that the new changes were wrong? Since you already saved the file, the old version is lost. This can happen to anyone while writing code.
+Before reading on, think of one piece of work you've personally lost or nearly lost — an assignment, an essay, a photo edit — because you saved over the only copy you had. That's precisely the risk version control exists to remove.
 
-**Version control** is a way to solve this problem. It keeps a history of your project so that you can return to an earlier version whenever needed.
+## Version control: history that never gets thrown away
 
-The most popular version control tool is **Git**. It saves snapshots of your project whenever you choose to save your progress. If you make a mistake later, you can go back to an earlier version instead of starting over.
+**Version control** is the general name for tools built specifically to solve this problem. Instead of a file that only ever shows you its current state, a version control system keeps every snapshot you deliberately ask it to remember, in order, permanently. You can always go back and see exactly what a file looked like at any earlier saved point, and set that against what it looks like today.
 
-For example, imagine you wrote a Python program that worked correctly. Later, you made some changes, and the program stopped working. Without Git, you may have to rewrite the working code. With Git, you can simply restore the earlier version.
+The analogy that makes this click fastest is a video game's save-point system. In a game with proper save points, you don't lose your progress just because you walked into a dangerous room — you can always reload an earlier save and try again from there, with the earlier save still sitting there untouched. Version control gives your code the exact same safety net: no matter how many times you've changed a file since, every earlier "save point" is still sitting in the project's history, waiting to be looked at, compared, or restored.
 
-When working in a team, Git also keeps track of **who made each change**, **when the change was made**, and **why it was made**. This makes teamwork much easier.
+**Git** is the specific version control tool the software industry has standardised on, almost without exception. Git does not stop you from editing or deleting anything in your working files — you're free to change whatever you like, exactly as before. What it adds is the ability to permanently label a snapshot of your entire project the moment you ask it to, so that even after a hundred more changes, that earlier snapshot is never actually lost. Git can, in principle, run entirely on one computer with no internet connection at all; the history lives wherever the project itself lives.
 
-In this unit, you will learn the basic concepts of **Git** and **GitHub**, how to use **GitHub Classroom** to submit assignments, and the good practices for managing your projects. No command-line knowledge is required—you will learn everything using the GitHub website.
+## The basic loop: repository, commit, push
 
----
+Three ideas carry almost all of the conceptual weight in this unit, and they build on each other in one continuous loop.
 
-## 3. Description
+A **repository** — nearly everyone shortens it to "repo" — is a project's folder together with its entire saved history. It's the one unit Git actually operates on: a single repository holds both your current files and the complete record of every past checkpoint for those files. Every course project, and every real software project you'll ever work on, lives inside exactly one repository.
 
-### 3.1 Definition
-Imagine you are writing a college assignment.
+A **commit** is one saved checkpoint — a snapshot of your project's files at one specific moment, permanently labelled with a short message explaining what changed and why. Once you commit, that snapshot exists in the repository's history forever. Committing again never erases or edits an earlier commit — it only adds a new one on top, the same way a new save point in a game never deletes the one before it. This is precisely the mechanism that solves the disappearing-work problem from the opening section: an earlier version is always still there, sitting in the history, however many more times the file changes afterwards.
 
-- On **Monday**, you write the first draft.
-- On **Tuesday**, you improve it.
-- On **Wednesday**, you accidentally delete an important section and save the file.
+**Push** is the act of sending your committed checkpoints up to GitHub, so the copy of your repository living online matches your latest committed work. Think of push as the moment your local save points get backed up somewhere that survives even if your own machine doesn't.
 
-Without a backup, the original version is lost.
+Put the three together and you get the loop every Git user repeats, over and over, for the life of a project: make a change, **commit** it as a labelled snapshot, then **push** it so the online copy is up to date. On the GitHub website specifically — which is exactly how this course works — you'll see in a moment that committing and pushing collapse into a single click, which makes the loop even easier to hold in your head.
 
-**Git** solves this problem. It keeps different versions of your project, so you can return to an earlier version whenever you need.
+There's a fourth motion worth knowing by name, even though you'll mostly experience it passively in this course: **pull** (sometimes called fetch) is the reverse of push — bringing changes made somewhere else, by you on another device or by a teammate, down into the copy of the project you're currently looking at. Because this module works entirely through the GitHub website, every repository page you open is already showing you the current, most up-to-date state, so pulling happens for you automatically rather than as a deliberate step you trigger.
 
-**GitHub** is a website that stores these versions online. This keeps your work safe even if your computer is lost or damaged, and it also makes it easy to share your work with your instructor or classmates.
+## What a commit message actually buys you
 
-### Git vs GitHub
+A commit without a message would just be an anonymous snapshot — technically useful, practically useless, because nobody (including future you) would know why it exists. The **commit message** is the short piece of text attached to every commit, stating what changed and why.
 
-| Git | GitHub |
-|------|---------|
-| A version control tool that tracks changes in your files. | A website that stores and shares Git projects online. |
-| Works on your computer, even without the internet. | Requires the internet to access online projects. |
-| Helps you save and restore different versions of your project. | Helps you back up, share, and collaborate on projects. |
+Compare these two commit messages for the exact same underlying change:
 
-
-In this course, you will use the **GitHub website** to manage and submit your projects.
-
-### 3.2 Why This Concept Exists
-
-Version control exists to solve three problems that every real software project eventually runs into:
-
-- **Protecting work.** A single accidental overwrite, a corrupted file, or a lost laptop should never mean a project's history is gone. Git keeps every committed snapshot safe and recoverable.
-- **Tracking history.** Real projects change for months or years. Without a recorded history, nobody — not even the original author — can reliably explain why a particular line of code exists or when a bug was introduced.
-- **Enabling collaboration.** The moment more than one person touches the same project, someone needs a reliable way to combine everyone's changes without silently overwriting someone else's work. Git and GitHub are built specifically to make that safe.
-
-This is why "learn Git and GitHub" appears in essentially every serious software job description, regardless of the programming language or industry — it is treated as a baseline professional skill, not an optional extra.
-
-### 3.3 Key Terminology
-
-| Term | Simple Meaning |
+| Commit message | What a future reader learns |
 |---|---|
-| **Repository ("repo")** | A project's folder, along with its entire saved history, tracked by Git. |
-| **Commit** | One saved checkpoint — a snapshot of the project's files at a specific moment, labeled with a message explaining what changed and why. |
-| **Commit message** | The short piece of text attached to a commit, describing what changed and why it changed. |
-| **Add / staging** | Conceptually, choosing which changes are ready to be included in the next commit. On the GitHub web interface, this happens automatically when you edit or upload a file. |
-| **Push** | Sending your committed checkpoints to GitHub, so the online copy matches your latest work. On the web interface, committing and pushing happen together in a single click. |
-| **Pull / fetch** | Bringing changes made elsewhere (by you on another device, or by a teammate) down into the copy you are currently viewing or working on. |
-| **Branch** | A separate line of commits that does not affect the main project until it is merged; `main` is normally the stable, always-working line. |
-| **GitHub Classroom** | A GitHub tool instructors use to distribute assignments; each student who accepts an assignment gets their own private repository. |
-| **Commit history** | The complete, ordered list of every commit ever made to a repository, viewable on GitHub's **Commits** tab. |
-| **README** | A file (usually `README.md`) that explains what a repository contains and how to use it — the first thing a visitor sees. |
-| **`.gitignore`** | A file listing items Git should never track, most importantly secrets such as passwords or API keys. |
+| `update` | Nothing. Something changed, at some point, for some reason. |
+| `fix` | Slightly more, but still no idea what was broken or how. |
+| `Fix rounding error in average marks calculation` | Exactly what was wrong, and exactly what this checkpoint addresses — without opening a single file. |
 
-### 3.4 Syntax / Workflow
+**A commit message is written for a reader who has no memory of writing the code — often that reader is you, three weeks later, having completely forgotten the details.** The convention professional teams use, and the one you should build into muscle memory now, is the imperative mood: "Fix rounding error," not "Fixed rounding error" or "Fixing rounding error." It reads like an instruction the commit itself is carrying out, and it's the style you'll see across virtually every serious open-source project on GitHub.
 
-Because this course works entirely through the GitHub website, "syntax" here means the sequence of actions you take in the browser rather than command-line commands. The conceptual loop — **add, commit, push** — maps onto the web interface as follows:
+Try this the next time you make any change, however small: before you write the commit message, finish the sentence "This commit will..." out loud — whatever comes after "will" is very close to the message you should actually type.
 
-| Step | Conceptual Git Action | What You Do on github.com |
+## GitHub: where your repository lives online
+
+**GitHub** is a hosting platform for projects that use Git — a website, github.com, that stores a copy of your Git history online. Because that copy lives on GitHub's servers rather than only on your own laptop, it survives even if your device is lost, damaged, or simply replaced next year, and it can be seen by anyone you grant access to — an instructor grading your work, a teammate on a group project, or, later in your career, a recruiter deciding whether to call you in for an interview.
+
+The relationship between the two tools is worth pinning down precisely, because mixing them up is one of the most common beginner mistakes in this whole area — and one that shows up as a genuine red flag in technical interviews.
+
+| | Git | GitHub |
 |---|---|---|
-| 1 | Open or create a repository | Accept a GitHub Classroom assignment, or open an existing repository you have access to. |
-| 2 | Make a change | Click **Add file** to create or upload a file, or click the pencil (edit) icon on an existing file. |
-| 3 | Add (stage) the change | Handled automatically by GitHub when you use the web editor — there is no separate staging step to perform yourself. |
-| 4 | Commit the change | Scroll to the commit box at the bottom of the page, write a clear commit message describing what changed, and select **Commit directly to the `main` branch**. |
-| 5 | Push the change | Happens automatically the instant you click **Commit changes** — the online repository is updated immediately, with no separate upload step. |
-| 6 | Review the history | Open the repository's **Commits** tab to see every checkpoint, in order, with its message, author, and timestamp. |
+| What it is | The version-control tool itself | A website that hosts Git repositories online |
+| Where it runs | On whichever machine holds the project | On GitHub's own servers, accessed through a browser |
+| Needs the other to exist? | No — Git works completely on its own | Yes — GitHub has nothing to host without Git underneath it |
+| What it gives you | The commit history, the save-point mechanism | A shared, backed-up, visible home for that history |
 
-The key takeaway from this table: on the GitHub web interface, steps 3 through 5 collapse into one click. You do not need to separately "stage," "commit," and "push" the way someone working from a local computer with the git command line would — that distinction becomes relevant later in your career if you move to command-line Git, but is not required for this course.
+**Git is the underlying save-checkpoint system; GitHub is a website that hosts and shares those checkpoints online — treating the two names as interchangeable is a mix-up worth correcting for yourself right now, before it becomes a habit.**
 
-**The Edit → Commit → Push Loop (Web Interface)**
+## GitHub Classroom: how your assignments actually arrive
 
-```mermaid
-flowchart LR
-    A["Open repository<br/>on github.com"] --> B["Edit or add a file<br/>using the web editor"]
-    B --> C["Write a clear<br/>commit message"]
-    C --> D["Click 'Commit changes'"]
-    D --> E["Change is saved AND<br/>pushed to GitHub instantly"]
-    E --> F["Visible immediately in the<br/>repository's Commits tab"]
-```
+**GitHub Classroom** is a tool built on top of GitHub that instructors use to distribute and collect coursework, and it is exactly how every assignment in this programme reaches you. When you accept a GitHub Classroom assignment link, GitHub automatically creates a brand-new, private repository that belongs to you alone — visible only to you and your instructor by default, nobody else.
 
-**Local Work vs GitHub (Conceptual)**
+This matters for two reasons. First, you are never editing a shared, public copy that other students could also be touching — your repository is genuinely yours. Second, because it is a real repository with a real commit history behind it, the finished assignment you submit is never just a final file that appeared from nowhere — it carries a dated, attributable record of how you actually built it, which is precisely what a recruiter or interviewer looking at your GitHub profile later will be reading.
 
-```mermaid
-flowchart TD
-    subgraph Local["Your working copy (conceptual)"]
-        L1["Edit files"] --> L2["Add / stage changes"]
-        L2 --> L3["Commit — save a checkpoint"]
-    end
-    L3 -->|"Push"| R["GitHub — remote repository"]
-    R -->|"Pull / fetch"| L1
-    R --> R1["Commits tab: full history"]
-    R --> R2["Visible to teammates,<br/>instructors, reviewers"]
-```
+## Working entirely through the browser
 
-**Comparison Table: Local Repository vs Remote Repository**
+Because this module deliberately avoids the command line, the "procedure" for every action below is a sequence of clicks rather than a line you type. Once you've done this once, it becomes as automatic as opening a Colab notebook was after Unit 1.1.
 
-| Aspect | Local Repository | Remote Repository (GitHub) |
-|---|---|---|
-| Where it lives | On the machine or environment where the work happens | Hosted online at github.com |
-| Who can see it | Only whoever has access to that machine | Anyone with repository access, from anywhere with internet |
-| Survives device loss? | No — a lost or damaged device can mean losing the repository | Yes — the copy on GitHub is independent of any one device |
-| How this course uses it | Not used directly — this course works through the browser | Used directly for every action: creating files, committing, reviewing history |
-| Typical use later in a career | Where day-to-day editing and committing happens via the git command line | Where work is shared, reviewed, and combined with a team's work |
+**Creating a repository:**
 
-### 3.5 Rules
+1. Sign in to `github.com` with your account.
+2. Click the **+** icon near the top-right corner, then **New repository**.
+3. Give it a short, meaningful name — `average-calculator`, not `project1`.
+4. Choose **Public** or **Private** visibility, optionally tick **Add a README file**, and click **Create repository**.
 
-- A commit should represent one logical, self-contained change — not an unrelated mix of edits bundled together.
-- A commit message must describe **what changed and why**, in a short phrase — not just repeat the file name or say nothing useful (`"update"`, `"changes"`).
-- A repository accepted through GitHub Classroom is private by default — only you and your instructor can see it, unless your instructor configures it otherwise.
-- Secrets — passwords, API keys, personal access tokens — must never be committed, because a commit history is permanent and, on a public repository, visible to anyone.
+**Editing or uploading a file:**
 
-### 3.6 Best Practices
+1. Open the repository and click **Add file**, choosing either **Create new file** or **Upload files**.
+2. If creating a new file, type its name (including the `.py` extension) and write its contents directly in the browser's editor.
+3. If a file already exists and you want to change it, open it and click the pencil (edit) icon instead.
 
-- **Commit often, in small logical chunks.** A commit that changes one function or fixes one bug is far easier to review and understand later than one giant commit touching ten unrelated things.
-- **Write commit messages for your future self.** Assume the reader (often you, three weeks later) has no memory of writing the code and only has the message to go on.
-- **Use the imperative mood.** Write `"Fix rounding error in average calculation"`, not `"Fixed"` or `"Fixing"` — this matches the convention used across the professional Git community.
-- **Keep a clear README.** Even a few lines explaining what a project does and how to run it makes a repository usable by someone landing on it with zero context.
-- **Never commit secrets.** Keep passwords, tokens, and keys out of every commit — once something is committed, it exists permanently in the history even if you delete it in a later commit.
+**Committing your change:**
 
-### 3.7 Common Mistakes
+1. Scroll down to the box labelled **Commit changes** at the bottom of the page.
+2. Replace GitHub's default pre-filled text with your own clear, imperative-mood message describing what changed and why.
+3. Confirm **Commit directly to the `main` branch** is selected — `main` is every repository's default branch, its stable, always-working line of work — and click **Commit changes**.
 
-- **Vague commit messages.** Messages like `"update"`, `"fix"`, or `"changes"` tell a reviewer, and future-you, nothing about what actually happened.
-- **Forgetting to commit regularly.** Working for hours without a single commit means a mistake can cost hours of unrecoverable progress — commit as soon as a small piece of work is genuinely done.
-- **One giant commit with unrelated changes.** Bundling a bug fix, a new feature, and a typo correction into a single commit makes it far harder to find or undo any one of them later.
-- **Leaving the default commit message.** GitHub's web editor pre-fills a generic message like `"Update filename.py"` — accepting it without editing it wastes the one part of a commit meant to explain your reasoning.
-- **Confusing Git with GitHub.** Assuming GitHub *is* version control, rather than a website that hosts a Git repository, leads to confusion later when working with local, command-line Git.
+That single click is doing more work than it looks like. On a local computer using Git's command line, staging, committing, and pushing would be three separate, visible actions. On the GitHub website, all three collapse into this one click: the moment you press **Commit changes**, your change is saved as a labelled snapshot *and* sent up to GitHub's servers, with nothing left for you to do afterwards.
 
-### 3.8 Examples
+**Viewing your history:**
 
-**Example — one project's commit history, from vague to professional.**
+1. Open your repository and click the **Commits** tab (sometimes shown as a small clock icon with a number beside it).
+2. Every commit you've ever made appears here, in order, each with its message, its author, and exactly when it was made.
 
-Follow a single repository, `my-python-project`, containing `average_calculator.py`, through three real commits made in order over a few days.
+This is where the entire promise of version control becomes visible and concrete: click into any past commit and you can see precisely what the project looked like at that exact checkpoint, long before whatever changed afterwards.
 
-The first commit is made in a hurry, right after the script first runs successfully:
+Do this once for yourself before continuing: open GitHub, create a small test repository, add one short file with a sentence or two inside it, and commit it with a real, descriptive message — then open the Commits tab and confirm your one checkpoint is sitting there, labelled exactly the way you wrote it.
 
-```
-update
-```
+## Good habits: small commits, honest messages
 
-*Explanation:* This tells a reviewer nothing about what changed. A month later, even the author who wrote it would have to open the commit and read the code just to remember what it was for.
+The single biggest difference between a repository that's pleasant to read later and one that isn't has nothing to do with the code itself — it's how the commits were made along the way.
 
-A few days later, a rounding bug is fixed, and this time the commit message is written properly:
+| One giant commit | Several small commits |
+|---|---|
+| Bundles a week's worth of unrelated changes into one snapshot | Each commit represents one logical, self-contained change |
+| A bug introduced anywhere in that week is hard to trace to a specific line | Opening the Commits tab shows exactly which checkpoint introduced a problem |
+| The commit message, if there even is a good one, has to summarise ten different things at once | Each message can be short, specific, and genuinely useful |
+| Undoing one bad change usually means undoing everything alongside it | A single bad change can be reviewed or reverted on its own |
 
-```
-Fix rounding error in average marks calculation
-```
+This is also exactly why a group project where one teammate's "fix" quietly breaks somebody else's work is usually solvable in minutes on a real team: opening the Commits tab reveals precisely which checkpoint introduced the problem, who made it, and what they wrote as the reason for it. That visibility only works, though, if commits were actually kept small and honestly labelled in the first place.
 
-*Explanation:* This says exactly what changed (a rounding error) and where (average marks calculation). Anyone reading the history — including future-you — immediately understands the purpose of this checkpoint without opening a single file.
+A short list of habits worth avoiding deliberately while this is still new:
 
-The next change is bigger, so the commit gets a short summary line plus a body explaining the reasoning:
+- Writing vague, one-word commit messages such as `"update"` or `"fix"` that tell a future reader nothing.
+- Going long stretches of real work without committing anything at all, risking hours of progress to a single mistake.
+- Accepting GitHub's pre-filled default commit message instead of writing your own honest description.
+- Bundling several unrelated changes into one commit because it feels faster than committing each one separately.
+- Committing secrets — passwords, API keys, tokens — directly into a file; once committed, they exist permanently in the history, even if a later commit appears to delete them.
 
-```
-Add input validation for negative marks
+## Try it yourself
 
-Previously, entering a negative number for marks was accepted
-without any check, producing an incorrect average. This commit
-adds a check that rejects negative values before the average
-is calculated.
-```
-
-*Explanation:* The first line is a short summary (used as the headline in the Commits tab); the blank line and paragraph beneath it explain the reasoning in more depth. This two-part structure is the professional standard for any commit that needs more explanation than a one-liner can give.
-
-Across these three commits, the repository itself has kept the same simple, professional structure throughout:
-
-```
-my-python-project/
-├── README.md
-├── .gitignore
-└── average_calculator.py
-```
-
-*Explanation:* `README.md` is the front door explaining what the project does; `.gitignore` keeps files like secrets or temporary files out of the tracked history; `average_calculator.py` is the actual working code. Even a small student project benefits from this same three-piece shape — it is exactly what a reviewer expects to find. Notice how the *messages* improved from commit to commit while the *structure* stayed clean the whole time — both habits matter, and neither replaces the other.
-
-#### Try It Yourself
-
-You are working in the same `my-python-project` repository. For each part below, write the commit message you would use, then check it against the solution.
-
-**Part 1 (Easy).** You just wrote the very first working version of `average_calculator.py` — it reads a list of marks and prints the average. Write a clear commit message for this first commit.
-
-**Solution:**
-```
-Add initial version of average calculator
-```
-This names the exact file's purpose and makes clear this is the starting point of the project — far better than a default or vague message like `"first commit"` or `"add file"`.
-
-**Part 2 (Medium).** You notice `average_calculator.py` crashes with a `ZeroDivisionError` whenever it is given an empty list of marks. You fix it by adding a check that returns `0` instead of crashing when the list is empty. Write a commit message for this change.
-
-**Solution:**
-```
-Handle empty marks list to prevent division-by-zero crash
-```
-This names both *what* changed (a guard for the empty-list case) and *why* it mattered (preventing a crash) — exactly the "what and why" standard from §3.5, in a single imperative-mood line.
-
-**Part 3 (Harder).** You open the **Commits** tab and see this history, most recent first:
-
-```
-fixed it
-Handle empty marks list to prevent division-by-zero crash
-update
-```
-
-Identify which commit message violates the project's commit-message standard, and rewrite it as a professional message. Assume the underlying change was: you discovered the average was printed with 5 decimal places and rounded it to 2 for readability.
-
-**Solution:** The most recent commit, `"fixed it"`, is the violation — like `"update"` before it, it says nothing about what was fixed or why, forcing anyone reading the history to open the code just to understand the checkpoint. A professional rewrite, matching the style of the other two messages in this history:
-```
-Round average output to two decimal places for readability
-```
+Before moving on, create one small repository of your own through the GitHub website, exactly as described above. Add a short Python file — even a single `print()` line is enough — and commit it with a clear, imperative-mood message stating what the file does. Then make one more small, separate change to the same file — add a comment, or improve a variable name — and commit that on its own, with its own distinct message, rather than folding it into the first commit. Finally, open the **Commits** tab and confirm both checkpoints appear in order, each individually labelled and individually readable.
 
 ---
 
-## 4. Real-World Application
+### Key Terminology
 
-Every real engineering team — a five-person startup, a bank's core-banking team, an e-commerce platform's checkout squad, a hospital's patient-records software team — relies on Git and GitHub (or an equivalent) for every single change that reaches production code. Nothing goes live without first being committed, and in almost every serious organization, without first being reviewed through a **pull request** — a proposed change that a teammate reviews and approves before it is merged into the main project.
+- **Version control** — a category of tool that keeps a permanent, ordered history of saved changes, instead of only ever showing a file's current state.
+- **Git** — the version control tool the software industry has standardised on; keeps a labelled history of a project's snapshots.
+- **Repository (repo)** — a project's folder together with its entire saved history, as tracked by Git.
+- **Commit** — one saved, permanently labelled checkpoint of a project's files at a specific moment.
+- **Commit message** — the short piece of text attached to a commit, describing what changed and why.
+- **Push** — sending committed checkpoints up to GitHub, so the online copy matches your latest work.
+- **Pull (fetch)** — bringing changes made elsewhere down into the copy of the project you're viewing.
+- **Branch** — a separate line of commits; `main` is every repository's default, stable branch.
+- **GitHub** — a website that hosts and shares Git repositories online.
+- **GitHub Classroom** — a tool built on GitHub that distributes and collects coursework as private, individual repositories.
+- **Commit history** — the complete, ordered list of every commit ever made to a repository, viewable on GitHub's Commits tab.
+- **README** — a file explaining what a repository contains and how to use it, usually the first thing a visitor sees.
 
-This is precisely why a group project where one teammate's "fix" quietly breaks someone else's feature is usually solvable in minutes on a real team: open the Commits tab (or the pull request history) and see exactly which checkpoint introduced the regression — a change that breaks something that used to work — who made it, and what they wrote as the reason. In banking and healthcare software especially, this permanent, attributable history is not just convenient — it is often a compliance requirement, since regulators expect a clear record of exactly what changed in production systems and when.
+### Mastery Checkpoint
 
-The same logic is why GitHub Classroom, covered next, distributes and collects coursework this way: each student gets a real, private repository, with a real commit history behind their submission — not a zip file with no story behind it. Recruiters and interviewers reviewing a candidate's GitHub profile treat commit history the same way: as evidence of real, dated, incremental work, not just a finished product that appeared all at once.
+Before moving to Unit 6.2, check that you can answer these without looking back:
 
----
+1. Why is renaming files `v2`, `v2_final`, `v2_final_REALLY_final` a fundamentally weaker safety net than real version control, even though both are attempts at the same goal?
+2. What is the precise relationship between Git and GitHub — why does calling them interchangeable count as a mix-up?
+3. What three actions make up the basic commit loop, and which single click on the GitHub website performs all three at once?
+4. Why does a commit message like `"Fix rounding error in average marks calculation"` do more useful work than `"update"`, even though both attach to an identical code change?
+5. How does GitHub Classroom's private, individual repository model change what actually gets submitted, compared with handing in a single finished file?
 
-## 5. Worked Example
+### Summary
 
-### Problem Statement
+You now know why every file you've ever saved has been one accidental overwrite away from losing real work, and how version control removes that risk by keeping a permanent, ordered history of labelled snapshots instead. You've learned what Git actually is, how a repository, a commit, and a commit message fit together into the basic commit-push-pull loop, and precisely how Git and GitHub differ despite being constantly confused for one another. You've walked through creating a repository, editing and committing a file, and reading a commit history entirely through the GitHub website, and picked up the habit — small, honestly labelled commits over one giant unexplained change — that separates a professional history from a messy one. From here, the next step is turning this habit into something visible: Unit 6.2, Portfolio & Diagnostic, where you'll start shaping your own GitHub presence into a record of real, demonstrable work.
 
-You have just finished a small Python script from your work in Modules P1 to P5 — say, a script that calculates the average of a list of marks. You want to save it safely and share it using GitHub Classroom, following good commit habits, so that both your progress and your reasoning are permanently recorded.
+### Additional Resources
 
-### Step 1: Understand the Problem
-
-You need a place to store this file where it will not be lost, where your instructor can see it, and where the history of how you built and refined it is preserved. A plain file on your own device satisfies none of these — a single accidental deletion or overwrite would destroy it with no way to recover the earlier version.
-
-### Step 2: Plan the Solution
-
-Accept the relevant GitHub Classroom assignment to get your own private repository. Add the Python file to it through the web interface. Make the first version work, commit it with a clear message. Then improve it in a second, separate change, and commit that separately too — so the history shows two distinct, explainable checkpoints rather than one opaque final version.
-
-### Step 3: Walk Through the Steps
-
-1. Click the GitHub Classroom link shared by your instructor.
-2. Sign in with your GitHub account, then click **Accept this assignment**. GitHub creates your own private repository and gives you a link to it.
-3. Open your repository, click **Add file → Create new file**, and name it `average_calculator.py`.
-4. Write the first working version of the script in the web editor.
-5. Scroll to the commit box, replace the default message with something specific — `"Add initial version of average calculator"` — and click **Commit changes**.
-6. Click the pencil (edit) icon on `average_calculator.py`, and improve the script — for example, add a check that rejects an empty list of marks.
-7. Commit this second change separately, with its own clear message — `"Add empty-list check to average calculator"`.
-8. Open the **Commits** tab and confirm both checkpoints are listed, each with its own message and timestamp.
-
-### Step 4: Explain Each Step
-
-- Accepting the assignment (steps 1-2) creates a private, permanent home for your work — visible only to you and your instructor, the same way your own save file is never mixed up with anyone else's.
-- Creating the file and writing the first version (steps 3-4) is ordinary editing — nothing is saved as a checkpoint yet.
-- Committing (step 5) turns that edit into a permanent, labeled snapshot. The message explains *what* this checkpoint represents.
-- Editing again (step 6) and committing separately (step 7) deliberately keeps the two changes apart in the history, instead of merging them into one commit that hides two distinct improvements behind a single vague label.
-- Reviewing the Commits tab (step 8) proves — to yourself, not just your instructor — that both changes are permanently recorded and independently visible.
-
-### Step 5: Sample Input
-
-The file being added, in its first committed version:
-
-```python
-def average(marks):
-    return sum(marks) / len(marks)
-
-print(average([80, 75, 90]))
-```
-
-### Step 6: Expected Output
-
-After both commits, the repository's **Commits** tab shows:
-
-```
-Add empty-list check to average calculator      (most recent)
-Add initial version of average calculator       (earlier)
-```
-
-Clicking the earlier commit shows `average_calculator.py` exactly as it looked right after step 5 — without the empty-list check — even though the file in the repository today already includes it.
-
-### Step 7: Why This Result Occurs
-
-Each commit is a permanent, independent snapshot — committing again never erases or rewrites an earlier commit, it simply adds a new one on top of the history. Because the two changes were committed separately with distinct messages, the history clearly shows two logical steps in your work rather than one unexplained final state. This is exactly the property that makes it possible, months later, to answer "what did this file look like before the empty-list check was added, and why was that check added at all?"
-
----
-
-### Important Notes (Interview Insights)
-
-**Q: "How important is Git/GitHub knowledge in developer interviews?"**
-
-Git and GitHub are near-universal expectations for any developer role today, regardless of the company or the stack — expect at least one interview question that assumes you already use them daily.
-
-**Q: "What's the difference between Git and GitHub?"**
-
-Be ready to clearly explain it in your own words — this is one of the most common fresher interview questions in this area, and confusing the two is an immediate red flag to an interviewer.
-
-**Q: "Can you describe your own commit habits?"**
-
-Be ready with a concrete answer — for example, "I commit each time a small, working piece of a feature is done, and I write a message describing what changed and why."
-
-**Q: "What is a pull request?"**
-
-Interviewers sometimes ask this even at fresher level: it is a proposed set of changes on GitHub, submitted for review before being merged into the main project — you will not create one in this unit, but knowing the term is expected.
-
----
-
-## 6. Key Takeaways
-
-- **Version control** solves a specific, career-wide problem: saving over a file destroys the old version, unless something is keeping labeled snapshots of it over time.
-- **Git is the version control system**; **GitHub is a website that hosts Git repositories online** — confusing the two is a common beginner mistake and a red flag in interviews.
-- The conceptual loop is **add → commit → push**; on the GitHub web interface, these collapse into a single **Commit changes** click.
-- **GitHub Classroom** distributes and collects assignments by giving each student their own private repository.
-- A **commit message** should describe what changed and why, in the imperative mood — vague messages like `"update"` are the most common beginner mistake in this area.
-- **Commit often, in small logical chunks** — one giant commit mixing unrelated changes is hard to review and hard to undo.
-- Never commit **secrets** — passwords, API keys, and tokens must stay out of a repository's permanent history.
-- A clear **README** and a thoughtful `.gitignore` are what separate a professional repository from one nobody, including its own author, can make sense of later.
-
-Coming next: Portfolio & Diagnostic, where everything you have built across this course comes together.
-
----
-
-## 7. Reference Links
-
-- [GitHub Docs — Getting Started with Git](https://docs.github.com/en/get-started)
-- [GitHub Docs — Writing on GitHub / About Commits](https://docs.github.com/en/pull-requests/committing-changes-to-your-project/creating-and-editing-commits/about-commits)
-- [GitHub Classroom Documentation](https://docs.github.com/en/education/manage-coursework-with-github-classroom)
-- [Git Official Documentation](https://git-scm.com/doc)
-- [Real Python — Basic Git Commands (Concepts)](https://realpython.com/python-git-github-intro/)
-
-[← Previous: 5.3 Case Study](../p5-files-exception-handling/unit-5-3-case-study.md) | [Go back to TOC](../../README.md) | [Next: 6.2 Portfolio & Diagnostic →](unit-6-2-portfolio-diagnostic.md)
-
----
-
-*© 2026 Revature · AI Native Engineering — Foundations · Unit 6.1 · Version 2.0*
+- [W3Schools — Git Introduction](https://www.w3schools.com/git/git_intro.asp)
+- [W3Schools — Git Getting Started](https://www.w3schools.com/git/git_getstarted.asp)
+- [W3Schools — Git Repository](https://www.w3schools.com/git/git_repo.asp)
+- [W3Schools — Git Commit](https://www.w3schools.com/git/git_commit.asp)
+- [W3Schools — Git GitHub](https://www.w3schools.com/git/git_github.asp)
+- [W3Schools — Git Pull](https://www.w3schools.com/git/git_pull.asp)

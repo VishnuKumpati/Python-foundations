@@ -1,268 +1,41 @@
-﻿# Iterators, Generators & Collections
+# Iterators, Generators & Collections
+
+Units 3.1 through 3.4 covered the four core collections — list, tuple, set, dict. Every one of them can be looped over with a `for` loop, which raises a question worth answering properly: what is actually happening, mechanically, when `for` pulls one item at a time out of any of them? You have typed `for order in orders:` dozens of times by now without ever needing to ask, and that is exactly the sign of a good abstraction — it works so smoothly that the machinery underneath stays invisible. But invisible is not the same as unimportant, and the moment you write your own class in Module IV, or debug a loop that behaves unexpectedly, that hidden machinery stops being optional knowledge.
+
+This unit pulls back the curtain on exactly that machinery: the difference between an **iterable** (anything you can loop over) and an **iterator** (the object that actually does the looping, one step at a time), and the small, strict handshake — `iter()`, `next()`, `StopIteration` — that every single `for` loop performs underneath, no matter which of the four collections it is walking. You already met generators in Unit 2.4 as "a function that uses `yield`"; here you will see the one precise fact that finishes that story — a generator *is* an iterator, which is exactly why it slots into a `for` loop and exactly why it saves memory. From there, this unit closes out Module III by introducing three ready-made tools from Python's `collections` module — `Counter`, `defaultdict`, and `namedtuple` — that quietly replace hand-written counting loops, fragile key checks, and hard-to-read `tuple[0]`-style code with one clean line apiece.
+
+By the time you finish this chapter, you will never look at a `for` loop the same way again — and, since this is the last unit of Module III, you will also have every core data structure this course covers sitting in one connected mental picture: list, tuple, set, dict, and now the mechanism that loops over all of them, plus the toolkit built on top.
 
 ---
 
-[← Previous: 3.4 Dictionaries](unit-3-4-dictionaries.md) | [Go back to TOC](../../README.md) | [Next: 4.1 Object-Oriented Foundations →](../p4-classes-objects/unit-4-1-object-oriented-foundations.md)
+## What a `for` loop is quietly doing for you
 
-## 1. Learning Objectives
-
-By the end of this unit, you will be able to:
-
-- **Explain** the difference between an iterable and an iterator, and describe the `iter()` / `next()` / `StopIteration` protocol that a `for` loop runs underneath every time it executes.
-- **Differentiate** a reusable iterable from a one-shot iterator, and explain why a generator is a special kind of iterator that behaves the same way.
-- **Implement** a generator function using `yield` and a generator expression, and explain why either can save real memory compared to building a full list.
-- **Apply** `Counter` to tally occurrences of items in one line instead of writing a manual counting loop.
-- **Apply** `defaultdict` to group or count items without writing manual key-existence checks.
-- **Identify** when a `namedtuple` improves on a plain tuple for readability, and debug the most common mistakes made with this machinery.
-
----
-
-## 2. Overview
-
-Every `for` loop you have written across this module — over lists, tuples, sets, and dictionaries — has quietly relied on one uniform mechanism you never had to name out loud. That mechanism is the **iterator protocol**, and this unit finally opens it up. Once you understand it, a `for` loop stops being "magic that walks a collection" and becomes a predictable, explainable sequence of function calls — a distinction that comes up constantly in technical interviews, because interviewers use it to check whether a candidate truly understands Python or has only memorized syntax.
-
-This unit also revisits **generators**, which you first met conceptually back in the unit on functional constructs, and shows exactly why they save memory when a dataset is large or arrives over time — think of a UPI app processing a live stream of transactions, or a system reading a multi-gigabyte log file one line at a time instead of loading it all at once.
-
-Finally, you will meet three ready-made tools from Python's `collections` module — `Counter`, `defaultdict`, and `namedtuple` — that quietly replace hand-written counting loops, error-prone dictionary key checks, and unreadable `tuple[0]`-style code with one clean line each. These are genuinely time-saving tools you will reach for in real projects, not just classroom exercises. This is also the final unit of Module P3 (Data Structures) — after this, Module P4 begins organizing data and behavior together with classes and objects.
-
----
-
-## 3. Description
-
-### 3.1 Definition
-
-An **iterable** is any object you can loop over — anything you are allowed to place after `in` in a `for` loop. Lists, tuples, sets, dictionaries, and strings all qualify. An **iterator** is a separate, simpler object that does the actual walking: it remembers exactly one thing — where it currently is — and hands out the next value on request until there is nothing left to give.
-
-A **generator** is a special, lazy kind of iterator: instead of holding all its values in memory in advance, it computes each value only at the moment you ask for it, and then pauses.
-
-The **`collections` module** is a part of Python's standard library that ships ready-to-use, purpose-built versions of `dict` and `tuple` for patterns that come up constantly in real programs: **`Counter`** (tallying), **`defaultdict`** (grouping and counting without key errors), and **`namedtuple`** (tuples with readable, named fields).
-
-### 3.2 Key Terminology
-
-| Term | Simple Meaning |
-|---|---|
-| **Iterable** | Any object you can loop over with `for` — a list, tuple, set, dict, string, or generator. |
-| **Iterator** | The object that actually produces one value at a time from an iterable, and remembers its current position. |
-| **`iter()`** | A built-in function that takes an iterable and returns a fresh iterator for it. |
-| **`next()`** | A built-in function that takes an iterator and returns its next value, advancing its position by one. |
-| **`__iter__` / `__next__`** | The two internal mechanisms every iterable/iterator relies on — conceptually, `iter(obj)` asks `obj` to produce an iterator, and `next(it)` asks that iterator to produce its next value. You do not need to write these yourself in this unit; you only need to know they exist under the hood. |
-| **`StopIteration`** | A special signal (not an error you need to fix, and not `None`) that an iterator raises internally to mean "there is nothing left to give." |
-| **Generator function** | A function that uses `yield` instead of (or alongside) `return`, producing a generator object when called. |
-| **`yield`** | A keyword that produces one value from a generator function and pauses execution there, freezing all local state, until the next value is requested. |
-| **Generator expression** | A compact, one-line way to write a generator, shaped like a list comprehension but with `()` instead of `[]`. |
-| **Lazy evaluation** | Computing a value only at the moment it is actually needed, instead of computing everything in advance. |
-| **`Counter`** | A `dict` subclass, from `collections`, that tallies how many times each hashable item appears. |
-| **`most_common(n)`** | A `Counter` method that returns the `n` most frequent items, already sorted, highest count first. |
-| **`defaultdict`** | A `dict` subclass, from `collections`, that auto-creates a default value for a new key instead of raising `KeyError`. |
-| **Factory function** | The function you hand to `defaultdict` (commonly `list` or `int`) that produces the default value for a brand-new key. |
-| **`namedtuple`** | A function, from `collections`, that builds a tuple subclass whose positions also have readable field names. |
-
-### 3.3 Syntax
-
-**Getting an iterator with `iter()`:**
+Picture a food-delivery platform — call it Chennai Bites — printing today's orders with a simple loop:
 
 ```python
-it = iter(iterable)
+orders = ["Saravana Bhavan", "Biryani Blues", "Pizza Hub"]
+
+for restaurant in orders:
+    print("Processing:", restaurant)
 ```
 
-Example:
-
-```python
-numbers = [10, 20, 30]
-it = iter(numbers)
+```
+Processing: Saravana Bhavan
+Processing: Biryani Blues
+Processing: Pizza Hub
 ```
 
-**Getting the next value with `next()`:**
+Nothing about that looks mysterious — until you ask exactly *how* Python knows which item comes "next," or how it knows to stop after the third one instead of trying a fourth. The answer is that Python is not asking the list directly for each item. It is asking the list for a *helper* that knows how to hand out items one at a time, and then asking that helper, repeatedly, "what's next?" That helper is called an **iterator**, and the object it was built from — the list itself — is called an **iterable**.
 
-```python
-value = next(it)
-```
+An **iterable** is any object you are allowed to place after `in` in a `for` loop: a list, tuple, set, dictionary, or string all qualify — every collection from Units 3.1 through 3.4. An **iterator** is a different, simpler kind of object: it remembers exactly one thing, its current position, and hands out the next value on request until there is nothing left to give.
 
-Example:
+Think of an iterable as a whole book sitting on a shelf, and an iterator as a bookmark placed inside a *copy* of that book. The book itself does not remember what page you're on — the bookmark does. Hand the same book to two different readers, and each one gets their own bookmark, starting fresh from page one, completely unaware of where the other reader has gotten to. That is exactly why two separate `for` loops over the same list both start again from the beginning: a list is iterable, but a list is *not* itself an iterator — it does not track "where you currently are." Every time a `for` loop begins, it asks the list for a brand-new bookmark.
 
-```python
-print(next(it))
-print(next(it))
-print(next(it))
-```
+**Every iterator is iterable — you can loop over an iterator itself — but not every iterable is an iterator.** A list can produce a bookmark; it isn't one.
 
-Output:
-```
-10
-20
-30
-```
+## Getting the bookmark yourself: `iter()` and `next()`
 
-**Defining a generator function:**
-
-```python
-def generator_name(...):
-    yield value
-```
-
-Example:
-
-```python
-def countdown(n):
-    while n > 0:
-        yield n
-        n -= 1
-
-for number in countdown(3):
-    print(number)
-```
-
-Output:
-```
-3
-2
-1
-```
-
-**Generator expression:**
-
-```python
-(expr for item in iterable)
-```
-
-Example:
-
-```python
-squares = (n * n for n in range(5))
-print(next(squares))
-print(next(squares))
-```
-
-Output:
-```
-0
-1
-```
-
-**`Counter`:**
-
-```python
-Counter(iterable)
-```
-
-Example:
-
-```python
-from collections import Counter
-
-tally = Counter(["A", "B", "A", "C", "B", "A"])
-print(tally)
-print(tally.most_common(2))
-```
-
-Output:
-```
-Counter({'A': 3, 'B': 2, 'C': 1})
-[('A', 3), ('B', 2)]
-```
-
-**`defaultdict`:**
-
-```python
-defaultdict(factory)
-```
-
-Example:
-
-```python
-from collections import defaultdict
-
-groups = defaultdict(list)
-groups["fruits"].append("apple")
-groups["fruits"].append("banana")
-groups["veggies"].append("carrot")
-
-print(groups)
-```
-
-Output:
-```
-defaultdict(<class 'list'>, {'fruits': ['apple', 'banana'], 'veggies': ['carrot']})
-```
-
-**`namedtuple`:**
-
-```python
-namedtuple(typename, [fields])
-```
-
-Example:
-
-```python
-from collections import namedtuple
-
-Point = namedtuple("Point", ["x", "y"])
-p = Point(3, 4)
-
-print(p.x, p.y)
-print(p[0], p[1])
-```
-
-Output:
-```
-3 4
-3 4
-```
-
-**The Iterator Protocol**
-
-```mermaid
-flowchart LR
-    A["Iterable<br/>e.g. a list"] -->|"iter(iterable)"| B["Iterator object<br/>remembers position"]
-    B -->|"next(it)"| C["One value returned"]
-    C --> D{"Any values left?"}
-    D -->|Yes| B
-    D -->|No| E["StopIteration raised<br/>for loop stops silently"]
-```
-
-**Generator Pause and Resume**
-
-```mermaid
-flowchart TD
-    S1["Call generator function<br/>→ returns generator object<br/>(body NOT run yet)"] --> S2["next() called<br/>→ runs until first yield"]
-    S2 --> S3["Value yielded,<br/>function state frozen in place"]
-    S3 --> S4["next() called again<br/>→ resumes right after yield"]
-    S4 --> S5["Runs until next yield<br/>or function ends"]
-    S5 --> S6["No yield left to reach<br/>→ StopIteration raised"]
-```
-
-### 3.4 Rules
-
-**Iterator and generator rules:**
-
-- `iter(obj)` always returns a *fresh* iterator positioned at the start; calling it again on the same iterable gives a brand-new, independent iterator.
-- `next(it)` returns exactly one value and advances the iterator's position by one; it never rewinds.
-- Once an iterator is exhausted, calling `next()` again raises `StopIteration` every time — it does not restart, and it does not return `None`.
-- An iterator is itself iterable — calling `iter()` on an iterator returns that same iterator unchanged — which is why you can place an iterator directly inside a `for` loop.
-- A **generator is a special case of an iterator**, so everything above applies to it too: it can only be walked through once from start to finish.
-
-### 3.5 Best Practices
-
-- Reach for **`Counter`** the moment you catch yourself writing `counts[key] = counts.get(key, 0) + 1` in a loop — it is the same result in one line, and it comes with `most_common()` built in.
-- Reach for **`defaultdict(list)`** whenever you are grouping items under keys, replacing the clunkier `if key not in dict: dict[key] = []` check every single time.
-- Reach for **`defaultdict(int)`** for counting-by-key scenarios where you would otherwise write a manual key-existence check before incrementing.
-- Prefer a **generator expression** over a list comprehension whenever you only need to walk the values once and the dataset could be large — you save memory with no change to how the loop reads.
-- Reach for **`namedtuple`** the moment a plain tuple's meaning depends on remembering "position 0 is the name, position 1 is the marks" — named access removes that guesswork for every future reader of the code.
-- If you genuinely need to reuse a generator's values more than once, materialize them explicitly with `list(...)` the first time, or call the generator function again to get a fresh one.
-
-### 3.6 Common Mistakes
-
-- **Treating `StopIteration` as a bug to catch and suppress everywhere** — it is the *normal*, expected termination signal that a `for` loop already handles for you silently; you only see it directly when calling `next()` manually.
-- **Assuming `next()` on an exhausted iterator will restart it** — it will not; you must call `iter()` again on the original iterable to get a fresh iterator.
-- **Assuming a generator can be looped over twice, like a list** — a list stores its values and lets you revisit them freely; a generator hands its values out once and forgets them, so a second `for` loop over the same generator object produces nothing.
-- **Creating a `defaultdict` without a factory function, or with the wrong one** — `defaultdict()` with no argument behaves like a plain `dict` and still raises `KeyError`; passing `0` instead of `int` raises a `TypeError`, because the factory must be callable.
-- **Trying to modify a `namedtuple` field like a list element** — `student.marks = 90` raises an `AttributeError`, because a `namedtuple`, like any tuple, is immutable.
-
-### 3.7 Code Examples
-
-**Consolidated example** — running "Chennai Bites," a food-delivery app's order pipeline, from the raw iterator protocol all the way up to `Counter`, `defaultdict`, and `namedtuple`. One running scenario, built up step by step.
-
-**Step 1 — The iterator protocol, by hand:**
+You don't have to wait for a `for` loop to see this mechanism — two built-in functions let you trigger it by hand. **`iter(obj)`** takes an iterable and returns a fresh iterator, positioned before the first value. **`next(it)`** takes an iterator and returns its next value, moving the position forward by exactly one.
 
 ```python
 orders = ["Saravana Bhavan", "Biryani Blues", "Pizza Hub"]
@@ -271,25 +44,36 @@ it = iter(orders)
 print(next(it))
 print(next(it))
 print(next(it))
+```
+
+```
+Saravana Bhavan
+Biryani Blues
+Pizza Hub
+```
+
+Before reading on, predict what a fourth `print(next(it))` would do here. There is nothing left in `it` to hand back — every value has already been given out — so Python raises **`StopIteration`**. That is not a bug, and it is not `None`; it is a special signal meaning "there is nothing left to give," and it is the *expected*, normal way an iterator announces it has finished:
+
+```python
 print(next(it))
 ```
 
-*Line-by-line explanation:*
-- `orders = [...]` — an ordinary, reusable list of restaurant names, one per order; a list is an iterable, not an iterator.
-- `it = iter(orders)` — asks the list for a fresh iterator, positioned before the first order.
-- Each `next(it)` call returns the next order and moves the position forward by one — first `"Saravana Bhavan"`, then `"Biryani Blues"`, then `"Pizza Hub"`.
-- The **fourth** `next(it)` call has no order left to return, so Python raises `StopIteration` instead of printing a fourth value.
-- Output:
-  ```
-  Saravana Bhavan
-  Biryani Blues
-  Pizza Hub
-  Traceback (most recent call last):
-      ...
-  StopIteration
-  ```
+```
+StopIteration
+```
 
-**Step 2 — What a `for` loop does underneath, and why an iterator is one-shot:**
+**Once an iterator has given out its last value, it does not restart on its own — every further call to `next()` on that same iterator raises `StopIteration` again, forever.** To walk the same values a second time, you cannot reuse `it`; you must call `iter(orders)` again, on the *original iterable*, to build a completely new, independent bookmark. The iterable is reusable. Each individual iterator built from it is not.
+
+## What a `for` loop actually does, spelled out
+
+With `iter()`, `next()`, and `StopIteration` in hand, you can now write out, by hand, exactly what `for order in orders:` does underneath. This code:
+
+```python
+for order in orders:
+    print("Processing:", order)
+```
+
+is equivalent to this, with nothing hidden:
 
 ```python
 it = iter(orders)
@@ -299,359 +83,282 @@ while True:
     except StopIteration:
         break
     print("Processing:", order)
-
-print(list(it))
-print(list(it))
 ```
 
-*Line-by-line explanation:*
-- `it = iter(orders)` — a fresh iterator, exactly as a `for order in orders:` line would create automatically.
-- The `while True` loop calls `next(it)` on every pass, printing each order as it is "processed" — this is precisely what `for` does behind the scenes.
-- `except StopIteration: break` — the loop exits the *moment* `next()` signals "nothing left," with no error ever visible to the programmer. This is the exact mechanism a plain `for` loop hides from you.
-- `print(list(it))` — collects whatever is left in `it` into a list; since `it` was already walked to the end above, nothing remains, so this prints an empty list.
-- `print(list(it))` a second time still prints an empty list — an exhausted iterator cannot rewind, no matter how many times the app asks.
-- Output:
-  ```
-  Processing: Saravana Bhavan
-  Processing: Biryani Blues
-  Processing: Pizza Hub
-  []
-  []
-  ```
+The `for` loop calls `iter()` exactly once to get a fresh bookmark, then calls `next()` repeatedly, running the loop body each time a value comes back — and the moment `StopIteration` is raised, it stops silently, without that exception ever reaching your own code. This single explanation covers every `for` loop you have written so far in this course, whether the iterable was a list, tuple, set, dictionary, or string, because all of them honour the same `iter()`/`next()`/`StopIteration` contract. Say out loud, in one sentence, why this contract is useful to Python itself: because every iterable agrees to the same handshake, a `for` loop needs exactly one implementation, not a separate special case for each of the four collections.
 
-**Step 3 — A generator recap, applied to the same orders:**
+| | Iterable | Iterator |
+|---|---|---|
+| What it is | Anything you can put after `in` in a `for` loop | The object that actually tracks position and hands out values |
+| Remembers position? | No | Yes — exactly one position, moving forward only |
+| Created with | Already exists as a list, tuple, set, dict, string | `iter(iterable)` |
+| Advances with | (a `for` loop calls this for you) | `next(iterator)` |
+| Reusable across multiple loops? | Yes | No — build a fresh one with `iter()` each time |
+| Signals "no more values" with | — | Raising `StopIteration` |
+
+## Generators: the iterator you already met
+
+Unit 2.4 introduced the **generator function** — a function whose body contains `yield` instead of, or alongside, `return` — and showed that calling one does not run its body immediately; it produces a paused **generator object**. This unit adds exactly one precise fact that completes that story: a generator object *is* an iterator. It honours the same `iter()`/`next()`/`StopIteration` contract as a list's bookmark, which is exactly why a generator can sit directly inside a `for` loop with no extra work.
 
 ```python
-import sys
-
 def order_stream(order_list):
     for order in order_list:
         yield order
 
 for order in order_stream(orders):
     print("Order received:", order)
-
-all_amounts_list = [n * 10 for n in range(1_000_000)]
-all_amounts_gen = (n * 10 for n in range(1_000_000))
-
-print(sys.getsizeof(all_amounts_list), "bytes")
-print(sys.getsizeof(all_amounts_gen), "bytes")
 ```
 
-*Line-by-line explanation:*
-- `def order_stream(order_list):` with `yield order` inside — this is a **generator function**; calling `order_stream(orders)` does not run the body yet, it only creates a generator object, exactly like a live feed of incoming orders instead of a batch already sitting in memory.
-- Each time the `for` loop calls `next()` on that generator (automatically), the function runs until `yield order`, hands back that order, and *pauses* right there until the next call.
-- `all_amounts_list = [...]` builds the **entire** list of a million order-amount calculations in memory immediately, using a list comprehension — imagine an end-of-day analytics job scanning a huge order history.
-- `all_amounts_gen = (...)` builds a **generator expression** instead — it stores only the plan for producing each amount, not the million values themselves.
-- `sys.getsizeof(...)` reports the memory, in bytes, that each object itself occupies.
-- Output:
-  ```
-  Order received: Saravana Bhavan
-  Order received: Biryani Blues
-  Order received: Pizza Hub
-  8448728 bytes
-  200 bytes
-  ```
-- The list costs roughly 8 megabytes before a single value has even been used; the generator costs only a couple hundred bytes — and that stays true whether the app processed a thousand orders or a billion, because it stores a plan, not the values. (The exact byte count for the generator can shift slightly between Python versions; the point that matters is that it stays tiny and constant, not the precise number.)
-
-**Step 4 — `Counter`, `defaultdict`, and `namedtuple` working together on today's orders:**
-
-```python
-from collections import namedtuple, Counter, defaultdict
-
-Order = namedtuple("Order", ["customer", "restaurant", "amount"])
-
-orders_today = [
-    Order("Priya", "Saravana Bhavan", 350),
-    Order("Rohan", "Biryani Blues", 620),
-    Order("Arjun", "Saravana Bhavan", 280),
-    Order("Meera", "Pizza Hub", 540),
-    Order("Kavya", "Saravana Bhavan", 410),
-    Order("Sara", "Biryani Blues", 300),
-]
-
-restaurant_counts = Counter(o.restaurant for o in orders_today)
-print(restaurant_counts)
-print(restaurant_counts.most_common(1))
-
-customers_by_restaurant = defaultdict(list)
-for o in orders_today:
-    customers_by_restaurant[o.restaurant].append(o.customer)
-print(dict(customers_by_restaurant))
+```
+Order received: Saravana Bhavan
+Order received: Biryani Blues
+Order received: Pizza Hub
 ```
 
-*Line-by-line explanation:*
-- `Order = namedtuple("Order", ["customer", "restaurant", "amount"])` — builds a small, readable record type; each `Order` behaves like a tuple but supports `.customer`, `.restaurant`, and `.amount` instead of `order[0]`, `order[1]`, `order[2]`.
-- `orders_today = [...]` — six `Order` instances, created exactly like calling any function with positional arguments.
-- `Counter(o.restaurant for o in orders_today)` — a **generator expression** feeds restaurant names to `Counter` one at a time, without first building a separate list of names; `Counter` tallies them into `restaurant_counts`.
-- `restaurant_counts.most_common(1)` returns the single highest-count entry, already sorted — exactly what a "top restaurant today" dashboard tile would need.
-- `defaultdict(list)` auto-creates an empty list the first time a new restaurant key is used, so `customers_by_restaurant[o.restaurant].append(o.customer)` works immediately, with no `if restaurant not in customers_by_restaurant` check anywhere.
-- Output:
-  ```
-  Counter({'Saravana Bhavan': 3, 'Biryani Blues': 2, 'Pizza Hub': 1})
-  [('Saravana Bhavan', 3)]
-  {'Saravana Bhavan': ['Priya', 'Arjun', 'Kavya'], 'Biryani Blues': ['Rohan', 'Sara'], 'Pizza Hub': ['Meera']}
-  ```
+Every time the `for` loop calls `next()` on this generator (automatically, behind the scenes), the function body runs forward until it reaches `yield order`, hands back one value, and *freezes* — every local variable is preserved exactly where it paused — until the next `next()` call resumes it right after that `yield`. When there is no `yield` left to reach, the generator raises `StopIteration`, exactly like any exhausted iterator built from a list.
 
-**Step 5 — A generator built on the same records, and its one-shot nature:**
+Because a generator is a special case of an iterator, everything from the last two sections applies to it directly: **a generator is one-shot — loop over it fully once, and looping over the very same generator object again produces nothing at all, silently, with no error.**
 
 ```python
 def big_orders(order_list, minimum):
-    for o in order_list:
-        if o.amount >= minimum:
-            yield o.customer
+    for amount, customer in order_list:
+        if amount >= minimum:
+            yield customer
 
+orders_today = [(799, "Priya"), (250, "Arjun"), (1499, "Rohan")]
 top_spenders = big_orders(orders_today, 400)
-for customer in top_spenders:
-    print(customer)
 
 for customer in top_spenders:
     print(customer)
-```
 
-*Line-by-line explanation:*
-- `def big_orders(order_list, minimum):` with `yield o.customer` inside — a **generator function** that produces only the customers whose order amount meets the threshold, one at a time, on demand.
-- `top_spenders = big_orders(orders_today, 400)` — calling the generator function creates the generator object but does **not** run any of its body yet.
-- The **first** `for customer in top_spenders:` walks the generator fully, printing each qualifying customer in order, which exhausts it.
-- The **second** `for customer in top_spenders:` reuses the *same, already-exhausted* generator object — there is nothing left to yield, so the loop body never runs and nothing prints, exactly as Section 3.5's one-shot rule predicts.
-- Output:
-  ```
-  Rohan
-  Meera
-  Kavya
-  ```
-
-#### Try It Yourself
-
-**Exercise — Extending the "Chennai Bites" order pipeline:**
-
-**Part 1 (easiest).** Tomorrow's first two orders are `["Dosa Corner", "Momo Point"]`. Create an iterator over this list with `iter()`, then call `next()` on it **three** times. Before running it, predict what the third call will do.
-
-**Solution:**
-```python
-tomorrow_orders = ["Dosa Corner", "Momo Point"]
-it = iter(tomorrow_orders)
-
-print(next(it))
-print(next(it))
-print(next(it))
-```
-Expected output:
-```
-Dosa Corner
-Momo Point
-Traceback (most recent call last):
-    ...
-StopIteration
-```
-The list only has two items, so the third `next(it)` call has nothing left to give and raises `StopIteration` — the iterator does not restart or return `None`.
-
-**Part 2 (moderate).** Using the same `Order` namedtuple from the consolidated example, here is a new batch of orders:
-```python
-orders_tomorrow = [
-    Order("Divya", "Dosa Corner", 220),
-    Order("Karthik", "Momo Point", 480),
-    Order("Divya", "Momo Point", 310),
-    Order("Farhan", "Dosa Corner", 260),
-]
-```
-Write code that (a) tallies how many orders each restaurant received using `Counter`, and (b) groups the order **amounts** (not customer names) by restaurant using `defaultdict(list)`.
-
-**Solution:**
-```python
-restaurant_counts_tomorrow = Counter(o.restaurant for o in orders_tomorrow)
-print(restaurant_counts_tomorrow)
-
-amounts_by_restaurant = defaultdict(list)
-for o in orders_tomorrow:
-    amounts_by_restaurant[o.restaurant].append(o.amount)
-print(dict(amounts_by_restaurant))
-```
-Expected output:
-```
-Counter({'Dosa Corner': 2, 'Momo Point': 2})
-{'Dosa Corner': [220, 260], 'Momo Point': [480, 310]}
-```
-`Counter` tallies each restaurant name as it comes out of the generator expression, and `defaultdict(list)` auto-creates a new empty list the first time each restaurant name is seen, so every amount lands in the right bucket with no manual key check.
-
-**Part 3 (hardest).** Write a generator function `budget_orders(order_list, ceiling)` that yields the **customer** name for every order whose `amount` is *less than or equal to* `ceiling`. Using `orders_tomorrow` and a ceiling of `260`, walk the generator once with a `for` loop and print each name, then try walking the *same* generator object a second time.
-
-**Solution:**
-```python
-def budget_orders(order_list, ceiling):
-    for o in order_list:
-        if o.amount <= ceiling:
-            yield o.customer
-
-cheap_orders = budget_orders(orders_tomorrow, 260)
-for customer in cheap_orders:
-    print(customer)
-
-for customer in cheap_orders:
+for customer in top_spenders:
     print(customer)
 ```
-Expected output:
+
 ```
-Divya
-Farhan
+Priya
+Rohan
 ```
-Only `Divya` (220) and `Farhan` (260) meet the `amount <= 260` condition, so the first loop prints both names in order. The second `for customer in cheap_orders:` prints nothing at all — `cheap_orders` is the same generator object already walked to exhaustion, and a generator, like any iterator, cannot be rewound; getting the names again would require calling `budget_orders(orders_tomorrow, 260)` fresh.
 
----
+The second loop prints nothing whatsoever — not an error, not a blank line, nothing — because `top_spenders` was already walked to exhaustion by the first loop. To get the values again, you must either call `big_orders(orders_today, 400)` a fresh time to build a brand-new generator object, or, if you know you'll need the results more than once, materialise them into a list immediately with `list(...)`.
 
-## 4. Real-World Application
+A **generator expression** gives you the same one-shot, lazy machinery in a single line, shaped exactly like the list comprehensions from Unit 3.1, but written with `()` instead of `[]`:
 
-**Scenario: A food delivery platform's daily order log**
+```python
+all_amounts_list = [n * 10 for n in range(1_000_000)]   # builds and stores a million values now
+all_amounts_gen  = (n * 10 for n in range(1_000_000))   # stores only the plan
+```
 
-Picture a stream of today's orders arriving across a city, each one a compact, named record:
+The list comprehension computes and stores every one of the million values immediately, occupying several megabytes before a single one has even been used. The generator expression stores only the *plan* for producing each value, and computes one only the instant something asks for it — its memory footprint stays a few hundred bytes whether it is eventually asked for a thousand values or a billion, because it was never holding "all of them" to begin with.
+
+| Aspect | List comprehension | Generator expression |
+|---|---|---|
+| When values are produced | All at once, immediately | One at a time, only when asked |
+| Memory used | Grows with the number of items | Stays small and constant |
+| Can represent an endless sequence? | No | Yes |
+| Looped over more than once? | Yes, as many times as needed | No — exhausted after one full pass |
+
+A bank statement feature that streams a year's worth of transactions to your screen one row at a time, instead of loading the entire year into memory before showing you row one, is exactly this trade-off in production: a generator, doing precisely what `order_stream` does above, is what keeps that feature fast and light regardless of how many transactions exist.
+
+## Introducing the `collections` module
+
+Python ships with a standard library — the built-in collection of modules that comes with every Python installation, which you first met in Unit 2.5 — and tucked inside it is a module literally named **`collections`**. It provides ready-made, purpose-built variants of `dict` and `tuple` for patterns that come up constantly once you start writing real programs: tallying occurrences, grouping by key, and giving a tuple's positions readable names. Each of the next three tools replaces a small, easy-to-get-wrong pattern you would otherwise write by hand with one import and one line.
+
+## `Counter`: tallying without writing a counting loop
+
+Imagine building the exact same "most-used restaurant today" tile that a UPI-style app might show for "most-used payment method today." Without any new tools, you'd reach for a plain dictionary and a manual counting loop — checking whether a key already exists before you can safely add one to its count. `Counter` removes that entire pattern:
+
+```python
+from collections import Counter
+
+restaurant_orders = ["Saravana Bhavan", "Biryani Blues", "Saravana Bhavan",
+                      "Pizza Hub", "Saravana Bhavan", "Biryani Blues"]
+
+restaurant_counts = Counter(restaurant_orders)
+print(restaurant_counts)
+```
+
+```
+Counter({'Saravana Bhavan': 3, 'Biryani Blues': 2, 'Pizza Hub': 1})
+```
+
+A `Counter` is a specialised dictionary — one key per distinct item, one value per count — built from an entire iterable in a single call. Because it still behaves like a dictionary in every other respect, you can look up any key you like, but with one convenient difference from a plain `dict`: **looking up a key that never appeared returns `0` instead of raising a `KeyError`.**
+
+```python
+print(restaurant_counts["Domino's"])
+```
+
+```
+0
+```
+
+The method **`most_common(n)`** returns the `n` most frequent items, already sorted from the highest count down:
+
+```python
+print(restaurant_counts.most_common(1))
+```
+
+```
+[('Saravana Bhavan', 3)]
+```
+
+Before checking, predict what `restaurant_counts.most_common(2)` would return, purely by reading the counts already printed above — it's the same tie-breaking-free ranking, just two entries deep instead of one.
+
+## `defaultdict`: no more manual key checks
+
+Now imagine grouping today's Chennai Bites customers by which restaurant they ordered from — the exact kind of task an e-commerce platform faces constantly when grouping orders by delivery city, where a brand-new city can appear at any moment with no warning. A plain dictionary forces you to check, every single time, whether a key already exists before you can append to its list. **`defaultdict`** removes that check entirely, by auto-creating a default value for a brand-new key instead of raising `KeyError`.
+
+```python
+from collections import defaultdict
+
+orders = [("Saravana Bhavan", "Priya"), ("Biryani Blues", "Rohan"),
+          ("Saravana Bhavan", "Arjun"), ("Pizza Hub", "Meera"),
+          ("Saravana Bhavan", "Kavya")]
+
+customers_by_restaurant = defaultdict(list)
+for restaurant, customer in orders:
+    customers_by_restaurant[restaurant].append(customer)
+
+print(dict(customers_by_restaurant))
+```
+
+```
+{'Saravana Bhavan': ['Priya', 'Arjun', 'Kavya'], 'Biryani Blues': ['Rohan'], 'Pizza Hub': ['Meera']}
+```
+
+`defaultdict` requires a **factory function** — a callable that takes no arguments, most often `list` or `int` — supplied the moment the `defaultdict` is created. That factory runs automatically, behind the scenes, the very first time a brand-new key is used. Here, the first time `"Saravana Bhavan"` appears as a key, `defaultdict(list)` calls `list()` to build an empty list for it on the spot, so `.append(...)` works immediately with no `if restaurant not in customers_by_restaurant:` check written anywhere.
+
+`defaultdict(int)` follows the identical idea for counting: `int()` produces `0` for a brand-new key, so `counts[key] += 1` works correctly even on a key's very first appearance.
+
+```python
+order_totals = defaultdict(int)
+for restaurant, _ in orders:
+    order_totals[restaurant] += 1
+
+print(dict(order_totals))
+```
+
+```
+{'Saravana Bhavan': 3, 'Biryani Blues': 1, 'Pizza Hub': 1}
+```
+
+**A `defaultdict` created without a factory function — plain `defaultdict()` — behaves exactly like an ordinary `dict` and still raises `KeyError` on a missing key.** The factory argument is what does all the work; leaving it out silently gives up the one feature you reached for `defaultdict` to get.
+
+## `namedtuple`: a tuple with named seats
+
+Recall from Unit 3.2 that a plain tuple is immutable, unpackable, and indexed by position — but that position-only access has a real cost. `reading[0]`, `reading[1]`, `reading[2]` tells you nothing about what those slots actually hold, unless the reader has memorised the order. A healthcare monitoring script passing around a patient's vitals — heart rate, temperature, timestamp — is a natural place to feel this pain, and it's exactly what **`namedtuple`** exists to fix.
 
 ```python
 from collections import namedtuple
 
-Order = namedtuple("Order", ["restaurant", "city", "amount"])
-todays_orders = [
-    Order("Spice Villa", "Bengaluru", 450),
-    Order("Punjabi Tadka", "Delhi", 620),
-    Order("Spice Villa", "Bengaluru", 300),
-]
+VitalsReading = namedtuple("VitalsReading", ["heart_rate", "temperature", "timestamp"])
+reading = VitalsReading(78, 98.6, "09:15")
+
+print(reading.heart_rate)
+print(reading[0])
+heart_rate, temperature, timestamp = reading
+print(heart_rate, temperature, timestamp)
 ```
 
-Every question the platform's dashboard needs answered maps to exactly one tool from this unit:
+```
+78
+78
+78 98.6 09:15
+```
 
-- **"Which restaurant got the most orders today?"** → `Counter`: `Counter(o.restaurant for o in todays_orders).most_common(1)`.
-- **"Group today's orders by city — including a brand-new city with zero orders so far."** → `defaultdict(list)`: no `KeyError`, no manual "does this key exist yet?" check.
-- **"Read a field without memorizing what position it was stored at."** → a `namedtuple`: `order.restaurant` instead of the unreadable `order[0]`.
-- **"Scan through a year's worth of order logs — millions of rows — without running out of memory."** → a **generator**: it computes and yields one order at a time, only when asked, instead of holding the entire log in memory at once.
-
-That is the entire real-world application in one clear picture: a stream of compact, named records, tallied, grouped, and read one at a time without ever loading more into memory than the program actually needs right now. Once this one example is clear, you will recognize the exact same shape again and again in production systems: a bank's statement generator streaming transaction rows, a patient-vitals reading accessed as `reading.heart_rate` instead of a mystery index, a railway seat allocation record with named fields — all are this same order-log scenario wearing a different name.
-
----
-
-## 5. Worked Example
-
-### Problem Statement
-
-You are given a semester's grade records for six students. You must represent each record readably, count how many students got each grade, group student names by grade, and then write a generator that yields only the "A" grade students — while directly observing what happens when a generator is walked more than once.
-
-### Step 1: Understand the Problem
-
-Each student record naturally has two named pieces of information — a name and a grade — which favors a `namedtuple` over a plain tuple. Counting "how many of each grade" is a tallying problem, which favors `Counter`. Grouping "which names belong to which grade" is a grouping problem, which favors `defaultdict(list)`. Finally, producing "just the A-grade names, one at a time" is a natural job for a generator function, and the exercise must show that walking that generator a second time yields nothing.
-
-### Step 2: Plan the Solution
-
-Store each record as a `Record` `namedtuple` with fields `name` and `grade`. Feed a generator expression of just the grades into `Counter` to tally them. Loop over the records once to build a `defaultdict(list)` grouping names under their grade. Write a small generator function that yields only the names where `grade == "A"`, walk it once with a `for` loop, and then attempt to walk the *same* generator object a second time to observe the one-shot behavior directly.
-
-### Step 3: Write the Python Code
+`namedtuple` is a function that builds a brand-new tuple-like type, whose positions also carry readable field names. `reading.heart_rate` is immediately clearer to any future reader than `reading[0]` — but `reading[0]` still works, because a `namedtuple` object remains a genuine tuple underneath: it still unpacks, it still supports positional indexing, and it is still fully **immutable**.
 
 ```python
-from collections import namedtuple, Counter, defaultdict
+reading.heart_rate = 82
+```
 
-Record = namedtuple("Record", ["name", "grade"])
-records = [
-    Record("Priya", "A"), Record("Rohan", "B"), Record("Arjun", "A"),
-    Record("Meera", "C"), Record("Kavya", "B"), Record("Sara", "A"),
+```
+AttributeError: can't set attribute
+```
+
+**Attempting to reassign a field on a `namedtuple`, exactly like attempting to reassign an element of an ordinary tuple, raises an `AttributeError` — Python's signal that this kind of object simply does not support what you just tried to do to it.** If a value genuinely needs to change after creation, a `namedtuple` is the wrong tool; a small class, which you'll meet properly in Module IV, is the right one.
+
+## Putting the toolkit together
+
+A single Chennai Bites script can lean on all three tools at once, plus everything from earlier in this unit, without writing a single manual counting loop or key check:
+
+```python
+from collections import Counter, defaultdict, namedtuple
+
+Order = namedtuple("Order", ["customer", "restaurant", "amount"])
+
+todays_orders = [
+    Order("Priya", "Saravana Bhavan", 350),
+    Order("Rohan", "Biryani Blues", 620),
+    Order("Arjun", "Saravana Bhavan", 210),
+    Order("Meera", "Pizza Hub", 480),
 ]
 
-grade_counts = Counter(r.grade for r in records)
-print(grade_counts)
+restaurant_counts = Counter(order.restaurant for order in todays_orders)
+customers_by_restaurant = defaultdict(list)
+for order in todays_orders:
+    customers_by_restaurant[order.restaurant].append(order.customer)
 
-by_grade = defaultdict(list)
-for r in records:
-    by_grade[r.grade].append(r.name)
-print(dict(by_grade))
-
-def a_grade_students(records):
-    for r in records:
-        if r.grade == "A":
-            yield r.name
-
-top_students = a_grade_students(records)
-for name in top_students:
-    print(name)
-
-for name in top_students:
-    print(name)
+print(restaurant_counts.most_common(1))
+print(dict(customers_by_restaurant))
 ```
 
-### Step 4: Explain Each Line
-
-- `Record = namedtuple("Record", ["name", "grade"])` — builds a small, readable record type; each `Record` behaves like a tuple but supports `.name` and `.grade`.
-- `records = [...]` — six `Record` instances, created exactly like calling any function with positional arguments.
-- `Counter(r.grade for r in records)` — a **generator expression** (`r.grade for r in records`) feeds grades to `Counter` one at a time, without first building a separate list of grades; `Counter` tallies them into `grade_counts`.
-- `by_grade = defaultdict(list)` followed by the `for` loop — for every record, `by_grade[r.grade]` either already holds a list (from an earlier student with the same grade) or is auto-created as an empty list on first use, and `.append(r.name)` adds the name either way, with no key-existence check written anywhere.
-- `def a_grade_students(records):` with `yield r.name` inside — a **generator function** that produces only the "A" grade names, one at a time, on demand.
-- `top_students = a_grade_students(records)` — calling the generator function creates the generator object but does **not** run any of its body yet.
-- The **first** `for name in top_students:` walks the generator fully, printing each "A" grade name in order, which exhausts it.
-- The **second** `for name in top_students:` reuses the *same, already-exhausted* generator object — there is nothing left to yield, so the loop body never runs and nothing prints.
-
-### Step 5: Sample Input
-
-None. All records are defined directly in the code; no user input is involved in this example.
-
-### Step 6: Expected Output
-
 ```
-Counter({'A': 3, 'B': 2, 'C': 1})
-{'A': ['Priya', 'Arjun', 'Sara'], 'B': ['Rohan', 'Kavya'], 'C': ['Meera']}
-Priya
-Arjun
-Sara
+[('Saravana Bhavan', 2)]
+{'Saravana Bhavan': ['Priya', 'Arjun'], 'Biryani Blues': ['Rohan'], 'Pizza Hub': ['Meera']}
 ```
 
-### Step 7: Why the Output Is Produced
+Notice the first line: `Counter(order.restaurant for order in todays_orders)` is being handed a generator expression directly, not a list — `Counter` happily consumes any iterable, walking it exactly once via the same `iter()`/`next()` protocol this entire unit has been building towards. Every idea in this chapter — iterable, iterator, generator, and the `collections` toolkit — is quietly working together in these four lines.
 
-`grade_counts` reflects that three records have grade `"A"`, two have `"B"`, and one has `"C"` — `Counter` walked the generator expression once and tallied every grade it received. `by_grade` shows every name correctly bucketed under its grade, built entirely without checking whether a key already existed, because `defaultdict(list)` handled that automatically. The three names `Priya`, `Arjun`, and `Sara` print from the **first** loop over `top_students`, in the same order the generator yielded them. The **second** `for name in top_students:` prints nothing at all — not an error, just silence — because `top_students` is the *same* generator object the first loop already walked to completion; a generator, like any iterator, is a single-pass object, and there is no way to rewind it. Getting the "A" names again would require calling `a_grade_students(records)` a fresh time, or materializing the result once with `list(a_grade_students(records))`.
+A short list of mistakes worth watching for deliberately while these tools are still new:
+
+- Assuming `next()` on an exhausted iterator will restart it, or assuming a generator can be looped over twice like a list — both fail silently, producing nothing, rather than crashing loudly.
+- Treating `StopIteration` as a bug to catch and suppress everywhere in your own code — it is the normal termination signal a `for` loop already handles for you.
+- Creating a `defaultdict` with no factory function, or passing a non-callable value such as `0` instead of `int` — the factory must be something Python can call with zero arguments.
+- Trying to reassign a `namedtuple` field like a list element, forgetting it is still a fully immutable tuple underneath.
+- Reaching for a list comprehension out of habit when a dataset is large and will only be walked once — a generator expression gives the same result with a fraction of the memory.
+
+## Try it yourself
+
+Do this in a Colab cell before moving on. Given `logins = ["alice", "bob", "alice", "carol", "bob", "alice"]`: build an iterator with `iter(logins)` and call `next()` on it four times, predicting the fourth result before you run it. Then use `Counter(logins)` to find how many times each user logged in, and print the single most frequent user with `most_common(1)`. Finally, write a generator function `repeat_logins(names)` that yields only the names appearing more than once (combine it with the `Counter` from the previous step), walk it once with a `for` loop to see the repeat users, then walk the *same* generator object with a second `for` loop and confirm for yourself that it prints nothing at all.
 
 ---
 
-### Important Notes (Interview Insights)
+### Key Terminology
 
-**Q: "What is the difference between an iterable and an iterator?"**
+- **Iterable** — any object you can place after `in` in a `for` loop, such as a list, tuple, set, dict, or string.
+- **Iterator** — the object that tracks a current position and hands out the next value on request, until nothing is left.
+- **`iter(obj)`** — the built-in function that returns a fresh iterator from an iterable.
+- **`next(it)`** — the built-in function that returns an iterator's next value and advances its position by one.
+- **`StopIteration`** — the signal an iterator raises when it has no more values to give; the normal, expected end-of-iteration signal, not an error to fix.
+- **Generator object** — the paused, resumable object a generator function returns; a special case of an iterator.
+- **Generator expression** — a one-line, lazy equivalent of a list comprehension, written with `()` instead of `[]`.
+- **`collections` module** — the standard-library module providing purpose-built variants of `dict` and `tuple` for common patterns.
+- **`Counter`** — a specialised dictionary that tallies occurrences of items and ranks them with `most_common(n)`.
+- **`defaultdict`** — a specialised dictionary that auto-creates a default value for a brand-new key using a supplied factory function.
+- **Factory function** — a callable taking no arguments, supplied to `defaultdict`, that produces the default value for a new key.
+- **`namedtuple`** — a function that builds a tuple-like type whose positions also have readable field names, while remaining immutable, unpackable, and indexable.
 
-This is one of the most frequently asked Python interview questions at the fresher level. Answer precisely: every iterator is iterable, but not every iterable is an iterator — a list is iterable but is not itself an iterator, because it has no `__next__` of its own and does not track a current position.
+### Mastery Checkpoint
 
-**Q: "What actually happens under the hood when you write a `for` loop?"**
+Before moving to Unit 4.1, check that you can answer these without looking back:
 
-A `for` loop is simply syntax sugar: it calls `iter()` once, then `next()` repeatedly, and stops silently the moment `StopIteration` is raised — no error ever reaches your code.
+1. What is the difference between an iterable and an iterator, and why can a list produce an iterator without being one itself?
+2. Write out, from memory, the four-step loop of `iter()`, `next()`, and `StopIteration` that a `for` loop performs underneath.
+3. Why is a generator object considered a special case of an iterator, and what happens if you try to loop over an already-exhausted generator a second time?
+4. What single fact about `defaultdict` removes the need for a manual `if key not in dict:` check, and what goes wrong if you create a `defaultdict` with no factory function at all?
+5. What can you do with a `namedtuple` that you cannot do with a plain dictionary, and what happens if you try to reassign one of its fields?
 
-**Q: "Why use a generator instead of a list?"**
+### Summary
 
-The correct answer is memory — a generator computes and yields one value at a time instead of holding the entire sequence in memory up front, which matters enormously once "the entire sequence" could be millions of rows or an unbounded stream.
+You now know exactly what a `for` loop has been doing underneath every time you've written one: asking an iterable for a fresh iterator with `iter()`, pulling values one at a time with `next()`, and stopping silently the moment `StopIteration` is raised. You've confirmed that a generator, first met in Unit 2.4, is really just a special, lazy, one-shot iterator that computes each value only when asked — and you've added `Counter`, `defaultdict`, and `namedtuple` to your toolkit, three small `collections`-module tools that replace hand-written counting loops, fragile key checks, and unreadable positional tuples with a single clean line each. This closes out Module III: between Units 3.1 and 3.5 you have now covered every core Python data structure — list, tuple, set, dict — plus the iteration mechanism underneath all of them and the standard-library tools built on top. From here, Module IV shifts from organising *data* to organising *data and behaviour together*, starting with Unit 4.1, Object-Oriented Foundations.
 
-**Q: "How would you count word frequency in a sentence?"**
+### Additional Resources
 
-Recognizing `Counter` and `defaultdict` instantly, instead of writing a manual loop, is a strong signal of practical Python fluency — interviewers often test exactly this with a quick coding question like "count word frequency in a sentence."
-
----
-
-## 6. Key Takeaways
-
-- An **iterable** is anything loopable; an **iterator** is the object that hands out one value at a time from it, via `iter()` and `next()`, until it raises `StopIteration`.
-- A **`for` loop is just this protocol in disguise** — it calls `iter()` once, then `next()` repeatedly, stopping silently the instant `StopIteration` is raised.
-- **An iterator is one-shot; the underlying iterable is reusable** — a fresh iterator is created every time you loop over the same iterable again.
-- A **generator** — a function using `yield`, or a `(... for ...)` expression — is a lazy iterator that computes values on demand instead of storing them all in memory, which is why it can be dramatically smaller in memory than the equivalent list.
-- A generator can only be walked through **once**; looping over an already-exhausted generator produces no output and no error.
-- **`Counter`** tallies occurrences in one line and ranks them with `most_common()`; it behaves like a `dict` where a missing key returns `0` instead of raising `KeyError`.
-- **`defaultdict`** removes manual key-existence checks by auto-creating a default value — `list` for grouping, `int` for counting — the first time a new key is used.
-- **`namedtuple`** adds readable, named access to a tuple's positions while keeping it fully immutable, unpackable, and indexable.
-- "Iterable vs iterator" is one of the most common Python interview questions at fresher level — be ready to state, precisely, that every iterator is iterable but not every iterable is an iterator.
-
-Coming next: Object-Oriented Foundations, where Module P4 begins organizing data and the behavior that acts on it together, using classes and objects, instead of keeping them separate.
-
----
-
-## 7. Reference Links
-
-- [Python 3 Documentation — `collections` Module](https://docs.python.org/3/library/collections.html)
-- [The Python Tutorial — Iterators](https://docs.python.org/3/tutorial/classes.html#iterators)
-- [The Python Tutorial — Generators](https://docs.python.org/3/tutorial/classes.html#generators)
-- [Real Python — Iterators and Iterables in Python](https://realpython.com/python-iterators-iterables/)
-- [Real Python — How to Use Generators and yield in Python](https://realpython.com/introduction-to-python-generators/)
-- [Real Python — Python's collections: A Buffet of Specialized Data Types](https://realpython.com/python-collections-module/)
+- [Python Tutorial — official docs: "Iterators"](https://docs.python.org/3/tutorial/classes.html#iterators)
+- [Python Tutorial — official docs: "Generators"](https://docs.python.org/3/tutorial/classes.html#generators)
+- [Python 3 Documentation — Built-in Functions: `iter()`](https://docs.python.org/3/library/functions.html#iter)
+- [Python 3 Documentation — Built-in Functions: `next()`](https://docs.python.org/3/library/functions.html#next)
+- [Python 3 Documentation — `collections` module](https://docs.python.org/3/library/collections.html)
+- [Python 3 Documentation — `collections.Counter`](https://docs.python.org/3/library/collections.html#collections.Counter)
 - [W3Schools — Python Iterators](https://www.w3schools.com/python/python_iterators.asp)
-
-[← Previous: 3.4 Dictionaries](unit-3-4-dictionaries.md) | [Go back to TOC](../../README.md) | [Next: 4.1 Object-Oriented Foundations →](../p4-classes-objects/unit-4-1-object-oriented-foundations.md)
-
----
-
-*© 2026 Revature · AI Native Engineering — Foundations · Unit 3.5 · Version 2.0*
