@@ -146,7 +146,7 @@ Python trusts you to respect the signal; it never enforces it.
 > **💡 Rule of thumb:** `_name` means "internal — please don't
 > touch," not "impossible to touch."
 
-### Private Attributes and Name Mangling
+### Private Attributes (Double Underscore)
 
 A double leading underscore — `__password` — goes one step further.
 Python actually renames the attribute behind the scenes, in a process
@@ -192,16 +192,16 @@ data away. Like the single underscore, it's a naming convention with
 a small technical side effect, not real enforcement.
 
 ```mermaid
-flowchart LR
-    O["Outside code"] -->|"works freely"| Pub["public: username"]
-    O -->|"works, discouraged"| Prot["protected: _password"]
-    O -->|"renamed, still reachable"| Priv["private: __password"]
+flowchart TD
+    Q["Can outside code change this\nattribute directly?"]
+    Q -->|"username (public)"| A["Yes — always"]
+    Q -->|"_password (protected)"| B["Yes — but you're not supposed to"]
+    Q -->|"__password (private)"| C["Not by this name"]
 ```
 
 Neither underscore stops a bad value from being stored. Real
 enforcement requires something different: a controlled point of
-access that actually checks a value before saving it. That's exactly
-what Python's `@property` decorator provides.
+access — a method — that actually checks a value before saving it.
 
 ------------------------------------------------------------------------
 
@@ -209,20 +209,19 @@ what Python's `@property` decorator provides.
 
 Here's a complete `User` class that actually protects its password —
 keeping the real data hidden, and checking every change before it's
-accepted:
+accepted. It uses only what you already know: a private attribute,
+and two ordinary methods.
 
 ``` python
 class User:
     def __init__(self, username, password):
         self.username = username
-        self.password = password   # goes through the check below
+        self.set_password(password)
 
-    @property
-    def password(self):
+    def get_password(self):
         return self._password
 
-    @password.setter
-    def password(self, value):
+    def set_password(self, value):
         if len(value) < 8:
             raise ValueError("password must be at least 8 characters")
         self._password = value
@@ -230,12 +229,12 @@ class User:
 
 ``` python
 user1 = User("Rahul", "securepass123")
-print(user1.password)
+print(user1.get_password())
 
-user1.password = "newpass456"
-print(user1.password)
+user1.set_password("newpass456")
+print(user1.get_password())
 
-user1.password = "1234"
+user1.set_password("1234")
 ```
 
 ``` text
@@ -244,18 +243,30 @@ newpass456
 ValueError: password must be at least 8 characters
 ```
 
-Here's what's actually happening. `user1.password` still looks and
-behaves like a completely normal attribute — you read it and write to
-it with a dot, exactly as before. But underneath, every single
-assignment is checked first: `"securepass123"` and `"newpass456"` are
-each at least 8 characters, so they're accepted and stored. `"1234"`
-is too short, so it's rejected outright, and the assignment never
-reaches the real, hidden data at all.
+Here's what's actually happening. `self._password` is the real data —
+private, hidden behind the naming convention from the previous
+section. The class gives you exactly two doors into it:
+`get_password()`, which only reads it, and `set_password()`, which
+checks a value before storing it.
 
-This is what finished encapsulation looks like: the real password is
-never touched directly by outside code, and no value reaches it
-without first passing the rule written inside the class. The class
-controls its own data, start to finish.
+Notice that `__init__` doesn't touch `self._password` directly
+either — it calls `self.set_password(password)`, so even the very
+first value goes through the same check. `"securepass123"` and
+`"newpass456"` are each at least 8 characters, so they're accepted
+and stored. `"1234"` is too short, so `set_password` rejects it
+outright — the assignment never reaches `self._password` at all.
+
+This is what finished encapsulation looks like: the real data is only
+ever touched from inside the two methods built specifically to
+control it — never directly by outside code.
+
+> **💡 Looking ahead**
+>
+> Later, you'll meet a decorator called `@property` that lets you
+> write `user1.password = "..."` instead of
+> `user1.set_password("...")` — the same protection, with plainer
+> syntax. The idea you just learned here — hide the data, control it
+> through methods — is exactly what that shortcut is built on.
 
 ------------------------------------------------------------------------
 
@@ -268,16 +279,15 @@ controls its own data, start to finish.
 | Enforced by Python? | No | No — convention only | Partially — via name mangling |
 | Real validation? | None | None | None |
 
-Naming conventions only ever signal intent. `@property` is what
-actually enforces a rule. Hiding data behind a naming convention,
-while validating it through a property, is what encapsulation means
-in practice.
+Naming conventions only ever signal intent. Getter and setter methods
+are what actually enforce a rule. Hiding data behind a naming
+convention, while validating every change through methods, is what
+encapsulation means in practice.
 
 ------------------------------------------------------------------------
 
 ## Reference Links
 
 -   [Python Official Docs — Private Variables and Name Mangling](https://docs.python.org/3/tutorial/classes.html#private-variables)
--   [Python Official Docs — `property()` Built-in Function](https://docs.python.org/3/library/functions.html#property)
 -   [Python Official Docs — Classes (Tutorial)](https://docs.python.org/3/tutorial/classes.html)
 -   [W3Schools — Python Classes and Objects](https://www.w3schools.com/python/python_classes.asp)
