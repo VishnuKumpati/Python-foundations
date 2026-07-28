@@ -147,18 +147,21 @@ them **once** inside a class.
 
 ``` python
 class User:
-    username = ...
-    followers = ...
-    posts = ...
+    username: str
+    followers: int
+    posts: int
 ```
 
-Congratulations — you've just created your first class! This is the
-**blueprint**. It doesn't create a real user — it simply describes
-what every `User` will look like: a `username`, a `followers` count,
-and a `posts` count. Each one is set to `...` for now — Python's own
-placeholder token, meaning "a name exists here, but nothing real is
-filled in yet." That's exactly what a blueprint should be: the
-*shape* of the data, with nothing real attached.
+This is the **blueprint**. `username`, `followers`, and `posts` here
+are **attribute declarations** — names written directly inside the
+class body, each paired with the *type* of value it will eventually
+hold. Notice: no real value is attached to any of them.
+
+This is the key idea: the blueprint doesn't belong to any specific
+object. It isn't Rahul's username, or Ananya's, or anyone's — no
+real user exists yet at all. It's simply a description, stating that
+*every* `User` will have a `username`, a `followers` count, and a
+`posts` count, once one is actually built.
 
 Describe the shape once, then build as many real users as you want
 from it. That's exactly what an **object** does next.
@@ -170,29 +173,22 @@ from it. That's exactly what an **object** does next.
 | `class` | Tells Python you're creating a class. |
 | `User` | The name of the class. By convention, class names start with a capital letter. |
 | `:` | Marks the beginning of the class definition. |
-| `username = ...` | A placeholder field — no real value yet, just a name showing what data a `User` will hold. |
-| `followers = ...`, `posts = ...` | Declared the same way — placeholders showing the shape of the data, not real values. |
+| `username: str` | An **attribute declaration** — states that every `User` will have a `username`, holding text. No value is attached — it belongs to the blueprint, not to any object. |
+| `followers: int`, `posts: int` | More attribute declarations, written the same way — part of the blueprint, not any specific user's data. |
 
 ### What Does Python Know Now?
 
-``` text
-            User Class
-
-      Username
-      Followers
-      Posts
-      Profile Picture
-
-            ↓
-
-      Actual Users Created?
-
-             ❌ No
+```mermaid
+flowchart TD
+    A["class User (the blueprint)
+    ─────────────
+    username : str
+    followers : int
+    posts : int"] --> B{"Has any real\nUser been created?"}
+    B --> C["❌ No\nOnly the blueprint exists —\nno actual user yet"]
 ```
 
-The class exists.
-
-The users do not.
+The class exists. The users do not.
 
 > **💡 Interesting Fact**
 >
@@ -304,6 +300,43 @@ The **same class** can be reused to create every user.
 
 # The `__init__()` Constructor
 
+### What Is a Constructor?
+
+A **constructor** is a special method that runs **automatically** the
+moment a new object is created from a class. Its job is simple: set
+up that object's starting data right away, so it's ready to use
+immediately — instead of leaving it empty and filling in each field
+by hand afterward.
+
+In Python, the constructor always has one exact name: `__init__`
+(short for "initialize"). Any class can define one.
+
+**Why do we need it?** Without a constructor, a freshly created
+object is empty — every attribute has to be assigned separately,
+after the fact, one line at a time. A constructor removes that step
+entirely: describe the starting data once, inside `__init__`, and
+every object receives it the instant it's built.
+
+**How do you create one?** Write a method named exactly `__init__`
+inside the class, with `self` as its first parameter, followed by
+whatever pieces of data every object should start with:
+
+``` python
+class User:
+    def __init__(self, username, followers, posts):
+        self.username = username
+        self.followers = followers
+        self.posts = posts
+```
+
+**How do you use it?** You never call `__init__` yourself. It runs
+automatically the moment you write `User("Rahul", 520, 18)` — Python
+hands those three values straight into `__init__`, and the object
+that comes out already holds them, fully filled in.
+
+That's the constructor in a nutshell. Now let's see exactly why it's
+worth having, by looking at the problem it replaces.
+
 Look back at how we gave `user1` and `user2` their data:
 
 ``` python
@@ -385,6 +418,72 @@ each time.
 > dot, in whatever line made this call."* That one substitution is
 > all `self` ever means.
 
+### What Happens Without `self`?
+
+Leave `self` out, and Python breaks immediately — right when you try
+to create an object:
+
+``` python
+class User:
+    def __init__(username, followers, posts):   # self missing!
+        username = username
+        followers = followers
+        posts = posts
+
+user1 = User("Rahul", 520, 18)
+```
+
+``` text
+TypeError: __init__() takes 3 positional arguments but 4 were given
+```
+
+Let's count exactly what happened. You typed three values —
+`"Rahul"`, `520`, `18`. But Python *always* sends the brand-new
+object in as a hidden, extra first argument, no matter what — that
+never changes, `self` or no `self`. So four things actually got sent
+into `__init__`:
+
+1. the new object *(added automatically by Python)*
+2. `"Rahul"`
+3. `520`
+4. `18`
+
+But `def __init__(username, followers, posts):` only has **three**
+slots to catch them. The fourth value has nowhere to go — that's
+exactly the "4 were given" vs. "3 accepted" mismatch in the error.
+
+**The fix:** `self` must always be the first parameter. It exists
+specifically to catch that hidden first value Python always sends.
+
+``` python
+def __init__(self, username, followers, posts):   # self added back
+```
+
+Four slots now, for four values — everything lines up, and the error
+disappears.
+
+There's a second, quieter mistake worth knowing separately: adding
+`self` correctly, but then forgetting to write `self.` in front of an
+attribute name inside the method:
+
+``` python
+def __init__(self, username, followers, posts):
+    username = username   # missing "self." — this line does nothing useful
+```
+
+This produces **no error at all**. Python just creates a short-lived
+local variable called `username`, uses it for nothing, and discards
+it the moment the method ends — `self.username`, the object's real
+attribute, is never actually set. The bug stays completely invisible
+until much later, when something tries to read `user1.username` and
+gets a confusing `AttributeError`, far from where the real mistake
+was made.
+
+**Two separate rules, easy to mix up:** `self` must be the first
+parameter of every method, no exceptions — and every attribute you
+actually want to keep must be written as `self.name = value`, never
+just `name = value`.
+
 Now creating a fully-loaded user takes one line:
 
 ``` python
@@ -409,20 +508,125 @@ users, each with its own real data, in one line each.
 
 ------------------------------------------------------------------------
 
+# Instance Variables vs. Class Variables
+
+Back in the blueprint, `username`, `followers`, and `posts` were just
+**declarations** — names with no value attached to any real user,
+because a blueprint isn't about one specific person. Then `__init__`
+came along and changed that:
+
+``` python
+class User:
+    def __init__(self, username, followers, posts):
+        self.username = username
+        self.followers = followers
+        self.posts = posts
+```
+
+`self.username = username` attaches a *real* value to one specific
+object, the moment that object is created. Now that both moments —
+the empty declaration in the blueprint, and the real value set by
+`__init__` — exist side by side, it's worth giving each one its
+proper name.
+
+First, the one `__init__` creates. Every variable created using
+`self` belongs to one individual object:
+
+``` python
+user1 = User("Rahul", 520, 18)
+user2 = User("Ananya", 830, 45)
+
+print(user1.username)
+print(user2.username)
+```
+
+``` text
+Rahul
+Ananya
+```
+
+Even though `user1` and `user2` come from the exact same class, each
+one stores its own separate data. These are called **instance
+variables**.
+
+> **Instance variable:** a variable that belongs to a single object.
+> Every object gets its own independent copy.
+
+**What about information every object shares?**
+
+Some information never changes from one object to another — every
+user here belongs to the same platform. Instead of repeating
+`"InstaConnect"` inside every single object, we can store it once,
+directly on the class:
+
+``` python
+class User:
+    platform = "InstaConnect"      # class variable
+
+    def __init__(self, username, followers, posts):
+        self.username = username   # instance variable
+        self.followers = followers
+        self.posts = posts
+```
+
+``` python
+user1 = User("Rahul", 520, 18)
+user2 = User("Ananya", 830, 45)
+
+print(user1.platform)
+print(user2.platform)
+```
+
+``` text
+InstaConnect
+InstaConnect
+```
+
+Both objects read the exact same value, because `platform` belongs
+to the **class**, not to either individual object.
+
+> **Class variable:** a variable that belongs to the class itself,
+> shared by every object built from it.
+
+**Visual representation**
+
+```mermaid
+flowchart TD
+    A["User class\nplatform = InstaConnect"] --> B["user1\nusername = Rahul"]
+    A --> C["user2\nusername = Ananya"]
+```
+
+`platform` is shared by both objects. `username` — along with
+`followers` and `posts` — is separate for each one.
+
+| | Instance Variable | Class Variable |
+|---|---|---|
+| Belongs to | One specific object | The class itself |
+| Created using | `self.name = value` | Written directly inside the class body |
+| Copies | Every object has its own | Shared by all objects |
+| Example here | `self.username` | `platform` |
+
+> **💡 Rule of thumb:** if every object should hold its *own* value,
+> use an instance variable. If every object should *share* the same
+> value, use a class variable.
+
+------------------------------------------------------------------------
+
 # Giving Objects Something to Do — Methods
 
 So far, `User` only stores data — `username`, `followers`, `posts`.
-But a real user doesn't just sit there holding numbers; they *do*
-things: they post, they gain followers, someone looks up their
-profile. A **method** is how a class describes an action an object
-can perform, not just data it can hold.
+But a real user does more than sit there holding numbers: they post,
+gain followers, get looked up. A class should describe not just what
+an object *has*, but what it can *do*.
+
+> **Method:** a function that belongs to a class and defines an
+> action an object can perform.
 
 ### Creating a Method
 
-A method is written exactly like a regular function — same `def`,
-same indentation rules — except it lives inside the class body, and
-takes `self` as its first parameter, for the same reason `__init__`
-does:
+A method is written with `def`, just like a regular function — the
+one difference is that it takes `self` as its first parameter, so it
+knows which object it's working with:
 
 ``` python
 class User:
@@ -432,22 +636,17 @@ class User:
         self.posts = posts
 
     def add_post(self):
-        self.posts = self.posts + 1
+        self.posts += 1
 
     def show_profile(self):
         print(self.username, "has", self.followers, "followers and", self.posts, "posts")
 ```
 
-`add_post` and `show_profile` sit right below `__init__`, in the same
-class body — matching the ordering convention from earlier:
-constructor first, other methods after it. `add_post` takes only
-`self`; a method can take extra parameters too, exactly like
-`__init__` does, if it needs more information to do its job.
+`add_post()` increases the post count; `show_profile()` prints the
+profile. By convention, the constructor comes first, and other
+methods follow it — exactly as here.
 
-### Calling a Method — Which Object, and When
-
-You call a method the same way you read an attribute — with a dot —
-but with parentheses at the end:
+### Calling a Method
 
 ``` python
 user1 = User("Rahul", 520, 18)
@@ -463,32 +662,65 @@ Rahul has 520 followers and 19 posts
 Ananya has 830 followers and 45 posts
 ```
 
-**Which object does it run on?** Always the one written immediately
-before the dot. `user1.add_post()` is really Python doing
-`User.add_post(user1)` behind the scenes — `user1` slots into `self`,
-the same automatic substitution `__init__` uses. So
-`self.posts = self.posts + 1` really means `user1.posts = user1.posts
-+ 1`, and `user2` is never touched by that line at all. That's why
-`user1`'s post count moves from `18` to `19`, while `user2`'s
-`show_profile()` still prints its original, unchanged `45`.
+Only `user1`'s post count increased. `user2` is untouched, because
+`add_post()` was only ever called on `user1`.
 
-**When does it actually run?** Only at the exact moment you write
-`object.method()` — nothing happens before that line, and nothing
-happens automatically. This is a real contrast with `__init__`, which
-Python calls for you the instant an object is created; an ordinary
-method like `add_post` only ever runs when you explicitly call it,
-exactly once per call, on exactly the object you called it on.
+### Why Does a Method Need `self`?
 
-This is the whole idea, finally complete. A class bundles **data**
-(`username`, `followers`, `posts`) with the **behavior** that acts on
-that data (`add_post`, `show_profile`), and `self` is the thread that
-connects a method back to the one specific object it was called on.
-Everything on this page — the problem with plain variables, the
-class as a blueprint, the object as a real instance, `__init__`
-filling it in automatically, and now methods giving it actions — is
-one continuous idea: describe a user once, and let every real user
-you create carry both their own data and their own behavior with
-them.
+If Rahul posts, only Rahul's count should rise. If Ananya posts, only
+hers should. But `add_post()` is one single piece of code, shared by
+every `User` object — so how does it know *whose* `posts` to change?
+
+That's what `self` is for. **`self` always refers to the object that
+called the method:**
+
+- In `user1.add_post()`, `self` is `user1`.
+- In `user2.add_post()`, `self` is `user2`.
+
+The method itself never changes — only the object `self` points to
+changes. You can read `self` as saying: *"do this to the current
+object."*
+
+### What Happens If We Remove `self`?
+
+``` python
+class User:
+    def add_post():        # self missing
+        posts += 1
+```
+
+``` python
+user1 = User("Rahul", 520, 18)
+user1.add_post()
+```
+
+``` text
+TypeError: add_post() takes 0 positional arguments but 1 was given
+```
+
+Here's why: calling `user1.add_post()` always makes Python pass
+`user1` in automatically — it's really running `User.add_post(user1)`
+behind the scenes. But `add_post()` above declares **zero**
+parameters, so it has nowhere to put that incoming `user1`. One value
+arrives, no slot exists — hence the error.
+
+Add `self` back, and the slot exists to catch it:
+
+``` python
+def add_post(self):
+    self.posts += 1
+```
+
+Now `self` is `user1`, so `self.posts` means `user1.posts` — and if
+`user2` calls the same method, `self.posts` means `user2.posts`
+instead. Same code, correct object, every time.
+
+A class bundles **data** (`username`, `followers`, `posts`) with the
+**behavior** that acts on it (`add_post`, `show_profile`), and `self`
+is what ties a method back to the one object it was called on.
+That's the whole idea this page has been building toward: describe a
+user once, and every real user you create carries both their own
+data and their own behavior with them.
 
 ------------------------------------------------------------------------
 
