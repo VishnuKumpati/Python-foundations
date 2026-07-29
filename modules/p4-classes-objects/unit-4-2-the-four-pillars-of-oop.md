@@ -1,293 +1,631 @@
 # Introducing the Four Pillars of OOP
 
-So far, we've learned how to build classes and create objects. Our
-`User` class can already store data, perform actions, and create as
-many users as we need:
+So far, we've learned how to create classes, build objects, store data, and define methods. Our `User` class can already represent a real-world user by storing information and performing actions.
 
-``` python
+```python
 user1 = User("Rahul", 520, 18)
 
 user1.add_post()
 user1.show_profile()
 ```
 
-``` text
-Rahul has 520 followers and 19 posts
+```text
+Rahul has 520 followers and 19 posts.
 ```
 
-At first glance, this looks like everything we need. We can create
-objects. We can store information. We can write methods.
+At this stage, it might feel like we've learned everything needed to build classes.
 
-So... have we finished learning OOP?
+We can create objects.
 
-Not quite.
+We can store data.
 
-Creating classes is only the beginning. The real challenge is
-designing classes that stay **secure**, **reusable**, **flexible**,
-and **easy to maintain** — even as an application grows from a
-handful of objects to millions.
+We can write methods.
 
-Professional developers don't just write classes. They design them,
-using a small set of proven principles known as the **Four Pillars of
-Object-Oriented Programming**. Each pillar strengthens a class in a
-different way:
+So... is this Object-Oriented Programming?
+
+**Not yet.**
+
+Creating classes is only the first step. The real strength of OOP comes from designing classes that are easy to understand, easy to maintain, and safe to use.
+
+Imagine building an application for just five users. Even if the class isn't designed very well, the program will probably still work.
+
+Now imagine the same application growing to millions of users, hundreds of developers, and thousands of features.
+
+Poor class design starts creating problems.
+
+- Important data gets modified accidentally.
+- Code gets duplicated.
+- Small changes break existing features.
+- Maintaining the application becomes difficult.
+
+To solve these problems, Object-Oriented Programming is built around four design principles known as the **Four Pillars of OOP**.
 
 ```mermaid
 flowchart TD
-    A["User class"] --> B["Safer"]
-    A --> C["More reusable"]
-    A --> D["More flexible"]
-    B --> E["Easier to maintain"]
-    C --> E
-    D --> E
+    A["Object-Oriented Programming"] --> B["Encapsulation"]
+    A --> C["Inheritance"]
+    A --> D["Polymorphism"]
+    A --> E["Abstraction"]
+
+    B --> F["Protect Data"]
+    C --> G["Reuse Code"]
+    D --> H["Flexible Behaviour"]
+    E --> I["Hide Complexity"]
 ```
 
-In this module, we'll cover the first two pillars:
+Each pillar solves a different design problem.
 
-- **Encapsulation** — protecting an object's data and controlling how
-  it's accessed.
-- **Inheritance** — reusing existing classes instead of rewriting code.
+| Pillar | Purpose |
+|---------|---------|
+| **Encapsulation** | Protect an object's data by controlling access to it. |
+| **Inheritance** | Reuse existing code by building new classes from existing ones. |
+| **Polymorphism** | Allow the same operation to behave differently for different objects. |
+| **Abstraction** | Hide unnecessary implementation details and expose only what users need. |
 
-Later, we'll come back for the remaining two:
+Together, these four principles make software more reliable, reusable, and easier to maintain.
 
-- **Polymorphism** — letting the same operation behave differently
-  for different objects.
-- **Abstraction** — hiding unnecessary complexity and exposing only
-  what's needed.
+In this chapter, we'll learn the first pillar—**Encapsulation**.
 
-Let's begin with the first pillar: encapsulation.
+---
 
-------------------------------------------------------------------------
+# Why Do We Need Encapsulation?
 
-# Pillar I - Encapsulation
+Before learning what encapsulation is, let's first understand **why it exists**.
 
-**Encapsulation** means keeping an object's data safe by controlling
-exactly how it can be read or changed — instead of leaving every
-attribute open for any part of a program to modify directly, with no
-rules at all.
+Consider this simple `User` class.
 
-Right now, our `User` class has no such control. Even something as
-sensitive as a password can be overwritten by any code, anywhere,
-with no checks whatsoever:
-
-``` python
+```python
 class User:
     def __init__(self, username, password):
         self.username = username
         self.password = password
-
-user1 = User("Rahul", "12345")
-user1.password = "letmein"
-print(user1.password)
 ```
 
-``` text
-letmein
+Creating an object works exactly as expected.
+
+```python
+user1 = User("Rahul", "secure123")
 ```
 
-This runs without a single error. `self.password` is a fully open
-attribute, so the line executes exactly as written — even though a
-real application would never accept a password change with no
-minimum length, no confirmation, and no check of any kind.
+Now suppose another part of the program executes this statement.
 
-Encapsulation exists to close exactly that gap. It has two parts,
-and this unit builds them in order:
+```python
+user1.password = "123"
+```
 
-1. **Signal what's internal** — mark an attribute as "don't touch
-   this directly," using a naming convention.
-2. **Enforce a real rule** — check a value *before* it's ever stored,
-   through a controlled point of access.
+Python immediately updates the password.
 
-The first part is only a hint. The second part is where real
-protection actually lives — the difference will be clear once you
-see both side by side.
+There is no error because `password` is a **public attribute**.
 
-> **💡 Interesting Fact**
->
-> Every login system that rejects a weak password, or refuses to
-> store one in plain text, is enforcing a rule exactly like this —
-> inside the class itself, not somewhere else in the program.
+Since any part of the program can modify it directly, the object has **no control** over one of its most important pieces of data.
 
-------------------------------------------------------------------------
+This is the problem.
 
-# Protecting Data with Naming Conventions
+An object should not allow outside code to freely modify important information. Instead, it should decide **how** and **when** that information can change.
 
-### Protected Attributes
+This idea is called **encapsulation**.
 
-A single leading underscore — writing `_password` instead of
-`password` — marks an attribute as **protected**: a signal to other
-programmers that it's meant for internal use only, and shouldn't be
-touched directly from outside the class.
+---
 
-``` python
+# What is Encapsulation?
+
+**Encapsulation** is the practice of keeping an object's data under its own control by controlling how that data is accessed and modified.
+
+The most important word in this definition is **control**.
+
+Instead of allowing outside code to directly modify important data, the object decides how its own data should be accessed or updated.
+
+Think about your bank account.
+
+You cannot directly write:
+
+```text
+Balance = $1,000,000
+```
+
+Every balance update must happen through operations such as **Deposit**, **Withdraw**, or **Transfer**. The bank controls every change before updating the balance.
+
+Objects should behave the same way.
+
+Instead of allowing outside code to directly change important data, the object should control how its own data is accessed and modified.
+
+> **Encapsulation means an object protects its own data by keeping control over it.**
+
+---
+
+# How Does Python Support Encapsulation?
+
+Now that we understand the idea of encapsulation, let's see how Python helps us implement it.
+
+Python provides three levels of attribute access.
+
+1. Public attributes
+2. Protected attributes
+3. Private attributes
+
+Each level offers a different amount of protection, but it's important to remember one thing.
+
+**None of them alone provide complete encapsulation.**
+
+Their purpose is to help us communicate how an attribute is intended to be used.
+
+Let's look at each one.
+
+---
+
+# Public Attributes
+
+By default, every attribute in Python is **public**.
+
+A public attribute can be accessed and modified directly from outside the class.
+
+```python
 class User:
+
+    def __init__(self, username):
+        self.username = username
+```
+
+Outside the class,
+
+```python
+user1.username = "Amit"
+
+print(user1.username)
+```
+
+```text
+Amit
+```
+
+Since `username` is public, any part of the program can read or modify it.
+
+This is perfectly acceptable for data that doesn't require protection.
+
+However, some information—such as passwords, account balances, or PINs—should not be freely modified from outside the object.
+
+For such cases, Python provides naming conventions that indicate an attribute is intended for internal use.
+
+---
+
+# Protected Attributes
+
+A **protected attribute** begins with a single underscore (`_`).
+
+```python
+self._password
+```
+
+The underscore is a message to other programmers:
+
+> "This attribute is meant for internal use. Avoid accessing it directly."
+
+For example,
+
+```python
+class User:
+
     def __init__(self, username, password):
         self.username = username
         self._password = password
-
-user1 = User("Rahul", "12345")
-print(user1._password)
-
-user1._password = "hacked"
-print(user1._password)
 ```
 
-``` text
-12345
-hacked
+Can it still be accessed from outside the class?
+
+Yes.
+
+```python
+print(user1._password)
+
+user1._password = "123456"
 ```
 
-Notice that both lines ran without any error. That's the key point:
-the underscore is only a naming convention — it changes nothing about
-what Python actually allows. `user1._password` is still fully
-readable and writable from outside the class, exactly as before.
-Python trusts you to respect the signal; it never enforces it.
+Both statements work successfully.
 
-> **💡 Rule of thumb:** `_name` means "internal — please don't
-> touch," not "impossible to touch."
+Why?
 
-### Private Attributes (Double Underscore)
+Because a protected attribute is only a **naming convention**.
 
-A double leading underscore — `__password` — goes one step further.
-Python actually renames the attribute behind the scenes, in a process
-called **name mangling**.
+Python does not enforce it.
 
-``` python
+Instead, Python trusts programmers to respect the convention.
+
+So a protected attribute:
+
+- communicates that the attribute is intended for internal use,
+- discourages direct access,
+- but **does not prevent** direct access.
+
+Since outside code can still modify the attribute, a protected attribute alone does not provide encapsulation.
+
+Can Python make direct access even more difficult?
+
+Yes.
+
+That's where **private attributes** come in.
+
+---
+
+# Private Attributes
+
+A **private attribute** begins with two leading underscores (`__`).
+
+```python
+self.__password
+```
+
+Unlike protected attributes, Python performs an additional step called **name mangling**.
+
+Instead of storing the attribute exactly as `__password`, Python internally renames it to a different name.
+
+Because of this, trying to access it directly produces an error.
+
+```python
+print(user1.__password)
+```
+
+```text
+AttributeError
+```
+
+At first glance, this looks like complete protection.
+
+But it isn't.
+
+The attribute still exists under its internally generated name, so someone who knows that name can still access it.
+
+Private attributes are therefore designed to:
+
+- reduce accidental access,
+- avoid naming conflicts,
+- clearly indicate that an attribute belongs to the class's internal implementation.
+
+They are **not** intended to provide absolute security.
+
+This raises an important question.
+
+If public attributes are completely open, protected attributes are only conventions, and private attributes can still be accessed indirectly...
+
+**What actually gives an object control over its own data?**
+
+The answer lies in the next concept: **controlled access through methods**, where the object—not outside code—decides how its data can be read or modified.
+# Controlled Access Through Methods
+
+So far, we've learned about three kinds of attributes.
+
+- **Public attributes** can be accessed and modified directly.
+- **Protected attributes** discourage direct access but don't prevent it.
+- **Private attributes** make direct access more difficult, but they still don't completely protect the data.
+
+This brings us back to the question we asked earlier.
+
+> **If an object should control its own data, how can it stop outside code from modifying that data directly?**
+
+The answer is simple.
+
+Instead of allowing outside code to modify an attribute directly, the object provides **methods** that act as controlled entry points.
+
+Outside code doesn't change the data itself—it asks the object to change it.
+
+```mermaid
+flowchart LR
+
+A["Outside Code"] --> B["Method"]
+B --> C["Object's Data"]
+```
+
+This is the core idea behind encapsulation.
+
+The object remains in control because every change goes through one of its methods.
+
+---
+
+# Reading Data Using Getter Methods
+
+Sometimes outside code only needs to **read** a value without changing it.
+
+Instead of exposing the attribute directly, the object can provide a method that returns the value.
+
+Such a method is commonly called a **getter**.
+
+Let's modify our `User` class.
+
+```python
 class User:
+
+    def __init__(self, username, password):
+        self.__username = username
+        self.__password = password
+
+    def get_password(self):
+        return self.__password
+```
+
+Now create an object.
+
+```python
+user1 = User("Rahul", "secure123")
+```
+
+To read the password, we call the getter.
+
+```python
+print(user1.get_password())
+```
+
+```text
+secure123
+```
+
+Notice what happened.
+
+Outside code never accessed `__password` directly.
+
+Instead, it requested the value through the object's method.
+
+The object decided how that value should be provided.
+
+This keeps the object in control of its own data.
+
+---
+
+# Writing Data Using Setter Methods
+
+Reading data is only one part of encapsulation.
+
+Sometimes we also need to **update** an attribute.
+
+Instead of allowing direct modification, the object provides another method responsible for changing the value.
+
+This method is called a **setter**.
+
+```python
+class User:
+
+    def __init__(self, username, password):
+        self.__username = username
+        self.__password = password
+
+    def get_password(self):
+        return self.__password
+
+    def set_password(self, new_password):
+        self.__password = new_password
+```
+
+Now suppose we want to change the password.
+
+Instead of writing
+
+```python
+user1.__password = "newpass123"
+```
+
+we use the setter.
+
+```python
+user1.set_password("newpass123")
+```
+
+The object performs the update itself.
+
+Outside code never modifies the attribute directly.
+
+Instead, it asks the object to perform the change.
+
+---
+
+# Why Are Setter Methods Useful?
+
+At first glance, a setter might seem unnecessary.
+
+Instead of writing
+
+```python
+user1.password = "newpass123"
+```
+
+we're now writing
+
+```python
+user1.set_password("newpass123")
+```
+
+Both change the password.
+
+So what did we actually gain?
+
+We gained **control**.
+
+Since every update goes through the setter, the object can decide whether the new value should be accepted.
+
+For example, suppose every password must contain at least eight characters.
+
+We can enforce that rule inside the setter.
+
+```python
+class User:
+
+    def __init__(self, username, password):
+        self.__username = username
+        self.__password = password
+
+    def set_password(self, new_password):
+
+        if len(new_password) < 8:
+            print("Password must contain at least 8 characters.")
+            return
+
+        self.__password = new_password
+```
+
+Now consider two attempts.
+
+```python
+user1.set_password("123")
+```
+
+```text
+Password must contain at least 8 characters.
+```
+
+The password remains unchanged.
+
+Now try again.
+
+```python
+user1.set_password("newpass123")
+```
+
+This time the object accepts the value because it satisfies the rule.
+
+The important point isn't the password rule itself.
+
+The important point is that **the object decides whether its own data should change.**
+
+That is the real purpose of encapsulation.
+
+---
+
+# Getters and Setters Work Together
+
+A getter controls **how data is read**.
+
+A setter controls **how data is modified**.
+
+Together they ensure that important data is accessed through the object's own methods instead of being modified directly.
+
+```mermaid
+flowchart TD
+
+A["Outside Code"]
+
+A --> B["Getter Method"]
+A --> C["Setter Method"]
+
+B --> D["Read Object's Data"]
+
+C --> E["Object Decides Whether to Update"]
+
+E -->|Accepted| F["Data Updated"]
+
+E -->|Rejected| G["Data Remains Unchanged"]
+```
+
+Notice something important.
+
+The object never loses control over its own state.
+
+Every read and every update passes through methods defined by the object itself.
+
+---
+
+# Putting Everything Together
+
+Let's build a complete example.
+
+```python
+class User:
+
     def __init__(self, username, password):
         self.username = username
         self.__password = password
 
-user1 = User("Rahul", "12345")
-print(user1.__password)
-```
-
-``` text
-AttributeError: 'User' object has no attribute '__password'
-```
-
-This time, accessing it directly genuinely fails. Python secretly
-stores the attribute as `_User__password` — prefixed with the class
-name — so the exact name you typed, `__password`, doesn't exist from
-outside the class at all.
-
-But this still isn't real protection. Anyone who knows the renaming
-rule can reach the same attribute through its mangled name:
-
-``` python
-print(user1._User__password)
-
-user1._User__password = "hacked"
-print(user1._User__password)
-```
-
-``` text
-12345
-hacked
-```
-
-Name mangling exists mainly to stop two unrelated classes from
-accidentally colliding over the same attribute name — not to lock
-data away. Like the single underscore, it's a naming convention with
-a small technical side effect, not real enforcement.
-
-```mermaid
-flowchart TD
-    Q["Can outside code change this\nattribute directly?"]
-    Q -->|"username (public)"| A["Yes — always"]
-    Q -->|"_password (protected)"| B["Yes — but you're not supposed to"]
-    Q -->|"__password (private)"| C["Not by this name"]
-```
-
-Neither underscore stops a bad value from being stored. Real
-enforcement requires something different: a controlled point of
-access — a method — that actually checks a value before saving it.
-
-------------------------------------------------------------------------
-
-# Putting It All Together: A Complete Encapsulation Example
-
-Here's a complete `User` class that actually protects its password —
-keeping the real data hidden, and checking every change before it's
-accepted. It uses only what you already know: a private attribute,
-and two ordinary methods.
-
-``` python
-class User:
-    def __init__(self, username, password):
-        self.username = username
-        self.set_password(password)
-
     def get_password(self):
-        return self._password
+        return self.__password
 
-    def set_password(self, value):
-        if len(value) < 8:
-            raise ValueError("password must be at least 8 characters")
-        self._password = value
+    def set_password(self, new_password):
+
+        if len(new_password) < 8:
+            print("Password must contain at least 8 characters.")
+            return
+
+        self.__password = new_password
 ```
 
-``` python
-user1 = User("Rahul", "securepass123")
+Create an object.
+
+```python
+user1 = User("Rahul", "secure123")
+```
+
+Read the password.
+
+```python
 print(user1.get_password())
+```
 
-user1.set_password("newpass456")
+```text
+secure123
+```
+
+Try an invalid password.
+
+```python
+user1.set_password("123")
+```
+
+```text
+Password must contain at least 8 characters.
+```
+
+Now update it with a valid password.
+
+```python
+user1.set_password("newpass123")
+```
+
+Read the password again.
+
+```python
 print(user1.get_password())
-
-user1.set_password("1234")
 ```
 
-``` text
-securepass123
-newpass456
-ValueError: password must be at least 8 characters
+```text
+newpass123
 ```
 
-Here's what's actually happening. `self._password` is the real data —
-private, hidden behind the naming convention from the previous
-section. The class gives you exactly two doors into it:
-`get_password()`, which only reads it, and `set_password()`, which
-checks a value before storing it.
+The object controlled every interaction with its password.
 
-Notice that `__init__` doesn't touch `self._password` directly
-either — it calls `self.set_password(password)`, so even the very
-first value goes through the same check. `"securepass123"` and
-`"newpass456"` are each at least 8 characters, so they're accepted
-and stored. `"1234"` is too short, so `set_password` rejects it
-outright — the assignment never reaches `self._password` at all.
+Outside code never modified the attribute directly.
 
-This is what finished encapsulation looks like: the real data is only
-ever touched from inside the two methods built specifically to
-control it — never directly by outside code.
+---
 
-> **💡 Looking ahead**
->
-> Later, you'll meet a decorator called `@property` that lets you
-> write `user1.password = "..."` instead of
-> `user1.set_password("...")` — the same protection, with plainer
-> syntax. The idea you just learned here — hide the data, control it
-> through methods — is exactly what that shortcut is built on.
+# Attribute Access Comparison
 
-------------------------------------------------------------------------
+| Attribute Type | Can Outside Code Read It? | Can Outside Code Modify It? | Purpose |
+|----------------|---------------------------|-----------------------------|---------|
+| **Public** | Yes | Yes | Data intended for unrestricted access |
+| **Protected (`_`)** | Yes | Yes | Indicates the attribute is for internal use |
+| **Private (`__`)** | Not directly | Not directly | Reduces accidental access using name mangling |
+| **Getter Method** | Yes | No | Provides controlled read access |
+| **Setter Method** | No | Yes | Provides controlled write access |
 
-## Public vs. Protected vs. Private
+---
 
-| | Public | Protected (`_name`) | Private (`__name`) |
-|---|---|---|---|
-| Written as | `self.name` | `self._name` | `self.__name` |
-| Accessible from outside? | Yes, freely | Yes — discouraged, not blocked | Not by its original name — renamed |
-| Enforced by Python? | No | No — convention only | Partially — via name mangling |
-| Real validation? | None | None | None |
+# Key Takeaways
 
-Naming conventions only ever signal intent. Getter and setter methods
-are what actually enforce a rule. Hiding data behind a naming
-convention, while validating every change through methods, is what
-encapsulation means in practice.
+- Encapsulation is about **control**, not simply hiding data.
+- Public attributes are freely accessible.
+- Protected attributes are a naming convention for internal use.
+- Private attributes make direct access more difficult through name mangling.
+- Private attributes alone do not fully implement encapsulation.
+- Getter methods provide controlled access for reading data.
+- Setter methods provide controlled access for modifying data.
+- Since every update passes through the object's methods, the object stays in control of its own state.
 
-------------------------------------------------------------------------
+---
 
-## Reference Links
+# Chapter Summary
 
--   [Python Official Docs — Private Variables and Name Mangling](https://docs.python.org/3/tutorial/classes.html#private-variables)
--   [Python Official Docs — Classes (Tutorial)](https://docs.python.org/3/tutorial/classes.html)
--   [W3Schools — Python Classes and Objects](https://www.w3schools.com/python/python_classes.asp)
+Throughout this chapter, we focused on one central idea:
+
+> **An object should protect its own data by keeping control over it.**
+
+We first saw the problem with public attributes, where outside code could modify important data directly. We then explored protected and private attributes and learned that they help communicate intent and reduce accidental access, but they do not completely solve the problem.
+
+Finally, we introduced getter and setter methods. By making every read and every update pass through the object's own methods, the object decides how its data is accessed and modified.
+
+This is the essence of encapsulation.
+
+In the next chapter, we'll explore the second pillar of Object-Oriented Programming—**Inheritance**, where one class can build upon another to reuse code and model real-world relationships.
