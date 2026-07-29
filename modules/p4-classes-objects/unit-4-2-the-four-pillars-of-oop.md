@@ -87,7 +87,9 @@ Creating an object works exactly as expected.
 user1 = User("Rahul", "secure123")
 ```
 
-Now suppose another part of the program executes this statement.
+Now imagine a completely different piece of code — maybe written by
+another developer, months later, somewhere else in the same
+application — runs this one line:
 
 ```python
 user1.password = "123"
@@ -166,7 +168,8 @@ class User:
         self.username = username
 ```
 
-Outside the class,
+From outside the class, this attribute can be read and changed
+directly, with no restriction at all:
 
 ```python
 user1.username = "Amit"
@@ -200,7 +203,8 @@ The underscore is a message to other programmers:
 
 > "This attribute is meant for internal use. Avoid accessing it directly."
 
-For example,
+For example, here's the same `User` class, but with `password` renamed
+to `_password` to signal that it's meant for internal use only:
 
 ```python
 class User:
@@ -256,9 +260,15 @@ self.__password
 
 Unlike protected attributes, Python performs an additional step called **name mangling**.
 
-Instead of storing the attribute exactly as `__password`, Python internally renames it to a different name.
+> **Name mangling** is Python automatically renaming a double-underscore
+> attribute behind the scenes, by adding `_ClassName` in front of it.
+> `self.__password`, written inside the `User` class, is actually
+> stored as `self._User__password`. You never type that longer name
+> yourself — Python does the renaming for you, silently, the moment
+> the attribute is created.
 
-Because of this, trying to access it directly produces an error.
+Because of this, trying to access it by its original name,
+`__password`, produces an error.
 
 ```python
 print(user1.__password)
@@ -289,34 +299,45 @@ If public attributes are completely open, protected attributes are only conventi
 **What actually gives an object control over its own data?**
 
 The answer lies in the next concept: **controlled access through methods**, where the object—not outside code—decides how its data can be read or modified.
+
 # Controlled Access Through Methods
 
-So far, we've learned about three kinds of attributes.
+Instead of letting outside code touch an attribute directly, the
+object hands out a **method** — an ordinary function defined inside
+the class — and outside code calls that method instead of assigning
+to the attribute itself.
 
-- **Public attributes** can be accessed and modified directly.
-- **Protected attributes** discourage direct access but don't prevent it.
-- **Private attributes** make direct access more difficult, but they still don't completely protect the data.
+```python
+class User:
+    def __init__(self, username, password):
+        self.__password = password
 
-This brings us back to the question we asked earlier.
+    def change_password(self, new_password):
+        self.__password = new_password
+```
 
-> **If an object should control its own data, how can it stop outside code from modifying that data directly?**
+```python
+user1 = User("Rahul", "secure123")
+user1.change_password("newSecurePass1")
+```
 
-The answer is simple.
-
-Instead of allowing outside code to modify an attribute directly, the object provides **methods** that act as controlled entry points.
-
-Outside code doesn't change the data itself—it asks the object to change it.
+Notice what outside code does **not** do here: it never writes
+`user1.__password = "newSecurePass1"` — and because `__password` is
+private, that wouldn't even reach the real attribute anyway. Instead,
+it calls `change_password(...)` and hands over the new value. The
+object itself — inside its own method — is the one that actually
+runs `self.__password = new_password`. Outside code asks; the object
+decides.
 
 ```mermaid
 flowchart LR
-
-A["Outside Code"] --> B["Method"]
-B --> C["Object's Data"]
+    A["user1.change_password(...)"] --> B["change_password() method"]
+    B --> C["self.__password"]
 ```
 
-This is the core idea behind encapsulation.
-
-The object remains in control because every change goes through one of its methods.
+This is the core idea behind encapsulation. The object remains in
+control because every change goes through one of its own methods,
+never straight into the attribute.
 
 ---
 
@@ -393,7 +414,7 @@ class User:
         self.__password = new_password
 ```
 
-Now suppose we want to change the password.
+Suppose the user now wants to change their password to a new one.
 
 Instead of writing
 
@@ -459,7 +480,8 @@ class User:
         self.__password = new_password
 ```
 
-Now consider two attempts.
+Let's test that rule with two different passwords — one that breaks
+it, and one that doesn't.
 
 ```python
 user1.set_password("123")
