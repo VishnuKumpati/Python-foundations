@@ -329,12 +329,6 @@ object itself — inside its own method — is the one that actually
 runs `self.__password = new_password`. Outside code asks; the object
 decides.
 
-```mermaid
-flowchart LR
-    A["user1.change_password(...)"] --> B["change_password() method"]
-    B --> C["self.__password"]
-```
-
 This is the core idea behind encapsulation. The object remains in
 control because every change goes through one of its own methods,
 never straight into the attribute.
