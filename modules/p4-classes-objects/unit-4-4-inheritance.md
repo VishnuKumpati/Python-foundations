@@ -1,6 +1,6 @@
 # Inheritance — Reusing Code the Smart Way
 
-In the previous chapter, we learned Encapsulation, which helped us protect an object's data by letting the object control how its data is accessed and modified. Instead of allowing anyone to change data directly, we validated changes through methods, making our classes safer and more reliable.
+In the Encapsulation chapter, we learned how to protect an object's data by letting the object control how its data is accessed and modified. Instead of allowing anyone to change data directly, we validated changes through methods, making our classes safer and more reliable.
 
 But solving one problem in software often reveals another. Encapsulation strengthened individual classes, yet it didn't solve what happens when multiple classes start containing the same code.
 
@@ -26,6 +26,8 @@ class Student:
     def logout(self):
         print(f"{self.name} logged out.")
 ```
+
+One new piece of syntax before we go further: `print(f"{self.name} logged in.")`. The `f` right before the opening quote makes this an **f-string** — it lets a variable's value be dropped directly inside `{ }`, so `f"{self.name} logged in."` becomes `"Rahul logged in."` once Python fills it in. From here on, our `print()` calls will use f-strings instead of listing values one by one separated by commas — it reads closer to the actual sentence being printed, especially once a method needs to combine several pieces of information at once.
 
 Every Student object stores its own information and knows how to perform the basic actions expected from a student. The application works well, and the team moves on to building new features.
 
@@ -183,20 +185,31 @@ class A shared
 class B,C,D unique
 ```
 
-Everything shared is written once at the top, and each class below keeps only its own green part. Let's build the class at the top first. Notice that there is nothing new or special about it — it is an ordinary Python class.
+Everything shared is written once at the top, and each class below keeps only its own green part. Let's build the class at the top first — and rather than starting from nothing, we pick up the exact `User` class we encapsulated in the Encapsulation chapter, `password` and all.
 
 ```python
 class User:
-    def __init__(self, name, email):
+    def __init__(self, name, email, password=None):
         self.name = name
         self.email = email
+        self.__password = password
 
     def login(self):
         print(f"{self.name} logged in.")
 
     def logout(self):
         print(f"{self.name} logged out.")
+
+    def get_password(self):
+        return self.__password
+
+    def set_password(self, new_password):
+        self.__password = new_password
 ```
+
+`__password`, `get_password()`, and `set_password()` are unchanged from the Encapsulation chapter — still private, still only reachable through those two methods. Nothing about inheritance weakens that protection, and we'll see exactly why a little later in this chapter.
+
+One detail here is genuinely new: `password=None` in the parameter list. Writing `=None` directly after a parameter makes it a **default parameter** — if whoever creates a `User` doesn't pass a password at all, Python quietly uses `None` instead of demanding one. We need that now for a reason specific to this chapter: in a moment, we're going to create a `Student` by passing only a name and email, with no password in sight. Without a default, Python would refuse — `TypeError: missing 1 required positional argument: 'password'` — the instant that object was created.
 
 Because this class holds what the others are built upon, it is called the **parent class**. You will also see it called the **base class** or the **superclass**. All three terms mean exactly the same thing, and different books and interviewers prefer different words, so it is worth being comfortable with all of them.
 
@@ -267,6 +280,17 @@ This is exactly what the definition of inheritance means. One class can use the 
 
 Instead of creating multiple copies of the same code, inheritance allows related classes to share a single implementation. That's what makes code easier to reuse, easier to maintain, and much simpler to extend as an application grows.
 
+### Checking the Relationship in Code
+
+Python lets you confirm this relationship directly, using `isinstance()` and `issubclass()`.
+
+```python
+print(isinstance(student, User))     # True  — the object is-a User
+print(issubclass(Student, User))     # True  — the class is-a User
+```
+
+`isinstance(object, Class)` checks whether an object was built from a class, or from any of its parents. `issubclass(Child, Parent)` checks the same relationship directly between two classes. Both simply confirm, at runtime, the same is-a rule we just described.
+
 ---
 
 ## Reusing Doesn't Mean Everything Is Identical
@@ -280,6 +304,25 @@ Every user on the platform can log in. But *after* logging in, each type of user
 Those responsibilities belong only inside their own classes. Since `Student` already receives everything shared, we now add only what makes a student a student.
 
 ```python
+class User:
+    def __init__(self, name, email, password=None):
+        self.name = name
+        self.email = email
+        self.__password = password
+
+    def login(self):
+        print(f"{self.name} logged in.")
+
+    def logout(self):
+        print(f"{self.name} logged out.")
+
+    def get_password(self):
+        return self.__password
+
+    def set_password(self, new_password):
+        self.__password = new_password
+
+
 class Student(User):
 
     def enroll_course(self, course):
@@ -315,6 +358,25 @@ Adding a new method was easy. Adding new *data* needs one extra step.
 Every student needs a student ID. `name` and `email` still come from `User`, but `student_id` belongs only to students, so `Student` has to accept it when the object is created. That means `Student` needs a constructor of its own.
 
 ```python
+class User:
+    def __init__(self, name, email, password=None):
+        self.name = name
+        self.email = email
+        self.__password = password
+
+    def login(self):
+        print(f"{self.name} logged in.")
+
+    def logout(self):
+        print(f"{self.name} logged out.")
+
+    def get_password(self):
+        return self.__password
+
+    def set_password(self, new_password):
+        self.__password = new_password
+
+
 class Student(User):
 
     def __init__(self, student_id):
@@ -337,6 +399,25 @@ The reason is simple. Python found `__init__` inside `Student` and stopped there
 So the child needs a way to say: *run the parent's constructor too*. That is what `super()` does. `super()` means "the parent class".
 
 ```python
+class User:
+    def __init__(self, name, email, password=None):
+        self.name = name
+        self.email = email
+        self.__password = password
+
+    def login(self):
+        print(f"{self.name} logged in.")
+
+    def logout(self):
+        print(f"{self.name} logged out.")
+
+    def get_password(self):
+        return self.__password
+
+    def set_password(self, new_password):
+        self.__password = new_password
+
+
 class Student(User):
 
     def __init__(self, name, email, student_id):
@@ -464,6 +545,35 @@ class Child(Parent):
 Recall that `Student` now has its own constructor, which takes `student_id` and passes the rest up to `User`.
 
 ```python
+class User:
+    def __init__(self, name, email, password=None):
+        self.name = name
+        self.email = email
+        self.__password = password
+
+    def login(self):
+        print(f"{self.name} logged in.")
+
+    def logout(self):
+        print(f"{self.name} logged out.")
+
+    def get_password(self):
+        return self.__password
+
+    def set_password(self, new_password):
+        self.__password = new_password
+
+
+class Student(User):
+
+    def __init__(self, name, email, student_id):
+        super().__init__(name, email)
+        self.student_id = student_id
+
+    def enroll_course(self, course):
+        print(f"{self.name} enrolled in {course}.")
+
+
 class ScholarshipStudent(Student):
 
     def __init__(self, name, email, student_id, amount):
@@ -523,6 +633,25 @@ class ChildTwo(Parent):
 **In our application**
 
 ```python
+class User:
+    def __init__(self, name, email, password=None):
+        self.name = name
+        self.email = email
+        self.__password = password
+
+    def login(self):
+        print(f"{self.name} logged in.")
+
+    def logout(self):
+        print(f"{self.name} logged out.")
+
+    def get_password(self):
+        return self.__password
+
+    def set_password(self, new_password):
+        self.__password = new_password
+
+
 class Student(User):
     def enroll_course(self, course):
         print(f"{self.name} enrolled in {course}.")
@@ -572,6 +701,25 @@ class Child(ParentOne, ParentTwo):
 **In our application**
 
 ```python
+class User:
+    def __init__(self, name, email, password=None):
+        self.name = name
+        self.email = email
+        self.__password = password
+
+    def login(self):
+        print(f"{self.name} logged in.")
+
+    def logout(self):
+        print(f"{self.name} logged out.")
+
+    def get_password(self):
+        return self.__password
+
+    def set_password(self, new_password):
+        self.__password = new_password
+
+
 class Certified:
 
     def show_certificate(self):
@@ -641,6 +789,40 @@ That diamond shape is the reason hybrid inheritance is discussed separately. `Us
 **In our application**
 
 ```python
+class User:
+    def __init__(self, name, email, password=None):
+        self.name = name
+        self.email = email
+        self.__password = password
+
+    def login(self):
+        print(f"{self.name} logged in.")
+
+    def logout(self):
+        print(f"{self.name} logged out.")
+
+    def get_password(self):
+        return self.__password
+
+    def set_password(self, new_password):
+        self.__password = new_password
+
+
+class Student(User):
+
+    def __init__(self, name, email, student_id):
+        super().__init__(name, email)
+        self.student_id = student_id
+
+    def enroll_course(self, course):
+        print(f"{self.name} enrolled in {course}.")
+
+
+class Teacher(User):
+    def grade_assignment(self):
+        print(f"{self.name} graded an assignment.")
+
+
 class TeachingAssistant(Student, Teacher):
 
     def resolve_doubt(self):
@@ -724,6 +906,18 @@ This means you have been using inheritance since your very first class — you s
 
 ---
 
+## Hands-On Practice
+
+Try these before moving to the next chapter. Don't just read them — write and run the code.
+
+1. **The forgotten class, finally built.** Remember `Librarian` from the "one requirement, six edits" diagram earlier in this chapter — the one that got left behind? Create a `Librarian(User)` class with its own method, `issue_book(title)`, that prints something like `"{name} issued {title}."`. Confirm it can still `login()` and `logout()` without writing either method yourself.
+
+2. **A constructor of its own.** Give `Teacher` its own `subject` attribute by writing a constructor that calls `super().__init__(name, email)` before setting `self.subject`. Then create a `SeniorTeacher(Teacher)` class that adds a `years_of_experience` attribute, using `super().__init__(...)` to reach both `Teacher` and, through it, `User`.
+
+3. **Confirm the relationships.** Using the classes above, write `isinstance()` and `issubclass()` checks to confirm: a `SeniorTeacher` object is a `Teacher`, is a `User`, and is *not* a `Librarian`. Print `SeniorTeacher.__mro__` and read it out loud, left to right.
+
+---
+
 ## Rules and Edge Cases Worth Remembering
 
 These are the points that cause real confusion in real code. Read them once now, and return to them when something behaves unexpectedly.
@@ -746,7 +940,7 @@ These are the points that cause real confusion in real code. Read them once now,
 
 **Private members**
 
-8. **Double-underscore members do not reach the child**, because of name mangling. Use a single underscore for data that children legitimately need.
+8. **Double-underscore members do not reach the child**, because of name mangling. Use a single underscore for data that children legitimately need. Our own `User.__password` proves it: `Student` can't touch `self.__password` directly, but it never needs to — the inherited `get_password()` and `set_password()` still reach it, exactly as they did before inheritance entered the picture.
 
 **Multiple inheritance**
 
@@ -768,3 +962,11 @@ But what happens when a child wants to provide its own version of an inherited m
 If both the parent and the child contain a method with the same name, which one will Python execute?
 
 Answering that question introduces one of the most powerful features of inheritance—**Method Overriding**, which forms the foundation of **Polymorphism**.
+
+---
+
+## Reference Links
+
+-   [Python Official Docs — Inheritance](https://docs.python.org/3/tutorial/classes.html#inheritance)
+-   [Python Official Docs — Multiple Inheritance](https://docs.python.org/3/tutorial/classes.html#multiple-inheritance)
+-   [W3Schools — Python Inheritance](https://www.w3schools.com/python/python_inheritance.asp)

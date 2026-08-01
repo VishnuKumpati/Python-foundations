@@ -724,6 +724,26 @@ data and their own behavior with them.
 
 ------------------------------------------------------------------------
 
+## Where We Go From Here
+
+Classes, objects, `__init__`, instance and class variables, and
+methods — these are the raw building blocks of Object-Oriented
+Programming. On their own, they're enough to build a working class.
+
+But building blocks alone don't guarantee **good** design. As classes
+multiply and applications grow, new questions appear: how do we stop
+outside code from corrupting an object's data? How do we reuse code
+across similar classes instead of duplicating it? How do we let
+different objects respond to the same action in their own way? How
+do we hide complexity that callers don't need to see?
+
+These questions are answered by four design principles — the **Four
+Pillars of OOP**: Encapsulation, Inheritance, Polymorphism, and
+Abstraction. The upcoming chapters explore each pillar in turn,
+starting with the first one, **Encapsulation**.
+
+------------------------------------------------------------------------
+
 ## Reference Links
 
 -   [Python Official Docs — Classes](https://docs.python.org/3/tutorial/classes.html)
