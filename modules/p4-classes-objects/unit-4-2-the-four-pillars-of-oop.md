@@ -65,3 +65,11 @@ Each pillar solves a different design problem.
 Together, these four principles make software more reliable, reusable, and easier to maintain.
 
 In the next chapter, we'll explore the first pillar—**Encapsulation**.
+
+---
+
+## Reference Links
+
+-   [Python Official Docs — Classes](https://docs.python.org/3/tutorial/classes.html)
+-   [Python Official Docs Glossary — Object-Oriented Programming](https://docs.python.org/3/glossary.html#term-object)
+-   [W3Schools — Python Classes and Objects](https://www.w3schools.com/python/python_classes.asp)
