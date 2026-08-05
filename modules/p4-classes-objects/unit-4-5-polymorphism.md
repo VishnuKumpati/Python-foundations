@@ -232,9 +232,13 @@ Every object in that loop got its behavior this way because it descended from `U
 
 ## Polymorphism Beyond Inheritance — Duck Typing
 
-Let's find out by handing `.login()` to something that has no connection to `User` whatsoever.
+So far, every example of polymorphism has involved inheritance. `Admin` could replace `User` because `Admin` *is a* `User`.
 
-Consider a `Guest` — someone browsing the platform without ever creating an account. It has nothing to do with `User`. It doesn't inherit from it, and it never will; a guest has no email and no password, nothing worth encapsulating.
+But is inheritance actually required for polymorphism?
+
+Let's find out by passing an object that has **no relationship** with `User` whatsoever.
+
+Consider a `Guest`—someone browsing the platform without creating an account. A guest isn't a kind of `User`. It doesn't inherit from `User`, and it never will. A guest has no email address, no password, and no need for account-related functionality.
 
 ```python
 class User:
@@ -270,15 +274,17 @@ class Guest:
 
     def login(self):
         print("Browsing as a guest — no account required.")
-```
 
-```python
+
 def start_session(account):
     account.login()
+
 
 start_session(Admin("Priya", "priya@example.com"))
 start_session(Guest())
 ```
+
+**Output**
 
 ```text
 Priya logged in.
@@ -286,17 +292,46 @@ Security check passed for admin access.
 Browsing as a guest — no account required.
 ```
 
-`start_session()` never checks what class `account` is — it only calls `.login()` and trusts it to exist. `Admin` and `Guest` share no ancestor at all, yet both work here, because both happen to define a `login()` method.
+Notice what `start_session()` does. It never checks whether `account` is a `User`, an `Admin`, or a `Guest`. It simply calls `login()`.
 
-Python has a name for this: **duck typing**, from the old saying — if it walks like a duck and quacks like a duck, treat it as a duck. Don't check what an object *is*; check what it *can do*.
+Both `Admin` and `Guest` work because **both provide a `login()` method**, even though they are completely unrelated classes.
 
-> **Duck Typing:** Python doesn't check an object's class before calling a method — only whether the object actually has that method.
+Python has a name for this idea: **duck typing**, inspired by the saying:
 
-Put simply, Python asks *"Can you do this?"* — never *"What are you?"*
+> *If it walks like a duck and quacks like a duck, treat it as a duck.*
 
-Here's why that's useful: `start_session()` can now accept a `Bot`, a test double, or any class written next year — anything with a `.login()` method — without ever being changed, and without forcing those classes into `User`'s family tree just to qualify. Reach for this whenever a function's real requirement is "has this method," not "is this specific class."
+The idea isn't to identify an object's class first. Instead, focus on whether the object provides the behavior you need.
 
-This is also why `isinstance()` and `issubclass()`, from the Inheritance chapter, are used carefully in Python: checking an object's exact class can reject something that would have worked perfectly well.
+> **Duck Typing:** Instead of asking *"Is this object a `User`?"*, Python effectively asks *"Can this object perform the operation I need right now?"*
+
+In this example, the only thing `start_session()` requires is a `login()` method. Since both `Admin` and `Guest` implement `login()`, the function works for both.
+
+A more accurate way to think about duck typing is:
+
+> **Python cares more about what an object can do than what class it belongs to.**
+
+That doesn't mean every object can be passed to every function.
+
+A function can only work with objects that provide the behavior it needs.
+
+For example:
+
+```python
+def create_new_account(admin):
+    admin.create_user()
+
+
+create_new_account(Admin("Priya", "priya@example.com"))   # ✅ Works
+create_new_account(Guest())                               # ❌ AttributeError
+```
+
+Here, `Guest` doesn't work because it has no `create_user()` method. Duck typing doesn't magically give `Guest` admin capabilities—it simply allows an object to be used **where it provides the required behavior**.
+
+This flexibility makes code easier to extend. Next month you might add a `Bot`, an `OAuthUser`, or a testing mock. As long as each class implements `login()`, `start_session()` continues to work without modification and without forcing every class into the `User` inheritance hierarchy.
+
+This is also why Python programmers use `isinstance()` and `issubclass()` carefully. If a function only needs an object to support a particular method, checking for a specific class may unnecessarily reject objects that would have worked perfectly well.
+
+Whenever a function's real requirement is **"has this method"** rather than **"belongs to this class"**, duck typing is often the more Pythonic approach.
 
 ---
 
