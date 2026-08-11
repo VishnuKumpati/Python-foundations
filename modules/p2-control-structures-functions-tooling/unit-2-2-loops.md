@@ -1,8 +1,4 @@
-# 2.2 Loops
-
----
-
-[← Previous: 2.1 Conditionals](unit-2-1-conditionals.md) | [Go back to TOC](../../README.md) | [Next: 2.3 Functions →](unit-2-3-functions.md)
+# Loops
 
 ---
 
@@ -319,9 +315,3 @@ A: It stops as soon as the shorter one runs out, no error, the extra items in th
 - [Real Python — Python "while" Loops](https://realpython.com/python-while-loop/)
 - [W3Schools — Python For Loops](https://www.w3schools.com/python/python_for_loops.asp)
 - [W3Schools — Python While Loops](https://www.w3schools.com/python/python_while_loops.asp)
-
-[← Previous: 2.1 Conditionals](unit-2-1-conditionals.md) | [Go back to TOC](../../README.md) | [Next: 2.3 Functions →](unit-2-3-functions.md)
-
----
-
-*© 2026 Revature · AI Native Engineering — Foundations · Unit 2.2 · Version 2.0*

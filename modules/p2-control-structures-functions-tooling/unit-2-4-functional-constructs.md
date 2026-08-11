@@ -1,9 +1,4 @@
-# 2.4 Functional Constructs
-
----
-
-[← Previous: 2.3 Functions](unit-2-3-functions.md) | [Go back to TOC](../../README.md) | [Next: 2.5 Modules, Packaging & Professional Tooling →](unit-2-5-modules-packaging-tooling.md)
-
+# Functional Constructs
 
 ---
 
@@ -54,7 +49,7 @@ print(sorted(words, key=len))
 ['fig', 'apple', 'banana']
 ```
 
-`key=len` tells `sorted()` to sort by each word's length instead of alphabetically. You'll see `[...]` output like this, that's a **list**, Python's ordered collection type. It gets a full unit starting in 3.1, for now just treat it as a sequence you can loop over or sort.
+`key=len` tells `sorted()` to sort by each word's length instead of alphabetically. You'll see `[...]` output like this, that's a **list**, Python's ordered collection type. It gets a full unit of its own later, for now just treat it as a sequence you can loop over or sort.
 
 You could write the sort key as a `lambda` too, for more than a single built-in function:
 
@@ -132,7 +127,7 @@ HELLO!
 
 The `@shout` line right above `def greet():` is exactly the same as writing `greet = shout(greet)`, the `@` syntax is just shorthand for that. `wrapper` calls the original function inside itself and changes what comes back, `greet` itself never had to change.
 
-**Now, what if the function you're decorating takes arguments?** `wrapper()` above has no parameters, so it would break on anything but a zero-argument function. Fix it with `*args, **kwargs` from Unit 2.3, so the decorator works on *any* function, no matter what it takes:
+**Now, what if the function you're decorating takes arguments?** `wrapper()` above has no parameters, so it would break on anything but a zero-argument function. Fix it with `*args, **kwargs` from the Functions unit, so the decorator works on *any* function, no matter what it takes:
 
 ```python
 import time
@@ -260,7 +255,7 @@ A: Computing a value only when it's actually needed, rather than all at once ahe
 - A generator uses `yield` to produce values one at a time, pausing between each, instead of computing everything upfront.
 - Calling a generator function doesn't run its code, iterating over it does.
 
-Next up: **Unit 2.5, Modules & Packaging**, organizing code across files and managing external packages.
+
 
 ##  Reference Links
 
@@ -271,9 +266,3 @@ Next up: **Unit 2.5, Modules & Packaging**, organizing code across files and man
 - [Real Python — Primer on Python Decorators](https://realpython.com/primer-on-python-decorators/)
 - [Real Python — Introduction to Python Generators](https://realpython.com/introduction-to-python-generators/)
 - [W3Schools — Python Lambda](https://www.w3schools.com/python/python_lambda.asp)
-
-[← Previous: 2.3 Functions](unit-2-3-functions.md) | [Go back to TOC](../../README.md) | [Next: 2.5 Modules, Packaging & Professional Tooling →](unit-2-5-modules-packaging-tooling.md)
-
----
-
-*© 2026 Revature · AI Native Engineering — Foundations · Unit 2.4 · Version 2.0*

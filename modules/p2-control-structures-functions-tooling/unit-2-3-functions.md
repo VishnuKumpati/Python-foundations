@@ -1,10 +1,5 @@
-# 2.3 Functions
+# Functions
  
----
-
-[← Previous: 2.2 Loops](unit-2-2-loops.md) | [Go back to TOC](../../README.md) | [Next: 2.4 Functional Constructs →](unit-2-4-functional-constructs.md)
-
-
 ---
 
 ## Why Functions?
@@ -169,7 +164,7 @@ The hint is documentation for humans and code editors, not a guarantee. But it's
 
 ## Returning More Than One Value
 
-A function can return multiple values at once, separated by commas, and you can unpack them into separate variables the same way you saw in Unit 1.4:
+A function can return multiple values at once, separated by commas, and you can unpack them into separate variables the same way you saw earlier, with statements:
 
 ```python
 def min_max(a, b, c):
@@ -182,7 +177,7 @@ print(lowest, highest)
 2 9
 ```
 
-Python bundles the two return values together behind the scenes, then `lowest, highest = ...` unpacks them, exactly like `x, y = 1, 2` did back in 1.4. (What's actually happening under the hood, a **tuple**, gets its own proper unit later, in 3.2.)
+Python bundles the two return values together behind the scenes, then `lowest, highest = ...` unpacks them, exactly like `x, y = 1, 2` did earlier. (What's actually happening under the hood, a **tuple**, gets its own proper unit later on.)
 
 ---
 
@@ -342,10 +337,11 @@ A: No. They're documentation for humans and tools like editors and type checkers
 - `return` sends a value back and exits immediately; no `return` means the function gives back `None`.
 - Arguments can be positional, keyword, or have defaults; `*args`/`**kwargs` collect an unknown number of extra arguments.
 - Type hints (`def add(a: int, b: int) -> int:`) document expected types but aren't enforced.
-- A function can return multiple values at once, unpacked just like in Unit 1.4.
+- A function can return multiple values at once, unpacked the same way you saw earlier.
 - Local scope stays inside the function; global scope is visible everywhere, but needs the `global` keyword to reassign from inside a function.
 - Recursion needs a base case and a recursive case, or it never stops.
 - Docstrings document what a function does, and are readable by tools, unlike regular comments.
+
 
 
 ## Reference Links
@@ -356,9 +352,3 @@ A: No. They're documentation for humans and tools like editors and type checkers
 - [Real Python — Defining Your Own Python Function](https://realpython.com/defining-your-own-python-function/)
 - [Real Python — Thinking Recursively in Python](https://realpython.com/python-recursion/)
 - [W3Schools — Python Functions](https://www.w3schools.com/python/python_functions.asp)
-
-[← Previous: 2.2 Loops](unit-2-2-loops.md) | [Go back to TOC](../../README.md) | [Next: 2.4 Functional Constructs →](unit-2-4-functional-constructs.md)
-
----
-
-*© 2026 Revature · AI Native Engineering — Foundations · Unit 2.3 · Version 2.0*
