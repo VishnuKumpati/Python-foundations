@@ -1,8 +1,4 @@
-# 1.2 Variables, Identifiers & Types
-
----
-
-[← Previous: 1.1 The Python Environment](unit-1-1-python-environment.md) | [Go back to TOC](../../README.md) | [Next: 1.3 Operators & Expressions →](unit-1-3-operators-expressions.md)
+# Variables, Identifiers & Types
 
 ---
 
@@ -284,10 +280,3 @@ A: No. `=` assigns a value. `==` compares two values (covered in the next unit).
 - `input()` always returns a string, no matter what's typed.
 - Python is dynamically typed: the type belongs to the value, not the name.
 - `print()` can take multiple values (comma-separated) and control spacing with `sep` and `end`.
-
-
-[← Previous: 1.1 The Python Environment](unit-1-1-python-environment.md) | [Go back to TOC](../../README.md) | [Next up: **1.3 Operators & Expressions** — combining and comparing the values you now know how to store. →](unit-1-3-operators-expressions.md)
-
----
-
-*© 2026 Revature · AI Native Engineering — Foundations · Unit 1.2 · Version 2.0*

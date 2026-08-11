@@ -1,4 +1,4 @@
-# 1.1 The Python Environment
+# The Python Environment
 
 ---
 
@@ -207,7 +207,3 @@ A: Two reasons: it's easy to read and write, and it has a huge ecosystem of read
 - Colab is a free, browser-based place to write and run Python.
 - `print()` displays whatever string you give it.
 - Run cells top to bottom, and always read the output.
-
-Next up: **1.2 Variables, Identifiers & Types**, how to store and reuse values instead of typing them fresh every time.
-
-[Go back to TOC](../../README.md) | [Next up: **1.2 Variables, Identifiers & Types** — how to store and reuse values instead of typing them fresh every time. →](unit-1-2-variables-identifiers-types.md)

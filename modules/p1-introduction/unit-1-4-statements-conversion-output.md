@@ -1,9 +1,4 @@
-# 1.4 Statements, Conversion & Output
-
----
-
-[← Previous: 1.3 Operators & Expressions](unit-1-3-operators-expressions.md) | [Go back to TOC](../../README.md) | [Next: 2.1 Conditionals →](../p2-control-structures-functions-tooling/unit-2-1-conditionals.md)
-
+# Statements, Conversion & Output
 
 ---
 
@@ -99,7 +94,7 @@ int("5") + 3   # 8, works once converted
 
 ## Strings, Quotes, Concatenation & Indexing
 
-You've used strings since Unit 1.1, here's a proper look at how they actually work.
+You've used strings since your very first program, here's a proper look at how they actually work.
 
 **Single vs double quotes** are interchangeable, Python doesn't care which you use, as long as the opening and closing quote match:
 
@@ -125,7 +120,7 @@ print(mixed)
 She said, "It's a great day"
 ```
 
-**Concatenation** joins strings together with `+` (you saw this in Unit 1.3):
+**Concatenation** joins strings together with `+` (you saw this when we covered operators):
 
 ```python
 first = "Chai"
@@ -168,7 +163,7 @@ print(word[::2])    # Pto, every 2nd character
 print(word[::-1])   # nohtyP, reversed
 ```
 
-This exact `start:stop:step` syntax works on lists too (coming up in Unit 3.1), once it clicks here, it's already familiar there.
+This exact `start:stop:step` syntax works on lists too (coming up in a later unit), once it clicks here, it's already familiar there.
 
 ---
 
@@ -217,7 +212,7 @@ print(name)
 Python
 ```
 
-This is the opposite of what you'll see with lists in Unit 3.1, which *can* be changed in place, that contrast is exactly why strings are worth understanding well now.
+This is the opposite of what you'll see with lists later on, which *can* be changed in place, that contrast is exactly why strings are worth understanding well now.
 
 ---
 
@@ -373,6 +368,7 @@ A: `word[::-1]`, an empty start and stop with a step of `-1` walks the string ba
 - Comments explain *why*, not *what*.
 
 
+
 ## Reference Links
 
 - [Python 3 Documentation — Built-in Functions (`int`, `float`, `str`, `bool`)](https://docs.python.org/3/library/functions.html)
@@ -382,9 +378,3 @@ A: `word[::-1]`, an empty start and stop with a step of `-1` walks the string ba
 - [PEP 8 — Style Guide for Python Code](https://peps.python.org/pep-0008/)
 - [Real Python — Python's F-String for String Interpolation and Formatting](https://realpython.com/python-f-strings/)
 - [W3Schools — Python Casting (Type Conversion)](https://www.w3schools.com/python/python_casting.asp)
-
-[← Previous: 1.3 Operators & Expressions](unit-1-3-operators-expressions.md) | [Go back to TOC](../../README.md) | [Next up: **Unit 2.1 — Conditionals** — where your programs make their first real decisions with `if`, `elif`, and `else`. →](../p2-control-structures-functions-tooling/unit-2-1-conditionals.md)
-
----
-
-*© 2026 Revature · AI Native Engineering — Foundations · Unit 1.4 · Version 2.0*

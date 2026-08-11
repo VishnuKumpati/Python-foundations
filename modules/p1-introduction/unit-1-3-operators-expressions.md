@@ -1,9 +1,4 @@
-# 1.3 Operators & Expressions
-
----
-
-[← Previous: 1.2 Variables, Identifiers & Types](unit-1-2-variables-identifiers-types.md) | [Go back to TOC](../../README.md) | [Next: 1.4 Statements, Conversion & Output →](unit-1-4-statements-conversion-output.md)
-
+# Operators & Expressions
 
 ---
 
@@ -87,7 +82,7 @@ Always produce a `bool` — `True` or `False`.
 
 You can also chain comparisons: `1 < x < 10` reads exactly like "is x between 1 and 10?"
 
-**One quiet gotcha:** comparing different types is legal, but always `False` — `5 == "5"` is `False`, even though they look the same. This bites people right after Unit 1.2, since `input()` always returns a string.
+**One quiet gotcha:** comparing different types is legal, but always `False` — `5 == "5"` is `False`, even though they look the same. This bites people right after the prebiois chapter, since `input()` always returns a string.
 
 ---
 
@@ -248,9 +243,3 @@ A: No. `=` assigns a value. `==` compares two values and returns `True` or `Fals
 - [Python 3 Documentation — Built-in Types (Truth Value Testing)](https://docs.python.org/3/library/stdtypes.html#truth-value-testing)
 - [Real Python — Operators and Expressions in Python](https://realpython.com/python-operators-expressions/)
 - [W3Schools — Python Operators](https://www.w3schools.com/python/python_operators.asp)
-
-[← Previous: 1.2 Variables, Identifiers & Types](unit-1-2-variables-identifiers-types.md) | [Go back to TOC](../../README.md) | [Next up: **1.4 Statements, Conversion & Output** — turning these values and conditions into clean, readable results. →](unit-1-4-statements-conversion-output.md)
-
----
-
-*© 2026 Revature · AI Native Engineering — Foundations · Unit 1.3 · Version 2.0*
