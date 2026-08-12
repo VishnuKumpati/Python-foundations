@@ -82,7 +82,7 @@ The relationship also runs in one direction only:
 
 ```mermaid
 flowchart TD
-    P["User (parent)<br/>the general account"] -->|"child may use the parent's members"| C["Creator (child)<br/>a specific kind of account"]
+    P["User (parent)<br/>the general account"] -->|"child may use<br/>the parent's members"| C["Creator (child)<br/>a specific kind of account"]
 
     classDef parent fill:#EEF2FF,stroke:#6366F1,stroke-width:2px,color:#1E1B4B
     classDef child fill:#ECFDF5,stroke:#10B981,stroke-width:2px,color:#064E3B
