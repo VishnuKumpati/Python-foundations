@@ -8,7 +8,7 @@ Encapsulation has no answer for that overlap. Inheritance does.
 
 ## The Need for Code Reuse
 
-Two related classes written independently must repeat whatever they share. Here `User` and `Creator` were written separately, and today the profile format was updated to display a verified tick — but only in one of them.
+Two related classes written independently must repeat whatever they share. Below, `User` and `Creator` were written separately. Today the profile format was updated to show a verified tick. It was updated in only one of the two classes.
 
 ```python
 class User:
@@ -55,7 +55,9 @@ This is why inheritance exists:
 
 ## Inheritance
 
-Inheritance is a way of defining a new class in terms of an existing one, so the new class automatically has access to the existing class's members instead of repeating them. The shared part is written once, and the new class adds only what is different.
+Inheritance lets you build a new class on top of an existing one. The new class automatically gets the existing class's methods, so you do not write them a second time.
+
+The shared part is written once. The new class adds only what is different.
 
 The two classes play different roles, and each role has a name.
 
@@ -68,7 +70,9 @@ Which is which is decided by how general each class is:
 - The **parent is the more general** class. `User` describes what is true of every account — it has a name and a profile.
 - The **child is the more specific** class. `Creator` describes one particular kind of user, the kind that also earns money.
 
-The general class comes first and the specific class is built on top of it. It never happens the other way around, because the specific class needs the general behaviour to exist before it can add to it.
+The general class is written first. The specific class is then built on top of it.
+
+It never works the other way around. The specific class adds to the general behaviour, so that behaviour has to exist first.
 
 The relationship also runs in one direction only:
 
@@ -116,21 +120,50 @@ creator1.show_profile()
 Profile: Priya
 ```
 
-`pass` means the class body is empty, so `Creator` defines nothing of its own — no constructor, no method, no attribute.
+`pass` means the class body is empty. `Creator` defines nothing of its own: no constructor, no method, no attribute.
 
 `Creator("Priya")` still worked because the child used the parent's `__init__`, and `show_profile()` still printed because the child used the parent's method. The duplicated code from the earlier example is gone, replaced by the single word `User` in brackets.
 
-## The is-a and has-a Relationships
+## How Two Classes Can Be Related
 
 Two classes can be related in two different ways, and only one of them is inheritance.
 
-An **is-a relationship** exists when one class is a specific kind of another class. A creator is a kind of user, so `Creator` and `User` stand in an is-a relationship, written as `class Creator(User):`. Inheritance is the tool that implements this relationship, which is why inheritance itself is also called an is-a relation.
+An **is-a relationship** exists when one class is a specific kind of another class. A creator is a kind of user, so `Creator` and `User` stand in an is-a relationship, written as `class Creator(User):`. Inheritance is the tool that builds this relationship. That is why inheritance itself is also called an is-a relation.
 
-A **has-a relationship** exists when one class holds an object of another class. A user owns a wallet, but a wallet is not a kind of user. Inheritance would be wrong here, because `class Wallet(User)` would give a wallet a name and a profile page. Instead the user object stores a wallet object, written as `self.wallet = Wallet()` inside `User`. Building a class this way is called **composition**.
+A **has-a relationship** exists when one class holds an object of another class. A user owns a wallet, but a wallet is not a kind of user. Inheritance would be wrong here, because `class Wallet(User)` would give a wallet a name and a profile page.
+
+The user object stores a wallet object instead. Building a class this way is called **composition**.
+
+```python
+class Wallet:
+    def __init__(self, balance):
+        self.balance = balance
+
+
+class User:
+    def __init__(self, name):
+        self.name = name
+        self.wallet = Wallet(500)
+
+
+user1 = User("Rahul")
+
+print(user1.name)
+print(user1.wallet.balance)
+```
+
+**Output**
+
+```text
+Rahul
+500
+```
+
+There are no brackets after `class User`. It inherits from nothing. The line `self.wallet = Wallet(500)` creates a wallet and keeps it inside the user. `user1.wallet.balance` then reads through the user to the wallet it holds.
 
 To choose between the two, complete this sentence about the classes: *a Creator is a User*. If that sentence is true, use inheritance. If the only true sentence is *a User has a Wallet*, use composition.
 
-### Confirming an is-a Relationship in Code
+### isinstance() and issubclass()
 
 `isinstance()` asks whether an object belongs to a class. `issubclass()` asks whether one class inherits from another.
 
@@ -160,99 +193,30 @@ A `Creator` object counts as a `User`, because the is-a relationship holds. A `U
 
 ## What the Child Inherits and What It Does Not
 
-With the relationship settled, one question remains: what exactly did `Creator` receive from `User`?
+A child does not receive a copy of everything the parent has.
 
-The earlier example suggests the answer is *everything, data included*. That impression breaks the moment a child needs a constructor of its own. Here `Creator` writes one and never involves the parent.
-
-```python
-class User:
-    def __init__(self, name):
-        self.name = name
-
-    def show_profile(self):
-        print(f"Profile: {self.name}")
-
-
-class Creator(User):
-    def __init__(self, earnings):
-        self._earnings = earnings
-
-
-creator1 = Creator(45000)
-creator1.show_profile()
-```
-
-**Output**
-
-```text
-Traceback (most recent call last):
-  File "app.py", line 15, in <module>
-    creator1.show_profile()
-  File "app.py", line 6, in show_profile
-    print(f"Profile: {self.name}")
-                      ^^^^^^^^^
-AttributeError: 'Creator' object has no attribute 'name'
-```
-
-Where the failure happened matters.
-
-`show_profile()` was found and it started running — the error appears inside that method, on line 6, which is proof the child inherited it. What was missing was `name`.
-
-The reason is that `name` is not stored in the class at all. It is created by the line `self.name = name`, and that line sits inside the parent's `__init__`. `Creator` wrote its own `__init__`, so the parent's `__init__` never ran, so `name` was never created for this object.
-
-That gives the precise rule:
-
-- **Methods are inherited.** The child can call them without writing anything.
-- **The parent's object data is not inherited.** It is created, and only while the parent's `__init__` is running.
-- **Protected data reaches the child, private data does not.** `_followers` works inside `Creator`. `__email` does not, because Python renames a private attribute using the class where the line is written, so `Creator` searches for `_Creator__email` and finds nothing.
+| What the parent has | Does the child get it | Why |
+|---|---|---|
+| Methods | Yes | Methods belong to the class, so Python finds them there |
+| Object data such as `self.name` | Only if the parent's `__init__` runs | The data is created while `__init__` runs. Nothing stores it in the class. |
+| Protected data `_name` | Yes | A single underscore is only a naming habit, nothing more |
+| Private data `__name` | No | Python renames it using the class where the line is written, so the child looks for a name that was never created |
 
 So a parent marks data `_name` when children are meant to use it, and `__name` when they are not.
 
-In the previous example the child had no `__init__` of its own, so Python used the parent's, which is why `name` existed there. The moment a child writes its own `__init__`, it takes that job over — and must run the parent's constructor deliberately.
+The second row is the one that catches people. A child that writes its own `__init__` replaces the parent's. The parent's data then never gets created, unless the child asks for it.
 
-## Using super() to Reach the Parent
+## super() function
 
-**`super()`** is how a child reaches its parent. Inside any method of the child, `super()` stands for the parent class.
+`super()` is a built-in function that stands for the parent class. Writing it inside a child method is the same as saying *the class I inherited from*.
 
-It has three uses.
+Write `super()`, a dot, then the parent member you want. `super().__init__(name)` runs the parent's constructor. `super().show_profile()` runs the parent's `show_profile()`.
 
-**1. Running the parent's constructor.** `super().__init__(...)` executes the parent's `__init__`, which creates the parent's object data for this object. This is the fix for the failure above.
+It is used for three reasons.
 
-```python
-class User:
-    def __init__(self, name):
-        self.name = name
-
-    def show_profile(self):
-        print(f"Profile: {self.name}")
-
-
-class Creator(User):
-    def __init__(self, name, earnings):
-        super().__init__(name)
-        self._earnings = earnings
-
-    def show_earnings(self):
-        print(f"Earnings: ₹{self._earnings}")
-
-
-creator1 = Creator("Priya", 45000)
-creator1.show_profile()
-creator1.show_earnings()
-```
-
-**Output**
-
-```text
-Profile: Priya
-Earnings: ₹45000
-```
-
-The failure is gone. `super().__init__(name)` let the parent create `name`, and the next line created what only a creator has. The rule worth memorising: **if a child defines `__init__`, its first line is normally `super().__init__(...)`.**
-
-**2. Calling any of the parent's methods.** The same syntax works for methods, written as `super().show_profile()`. While the child has no method of its own by that name, plain `self.show_profile()` does the same thing, so `super()` is not needed yet. It becomes necessary when the child defines its own version of a method the parent already has — the situation the next chapter deals with.
-
-**3. Referring to the parent without naming it.** `super()` never mentions `User`. Rename the parent class, or place the child under a different parent, and every `super()` call inside the child keeps working.
+- A child that writes its own `__init__` has no other way to get the parent's data created. Its own `__init__` replaces the parent's, so the first line of a child's `__init__` is normally `super().__init__(...)`.
+- The child avoids repeating work the parent already does.
+- The parent's name never appears inside the child. Rename `User` tomorrow and every `super()` call keeps working.
 
 ## Types of Inheritance
 
@@ -316,7 +280,7 @@ flowchart TD
 
 **Where you see it:** the device in your hand. A smartphone genuinely is a camera and a phone at the same time, so it takes members from both.
 
-When both parents define the same method, Python searches them left to right and uses the first match, so `Camera` would win above. That search order is called the **method resolution order**, shortened to MRO.
+When both parents define the same method, Python searches them left to right and uses the first match. `Camera` is listed first, so `Camera` wins above. That search order is called the **method resolution order**, shortened to MRO.
 
 ### Hybrid Inheritance
 
@@ -353,7 +317,9 @@ Build a food delivery app's account hierarchy, one step at a time. Each task con
 
 Every child in this chapter did one of two things: it used the parent's methods exactly as they were, or it added new methods of its own.
 
-A third possibility was never tried. What if a child needs its own version of a method the parent already has — a `Creator` whose profile line must look different from a plain `User`'s? The method name stays the same, but the behaviour changes depending on which object is calling it.
+A third possibility was never tried. What if a child needs its own version of a method the parent already has? A `Creator` profile line, for example, must look different from a plain `User` profile line.
+
+The method name would stay the same. The behaviour would change depending on which object is calling it.
 
 That is the third pillar. The next chapter covers **Polymorphism**.
 
