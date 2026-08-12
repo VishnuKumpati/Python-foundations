@@ -82,7 +82,7 @@ The relationship also runs in one direction only:
 
 ```mermaid
 flowchart TD
-    P["User (parent)<br/>the general account"] -->|"child may use<br/>the parent's members"| C["Creator (child)<br/>a specific kind of account"]
+    P["User - general parent"] -->|"child uses parent members"| C["Creator - specific child"]
 
     classDef parent fill:#EEF2FF,stroke:#6366F1,stroke-width:2px,color:#1E1B4B
     classDef child fill:#ECFDF5,stroke:#10B981,stroke-width:2px,color:#064E3B
@@ -206,7 +206,7 @@ So a parent marks data `_name` when children are meant to use it, and `__name` w
 
 The second row is the one that catches people. A child that writes its own `__init__` replaces the parent's. The parent's data then never gets created, unless the child asks for it.
 
-## super() function
+## Accessing the Parent Class with super()
 
 `super()` is a built-in function that stands for the parent class. Writing it inside a child method is the same as saying *the class I inherited from*.
 
