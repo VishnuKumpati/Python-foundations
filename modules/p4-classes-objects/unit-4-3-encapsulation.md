@@ -213,9 +213,9 @@ Every call to `set_followers()` follows the same path.
 
 ```mermaid
 flowchart TD
-    A["Outside code calls<br/>set_followers(count)"] --> B{"Is count<br/>less than 0?"}
-    B -->|"Yes"| C["Print rejection<br/>__followers unchanged"]
-    B -->|"No"| D["Store the value<br/>in __followers"]
+    A["call set_followers(count)"] --> B{"Is count less than 0?"}
+    B -->|"Yes"| C["rejected, data unchanged"]
+    B -->|"No"| D["stored in __followers"]
 
     classDef entry fill:#EEF2FF,stroke:#6366F1,stroke-width:2px,color:#1E1B4B
     classDef check fill:#FEF3C7,stroke:#F59E0B,stroke-width:2px,color:#78350F
