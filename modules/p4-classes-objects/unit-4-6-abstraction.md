@@ -1,129 +1,122 @@
 # Abstraction: Showing What Matters and Hiding the Rest
 
-Polymorphism let every class answer the same method name in its own way. A `Creator` printed one kind of report and an `Advertiser` printed another, and the loop calling them worked either way.
+Polymorphism let many classes answer the same method call in their own way. But nothing checked that a class had actually written that method. A class could stay silent, and Python would not complain.
 
-But nothing checked whether a class had written that method at all. A class could stay silent, and Python would not complain.
-
-Abstraction deals with two things: how much a class shows to the outside, and what it forces its children to write.
+Abstraction does two things. It hides how a class works, and it forces every child to provide what the parent demands.
 
 ## Abstraction
 
-Abstraction is the practice of exposing only what someone needs in order to use a class. Every detail of how the work is done stays hidden.
+Think about paying on a shopping app. You tap **Pay**, and the money moves. You never see which bank server was contacted, which check ran first, or what got written where. You only need the button.
 
-The vocabulary comes in four terms.
+That is abstraction. A class offers a few simple things you can do with it, and keeps the working parts out of sight.
 
-- An **abstract method** is a method that is declared but deliberately left empty. It states that the method must exist, and nothing more.
+Four terms carry the idea.
+
+- An **abstract method** is a method that is declared but left empty on purpose. It says the method must exist, and nothing more.
 - An **abstract class** is a class holding at least one abstract method. It cannot create objects. It exists to be inherited.
 - A **concrete method** is an ordinary method, with a working body, written inside that same abstract class.
 - Python supplies all of this through a built-in module named **`abc`**, short for *abstract base class*.
 
-An abstract class is free to hold both kinds together. It writes the methods that work the same way for every child. It leaves abstract the ones each child must write for itself. A class with three concrete methods and one abstract method is still an abstract class.
-
-Why any of this is needed shows up fastest in a class that does without it.
+One abstract class can hold both kinds at once. It writes out what is the same for every child, and leaves abstract what each child must write itself.
 
 ## Why Inheritance Alone Is Not Enough
 
-Below, `Account` has a `monthly_report()` method. `Creator` writes its own version. `Advertiser` was built in a hurry and the method was never added.
+A shopping app takes payment by UPI, by card, and in cash. Each one completes the payment differently, so each is a child of `Payment`.
+
+`UpiPayment` below writes its own `pay()`. `CardPayment` was written in a hurry, and nobody added one.
 
 ```python
-class Account:
-    def __init__(self, handle):
-        self.handle = handle
-
-    def monthly_report(self):
-        print(f"@{self.handle} | No report available")
+class Payment:
+    def pay(self, amount):
+        print("Payment done")
 
 
-class Creator(Account):
-    def monthly_report(self):
-        print(f"@{self.handle} | Earned: ₹45000")
+class UpiPayment(Payment):
+    def pay(self, amount):
+        print(f"₹{amount} paid by UPI")
 
 
-class Advertiser(Account):
+class CardPayment(Payment):
     pass
 
 
-for account in [Creator("priya_cooks"), Advertiser("zomato")]:
-    account.monthly_report()
+UpiPayment().pay(500)
+CardPayment().pay(500)
 ```
 
 **Output**
 
 ```text
-@priya_cooks | Earned: ₹45000
-@zomato | No report available
+₹500 paid by UPI
+Payment done
 ```
 
-Python raised nothing. `Advertiser` had no `monthly_report()`, so Python went up to `Account` and used what it found there.
+The UPI line is correct. The card line is a disaster.
 
-That is the danger. The program runs, the reports page loads, and Zomato's report says nothing. No warning appears anywhere. The mistake surfaces when a customer asks why their report is empty.
+`CardPayment` has no `pay()` of its own, so Python used the one in `Payment`. That method prints `Payment done` and charges nobody. The customer sees a success message, the order is placed, and no money ever moved.
 
-What the parent needs is a way to state a requirement rather than a fallback: *every account type must write its own `monthly_report()`, and Python must refuse any class that does not.*
+`Payment` was too helpful. It kept a spare `pay()` ready, so nobody was forced to write a real one. What it should do instead is refuse.
 
 ## Declaring an Abstract Class
 
-The line `from abc import ABC, abstractmethod` brings in the two names needed. `ABC` is a class you inherit from. `abstractmethod` is a marker you place above a method.
+One line brings in what you need: `from abc import ABC, abstractmethod`.
 
-That marker is written as `@abstractmethod` on the line above it. The `@` form is called a **decorator** — it attaches a marker to the method written underneath. Here it marks the method as one every child is required to provide.
+`ABC` is a class. A parent that inherits from it becomes an abstract class. `abstractmethod` is a marker. Write `@abstractmethod` above a method, and every child must write that method.
 
-`Account` below carries one method of each kind. `show_handle()` is concrete, with a working body. `monthly_report()` is abstract, with `pass` for a body.
+The `@` symbol makes a **decorator**, a line placed above a method to change how it is treated. Decorators come later as a topic. This is the only one needed here.
+
+Below, `pay()` is abstract with `pass` as its body. `checkout()` is an ordinary method with a working body.
 
 ```python
 from abc import ABC, abstractmethod
 
 
-class Account(ABC):
-    def __init__(self, handle):
-        self.handle = handle
-
-    def show_handle(self):
-        print(f"@{self.handle}")
+class Payment(ABC):
+    def checkout(self, amount):
+        print(f"Amount: ₹{amount}")
+        self.pay(amount)
 
     @abstractmethod
-    def monthly_report(self):
+    def pay(self, amount):
         pass
 
 
-class Creator(Account):
-    def monthly_report(self):
-        print(f"@{self.handle} | Earned: ₹45000")
+class UpiPayment(Payment):
+    def pay(self, amount):
+        print(f"₹{amount} paid by UPI")
 
 
-class Advertiser(Account):
-    def monthly_report(self):
-        print(f"@{self.handle} | Spent: ₹80000")
+class CardPayment(Payment):
+    def pay(self, amount):
+        print(f"₹{amount} paid by card")
 
 
-priya = Creator("priya_cooks")
-priya.show_handle()
-priya.monthly_report()
-
-Advertiser("zomato").monthly_report()
+UpiPayment().checkout(500)
+CardPayment().checkout(500)
 ```
 
 **Output**
 
 ```text
-@priya_cooks
-@priya_cooks | Earned: ₹45000
-@zomato | Spent: ₹80000
+Amount: ₹500
+₹500 paid by UPI
+Amount: ₹500
+₹500 paid by card
 ```
 
-Three things are worth noticing.
+Both payments now work properly. Three things did that.
 
-- `Account` inherits from `ABC`. That is what switches the checking on.
-- `show_handle()` was written once in `Account`, and both children use it without writing anything. Displaying a handle is the same for every account type.
-- `monthly_report()` carries `@abstractmethod`, so `Creator` and `Advertiser` each had to write their own. A report differs for every account type, so `Account` only asked for it.
+- `Payment` inherits from `ABC`. Without it, the marker does nothing.
+- `pay()` is marked abstract, so both children were forced to write their own.
+- `checkout()` was written once and both children use it free, because showing the amount is the same job every time.
 
-`Advertiser` could no longer stay empty the way it did earlier. The blank report is gone, because Python would not have allowed the class to exist without a real `monthly_report()`.
+Look again at `checkout()`. It shows the amount and then calls `self.pay(amount)`, without knowing how any payment works. The marker is what makes that trust safe.
 
-`pass` in an abstract method is not laziness. `Account` has nothing sensible to put there, because only the child knows what its own report should say. The parent states the requirement; the child supplies the answer.
+Why is the body of `pay()` just `pass`? Because `Payment` has nothing to put there. There is no way to pay in general. Each child decides.
 
-Python has no `interface` keyword, which you may have seen in Java. An abstract class whose methods are all abstract does that same job here.
+If you have seen Java, this is the job an `interface` does. Python has no `interface` keyword, and an abstract class fills the same role.
 
 ## The Rules Python Enforces
-
-Two rules now hold, and Python applies them on its own.
 
 **An abstract class cannot create an object.**
 
@@ -131,104 +124,88 @@ Two rules now hold, and Python applies them on its own.
 from abc import ABC, abstractmethod
 
 
-class Account(ABC):
-    def __init__(self, handle):
-        self.handle = handle
-
+class Payment(ABC):
     @abstractmethod
-    def monthly_report(self):
+    def pay(self, amount):
         pass
 
 
-account = Account("priya_cooks")
+payment = Payment()
 ```
 
 **Output**
 
 ```text
 Traceback (most recent call last):
-  File "app.py", line 13, in <module>
-    account = Account("priya_cooks")
-              ^^^^^^^^^^^^^^^^^^^^^^
-TypeError: Can't instantiate abstract class Account without an implementation for abstract method 'monthly_report'
+  File "app.py", line 10, in <module>
+    payment = Payment()
+              ^^^^^^^^^
+TypeError: Can't instantiate abstract class Payment without an implementation for abstract method 'pay'
 ```
 
-`Account` describes what an account must be able to do. It never describes a real account, so building one from it is meaningless — and Python says so.
+This matches the app you already use. No checkout screen lets you simply pay. You pick UPI, card, or cash first. `Payment` describes what every method must do and never describes a real one, so Python refuses to make one.
 
-**A child that skips an abstract method cannot create an object either.**
+**A child that skips the abstract method cannot create an object either.**
 
 ```python
 from abc import ABC, abstractmethod
 
 
-class Account(ABC):
-    def __init__(self, handle):
-        self.handle = handle
-
+class Payment(ABC):
     @abstractmethod
-    def monthly_report(self):
+    def pay(self, amount):
         pass
 
 
-class Advertiser(Account):
+class CardPayment(Payment):
     pass
 
 
-zomato = Advertiser("zomato")
+card = CardPayment()
 ```
 
 **Output**
 
 ```text
 Traceback (most recent call last):
-  File "app.py", line 17, in <module>
-    zomato = Advertiser("zomato")
-             ^^^^^^^^^^^^^^^^^^^^
-TypeError: Can't instantiate abstract class Advertiser without an implementation for abstract method 'monthly_report'
+  File "app.py", line 14, in <module>
+    card = CardPayment()
+           ^^^^^^^^^^^^^
+TypeError: Can't instantiate abstract class CardPayment without an implementation for abstract method 'pay'
 ```
 
-This is the rule that closes the hole. That same empty `Advertiser` printed a blank report earlier. Now it stops the program on the line that tries to create it. Caught in seconds, not by a customer weeks later.
+This is the rule that kills the earlier bug. The same empty `CardPayment` now stops the program on the line that creates it. The mistake is caught in seconds, not after a customer complains about money.
 
 Two details are easy to get wrong.
 
-- `@abstractmethod` on its own enforces nothing. Leave out `ABC` and Python will build objects from the class quite happily. `ABC` is what switches the checking on.
-- A child must provide every abstract method the parent declares. Missing one out of three leaves the child unusable.
+- `@abstractmethod` alone enforces nothing. Leave out `ABC` and Python builds objects happily. `ABC` is what makes Python check.
+- A child must write every abstract method the parent declares. Missing one out of three leaves the child unusable.
 
 ## Abstraction and Encapsulation
 
-These two get mixed up constantly, because both hide something. They hide different things, for different reasons.
+Both hide something, which is why they get mixed up. They hide different things.
 
 | Question | Encapsulation | Abstraction |
 |---|---|---|
 | What is hidden | The data inside an object | The steps inside a method |
 | Purpose | Stop the data being changed wrongly | Save the caller from knowing how the work is done |
-| Written using | `_handle`, `__handle`, getter and setter methods | `ABC`, `@abstractmethod`, private helper methods |
+| Written using | `_name`, `__name`, getter and setter methods | `ABC`, `@abstractmethod`, private helper methods |
 
-Encapsulation protects. Abstraction simplifies. Most well-built classes do both: private data reached only through checked methods, and a small set of public methods that hide the work behind them.
+Encapsulation protects. Abstraction simplifies. Most good classes do both.
 
 ## Practice Exercises
 
-Build a delivery app's notification system, one step at a time. Each task continues the file from the task before it.
+Build a notification system, one step at a time. Each task continues the file from the task before it.
 
-1. **Watch the silent fallback.** Write an ordinary class `Notifier` with `__init__(self, user)` and a `send()` method printing `no channel set`. Add `class SmsNotifier(Notifier)` with its own `send()` printing an SMS line. Add `class EmailNotifier(Notifier): pass`. Put one of each in a list, loop over it calling `send()`, and note which line is wrong.
+1. **See the bug.** Write a normal class `Notifier` with a `send()` method that prints `Sent`. Add `SmsNotifier(Notifier)` with its own `send()` printing an SMS line. Add `class EmailNotifier(Notifier): pass`. Call `send()` on one of each and note which line is wrong.
 
-2. **Make the parent abstract.** Add `from abc import ABC, abstractmethod` at the top. Make `Notifier` inherit from `ABC` and mark `send()` with `@abstractmethod`, body `pass`. Run the file and read the `TypeError`.
+2. **Make the parent abstract.** Add `from abc import ABC, abstractmethod`. Make `Notifier` inherit from `ABC` and mark `send()` with `@abstractmethod`, body `pass`. Run it and read the `TypeError`.
 
-3. **Satisfy the requirement.** Give `EmailNotifier` its own `send()`. Run the loop again and confirm both lines are now correct.
+3. **Satisfy the rule.** Give `EmailNotifier` its own `send()`. Run it again and confirm both lines are correct.
 
-4. **Try to break it.** On a new line, attempt `Notifier("Arun")` directly. Read the `TypeError`, then turn that line into a comment so the file keeps running.
+4. **Try to break it.** Attempt `Notifier()` on a new line. Read the `TypeError`, then comment that line out.
 
-5. **Add a concrete method.** Add `show_user()` to `Notifier` with a working body that prints the user's name. Call it on both children without writing it in either one. Then add a comment naming which method is abstract, which is concrete, and why each belongs where it is.
-
----
-
-Four pillars, four different questions.
-
-Encapsulation asked who may touch an object's data. Inheritance asked how related classes share what they have in common. Polymorphism asked how one name can serve many classes. Abstraction asked how little a class needs to show, and how much it can demand.
-
-None of them make a program run faster. All of them keep it understandable once it grows past the size one person can hold in their head.
-
----
+5. **Add a concrete method.** Give `Notifier` a `notify(user)` method with a working body that prints the user's name and then calls `self.send()`. Call `notify()` on both children without writing it in either one.
 
 ## Reference Links
 
