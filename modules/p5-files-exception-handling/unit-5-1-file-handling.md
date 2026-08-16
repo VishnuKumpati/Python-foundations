@@ -1,106 +1,118 @@
-# File Handling: Making Data Outlive the Program
+# File Handling
 
 ## File Persistence
 
-Everything a program has stored so far lived in memory: a list of posts, a follower count, an object built from a class. All of it existed only while the program was running. When the program ends, the operating system takes that memory back. Run the program again and it begins with nothing.
+Variables, lists, and objects live in memory while a program is running. When the program stops, that data is lost, so nothing a program stores survives being closed and reopened.
 
-Think about the social media app. A user writes a post and the program keeps it in a list. Close the program, start it again, and the list is empty. The post is gone, and nothing the user typed survived.
-
-Data that outlives the program is called **persistent** data. It has to be kept somewhere other than memory, and the disk is that somewhere. A **file** is a named block of data stored on the disk. Anything written into a file today can still be read tomorrow, next week, or on another computer.
+A file fixes that. A file is data stored on disk, and the disk keeps it after the program ends. A shopping app saves your orders this way, a game saves your scores, and a notes app saves your notes. Data that survives is called **persistent data**, and working with files to store and retrieve it is called **file handling**.
 
 ## File Paths
 
-Before a program can open a file it has to know which file. The text that names the file is called a **path**, and there are two kinds.
+A **path** is the text that names the file you want. It is the first argument you pass when opening a file, and there are two kinds.
 
-A **relative path** is measured from the folder the program is running in.
+### Relative Paths
 
-- `"posts.txt"` is a file sitting beside the script.
-- `"data/posts.txt"` is a file inside a `data` folder beside the script.
-- `"../posts.txt"` is a file one folder above the script.
+A relative path is resolved from the **current working directory**. It is written without any drive or root in front of it.
 
-An **absolute path** starts at the top of the drive and names every folder down to the file.
+The current working directory is often the project folder when you run a program from there, but it can be different from the folder containing the Python script.
 
-- Windows: `"C:/Users/Rahul/posts.txt"`
-- Linux and macOS: `"/home/rahul/posts.txt"`
+- `"posts.txt"` is a file in the current working directory.
+- `"data/posts.txt"` is a file inside the `data` folder.
+- `"../posts.txt"` is a file one folder above the current working directory.
 
-Prefer relative paths. An absolute path stops working as soon as the project moves to another computer. The two systems do not even write absolute paths the same way, so the same line cannot serve both.
+### Absolute Paths
 
-One trap on Windows catches almost everyone. Windows shows its paths with backslashes, and inside a Python string a backslash begins an escape sequence. So `"data\notes.txt"` contains `\n`, which is a newline and not a folder separator. Write forward slashes instead, because Python accepts them on Windows too.
+An absolute path gives the complete location, starting from the top of the drive.
 
-When a path is built from pieces, the `pathlib` module joins them for you. It also picks the correct separator for whichever system the program runs on.
+- Relative: `"data/posts.txt"`
+- Absolute: `"C:/Users/Rahul/project/data/posts.txt"`
 
-```python
-from pathlib import Path
-
-path = Path("data") / "posts.txt"
-
-print(path)
-print(path.name)
-print(path.parent)
-```
-
-**Output**
-
-```text
-data/posts.txt
-posts.txt
-data
-```
-
-The `/` between the two pieces is doing the joining. That output is from Linux, and on Windows the first line prints `data\posts.txt` instead. Nothing else in the program changes, which is the whole reason to use `pathlib` rather than gluing strings together. A `Path` can be handed to `open()` anywhere a plain string would go.
-
-## Opening Files
-
-`open()` is the built-in function that gives a program access to a file. It takes a path and a mode, and the mode states what you intend to do with the file.
-
-```python
-file = open("posts.txt", "w")
-
-print(type(file))
-
-file.close()
-```
-
-**Output**
-
-```text
-<class '_io.TextIOWrapper'>
-```
-
-`open()` does not hand back the file's text. It hands back a **file object**, and every later operation goes through that object. Printing its type shows what it is: an object built for reading and writing text.
-
-Working with a file always follows the same three steps.
-
-1. **Open** the file, stating what you intend to do with it.
-2. **Read from it or write to it**, through the file object.
-3. **Close** it, so the operating system knows you have finished.
-
-Skipping step three is the mistake beginners make most often. A later section replaces `close()` with something that cannot be forgotten.
+An absolute path leaves no doubt about which file is meant, but it stops working the moment the project moves. Prefer relative paths in projects for that reason, and keep absolute paths for one-off scripts on your own machine.
 
 ## File Modes
 
-The mode is a short string, and it is the most important argument you pass to `open()`.
+Knowing which file you want is not enough. Python also needs to know what you intend to do with it, and that is what the **mode** says. It is a short string passed alongside the path.
 
-| Mode | Meaning | If the file exists | If it does not exist |
+| Mode | Use | Existing file | Missing file |
 |---|---|---|---|
-| `"r"` | Read only | Opens it | Raises an error |
-| `"w"` | Write | **Erases the contents** | Creates it |
-| `"a"` | Append | Writes at the end | Creates it |
-| `"x"` | Create only | Raises an error | Creates it |
+| `r` | Read | Opens it | Raises an error |
+| `w` | Write, replacing everything | Erases the contents | Creates it |
+| `a` | Add at the end | Keeps the contents | Creates it |
+| `x` | Create only | Raises an error | Creates it |
 
-Two letters combine with these. Adding `"+"` allows reading and writing through one file object, as in `"r+"`. Adding `"b"` opens the file in binary mode, as in `"rb"`, which is what images, audio and PDFs need. Plain text files need neither.
+The most important distinction is between `w` and `a`. Choosing `w` when you meant `a` destroys data silently, because the erase happens before a single character is written.
 
-Mode `"r"` is the default, so `open("posts.txt")` and `open("posts.txt", "r")` mean the same thing. Writing the mode out is clearer for anyone reading the code later.
+Two letters combine with these four. Adding `+` allows reading and writing through one file object, as in `r+`. Adding `b` opens the file in binary mode, as in `rb`, which is what images, audio and PDFs need. Plain text files need neither.
 
-## Writing and Appending
+## Opening Files
 
-Mode `"w"` opens a file for writing, and `write()` puts a string into it.
+With a path and a mode chosen, the file can be opened. Python provides one built-in function for it.
+
+### open() and the File Object
+
+`open()` takes the path and the mode, and hands back a **file object**. That object is not the file's text. It is the interface your program uses to reach the file, and every read or write goes through it.
+
+```text
+open()
+   ↓
+file object
+   ↓
+read() / write()
+   ↓
+close()
+```
+
+Close the file when you are finished with it.
 
 ```python
 file = open("posts.txt", "w")
 file.write("First day at college!\n")
-file.write("Exam over!\n")
 file.close()
+
+print("Saved")
+```
+
+**Output**
+
+```text
+Saved
+```
+
+The first line opens `posts.txt` for writing and stores the file object in `file`. The second writes a line through it. The third closes it, and only then is the work finished.
+
+### with open()
+
+The program above works, but it depends on you remembering `close()`. Forget it, or crash before reaching it, and the file is left open. Python has a form that removes both risks.
+
+```python
+with open("posts.txt", "w") as file:
+    file.write("First day at college!\n")
+
+print("Saved")
+```
+
+**Output**
+
+```text
+Saved
+```
+
+Read the first line as *open this file, call it `file`, and close it when this block ends*. Python closes it for you, so there is no `close()` to write and none to forget. It closes the file even if an exception is raised inside the block, which a hand-written `close()` cannot promise.
+
+An object that `with` cleans up after is called a **context manager**, and `open()` returns one. This is the preferred form, and every example from here on uses it.
+
+## Writing and Appending
+
+Two methods put text into a file, and the mode chosen at `open()` decides whether it replaces or adds.
+
+### write()
+
+`write()` sends one string to the file.
+
+```python
+with open("posts.txt", "w") as file:
+    file.write("First day at college!\n")
+    file.write("Exam over!\n")
 
 print("Saved 2 posts")
 ```
@@ -111,70 +123,76 @@ print("Saved 2 posts")
 Saved 2 posts
 ```
 
-The program creates `posts.txt` beside the script, and the file stays there after the program ends. `write()` adds no line break of its own. The `\n` at the end of each string is what puts the next post on its own line.
+Open `posts.txt` in any text editor and both posts are there, one on each line. That is because each string ends with `\n`. `write()` adds no line break of its own, so without it both posts would run together on a single line.
 
-A whole list of strings can go in with a single call to `writelines()`.
+### writelines()
+
+When the lines are already in a list, one call writes all of them.
 
 ```python
-posts = ["First day at college!\n", "Exam over!\n", "Fest tomorrow!\n"]
+lines = ["Python\n", "Java\n", "SQL\n"]
 
-file = open("posts.txt", "w")
-file.writelines(posts)
-file.close()
+with open("languages.txt", "w") as file:
+    file.writelines(lines)
 
-file = open("posts.txt", "r")
-print(file.read(), end="")
-file.close()
+print("Saved 3 languages")
 ```
 
 **Output**
 
 ```text
-First day at college!
-Exam over!
-Fest tomorrow!
+Saved 3 languages
 ```
 
-`writelines()` writes every string in the list, one after another. It adds no line breaks either, which is why each string in the list still ends with `\n`.
+`writelines()` does not add `\n`; include the newline in each string if you want separate lines.
 
-Now the difference that matters most in this whole chapter. **Mode `"w"` erases everything already in the file.** Open an existing `posts.txt` in `"w"` mode and the old contents are gone. That happens before you write a single character. Mode `"a"` is the safe alternative, because it writes at the end and leaves the existing contents alone.
+### w versus a
+
+The modes table said `w` erases and `a` adds. Here is that difference in a program.
 
 ```python
-file = open("posts.txt", "w")
-file.write("First day at college!\n")
-file.close()
+with open("posts.txt", "w") as file:
+    file.write("First day at college!\n")
 
-file = open("posts.txt", "a")
-file.write("Exam over!\n")
-file.close()
+with open("posts.txt", "a") as file:
+    file.write("Exam over!\n")
 
-file = open("posts.txt", "r")
-print(file.read(), end="")
-file.close()
+print("Wrote one post, then added another")
 ```
 
 **Output**
 
 ```text
-First day at college!
-Exam over!
+Wrote one post, then added another
 ```
 
-The first post went in with `"w"` and the second with `"a"`, and both survived. Change that second mode to `"w"` and the output becomes only `Exam over!`, because the first post would be erased. Mode `"a"` also creates the file when it is missing, so it is safe from the very first run.
+Open the file and both posts are there. Now change that second `a` to `w` and run it again. Only `Exam over!` remains, because the second open erased the first post before writing.
 
 ## Reading Data
 
-Mode `"r"` opens a file for reading, and `read()` returns the whole file as one string.
+Mode `r` opens a file for reading. Four methods take the text back out, and they differ in how much they return at a time.
+
+The examples below read `posts.txt`, which contains:
+
+```text
+First day at college!
+Exam over!
+```
+
+| Method | Returns |
+|---|---|
+| `read()` | Remaining content as one string |
+| `read(n)` | Next `n` characters |
+| `readline()` | Next line |
+| `readlines()` | Remaining lines as a list |
+
+### read()
+
+The simplest of them returns the whole file as one string.
 
 ```python
-file = open("posts.txt", "w")
-file.write("First day at college!\n")
-file.write("Exam over!\n")
-file.close()
-
-file = open("posts.txt", "r")
-content = file.read()
-file.close()
+with open("posts.txt", "r") as file:
+    content = file.read()
 
 print(content, end="")
 ```
@@ -186,21 +204,23 @@ First day at college!
 Exam over!
 ```
 
-Each reading example writes the file first so that it runs on its own. In a real project the writing and the reading happen in different programs on different days. The variable `content` holds one string with both lines in it, including the `\n` characters. `end=""` stops `print()` from adding another line break, because the text already ends with one.
+`content` is a single string holding both lines, `\n` characters included. `end=""` stops `print()` from adding another line break, since the text already ends with one.
 
-A file can also be read in pieces, and doing so reveals an important detail.
+### The File Position
+
+Look again at the table above. Every row says **remaining** or **next**, never *all* or *first*. The reason is that Python keeps a position inside an open file and moves it forward as you read.
+
+```text
+First day at college!
+     ↑
+current position after read(5)
+```
 
 ```python
-file = open("posts.txt", "w")
-file.write("First day at college!\n")
-file.write("Exam over!\n")
-file.close()
-
-file = open("posts.txt", "r")
-print(file.read(5))
-print(file.readline(), end="")
-print(file.readlines())
-file.close()
+with open("posts.txt", "r") as file:
+    print(file.read(5))
+    print(file.readline(), end="")
+    print(file.readlines())
 ```
 
 **Output**
@@ -211,27 +231,16 @@ First
 ['Exam over!\n']
 ```
 
-Three methods did three different jobs.
+`read(5)` returned `First` and left the position five characters in. `readline()` carried on from exactly there, which is why it began with a space instead of with `First`. `readlines()` then collected everything still unread. No call started over at the beginning.
 
-- `read(5)` returned the first five characters, `First`.
-- `readline()` returned the rest of that line, starting with the space after `First`.
-- `readlines()` returned everything still unread, as a list of strings.
+### Reading Line by Line
 
-Notice that no method started at the beginning of the file. Python keeps a position inside an open file and moves it forward as you read. Each call carries on from where the previous one stopped.
-
-`read()` loads the entire file into memory. That is fine for a few posts and wasteful for a file holding a lakh of them. Looping over the file object reads one line per turn instead.
+`read()` pulls the entire file into memory at once. For a handful of posts that is fine, and for a file holding a lakh of them it is wasteful. Looping over the file object avoids it.
 
 ```python
-file = open("posts.txt", "w")
-file.write("First day at college!\n")
-file.write("Exam over!\n")
-file.write("Fest tomorrow!\n")
-file.close()
-
-file = open("posts.txt", "r")
-for line in file:
-    print(line.strip())
-file.close()
+with open("posts.txt", "r") as file:
+    for line in file:
+        print(line.strip())
 ```
 
 **Output**
@@ -239,41 +248,19 @@ file.close()
 ```text
 First day at college!
 Exam over!
-Fest tomorrow!
 ```
 
-Only one line sits in memory at a time, so the size of the file stops mattering. Each line still carries the `\n` it was written with. `strip()` removes it, along with any spaces at either end. Without `strip()`, every printed line would be followed by a blank one.
+Each turn of the loop hands back the next line of the file as a string, which is what `line` holds. This makes it suitable for processing large files without loading the entire file into memory at once.
 
-## Context Managers
-
-A **context manager** is an object that tidies up after itself once you have finished with it. An open file is one, and the `with` statement is how you use it.
-
-Every program so far ended with `close()`, and forgetting that line is easy. Worse, a program that crashes between `open()` and `close()` never reaches the closing line, so the file is left open. The `with` statement removes both risks. Python closes the file when the indented block ends, whether the block finished normally or crashed.
-
-```python
-with open("posts.txt", "w") as file:
-    file.write("First day at college!\n")
-
-with open("posts.txt", "r") as file:
-    print(file.read(), end="")
-```
-
-**Output**
-
-```text
-First day at college!
-```
-
-Read the first line as *open this file, call it `file`, and close it when this block ends*. There is no `close()` anywhere in the program, and none is needed. The file object works only inside the indented block, and outside it the file is already closed.
-
-Use `with` for every file you open from now on. The earlier examples called `close()` by hand only so that you could see what `with` is doing for you.
+`strip()` removes the `\n` that each line still carries, along with any spaces at either end. Without it, every printed line would be followed by a blank one.
 
 ## Error Handling
 
-Opening a file that is not there, in mode `"r"`, stops the program.
+Opening a file that is not there, in mode `r`, stops the program.
 
 ```python
-file = open("followers.txt", "r")
+with open("followers.txt", "r") as file:
+    content = file.read()
 ```
 
 **Output**
@@ -281,44 +268,28 @@ file = open("followers.txt", "r")
 ```text
 Traceback (most recent call last):
   File "app.py", line 1, in <module>
-    file = open("followers.txt", "r")
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    with open("followers.txt", "r") as file:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^
 FileNotFoundError: [Errno 2] No such file or directory: 'followers.txt'
 ```
 
-`FileNotFoundError` is the error you will meet most often while learning files. It means what it says. The file name it prints is the first place to look. Check it for a spelling mistake, or for a path pointing at the wrong folder.
+`FileNotFoundError` is the error you will meet most often while learning files. The file name it prints is the first thing to check, either for a spelling mistake or for a path pointing at the wrong folder.
 
-The mode decides whether this can happen at all. Modes `"w"`, `"a"` and `"x"` create the file when it is missing. Only `"r"` and `"r+"` insist that the file already exists. A program that reads should either write the file first, or expect it to be absent.
+Notice what the error did to the program. It did not warn and carry on. It stopped, and nothing written after that line ever ran.
 
-Stopping the program is not the only option. Python can catch an error like this and carry on instead, which is what exception handling is for. That is a topic of its own, and it comes next.
+That is not always what you want. A program can catch an error like this instead and decide what to do next, such as showing a message, asking for another file name, or creating the file. Handling errors that way is the subject of the next chapter, **Exception Handling**.
 
 ## Practice
 
-Build a small notes file for the social media app, one step at a time. Each task continues the file from the task before it.
+1. **Write and read.** Create `notes.txt`, write two lines into it, then open it in read mode and print the whole file with `read()`.
 
-1. **Write a file.** Use `open()` with mode `"w"` to create `notes.txt`, write two lines into it, and close it. Open the file in a text editor afterwards and confirm both lines are there.
+2. **Append and loop.** Add a third line using mode `a`, then print every line using a `for` loop with `strip()`. Confirm the first two lines are still there.
 
-2. **Write a list at once.** Replace the two `write()` calls with a list of three strings and a single `writelines()` call. Confirm all three lines appear.
-
-3. **Read it back.** Open `notes.txt` in mode `"r"`, read it with `read()`, and print it using `end=""`. Add a comment explaining why `end=""` is needed.
-
-4. **Prove that `"w"` erases.** Open `notes.txt` in mode `"w"` again and write one different line. Read the file and confirm the earlier lines are gone. Write a comment naming the mode you should have used.
-
-5. **Append safely.** Add one more line using mode `"a"`, then read the file and confirm nothing was lost.
-
-6. **Read in pieces.** In one open file, call `read(4)`, then `readline()`, then `readlines()`, printing each result. Explain in a comment why the second call did not start at the beginning.
-
-7. **Read line by line.** Loop over the file object and print each line with `strip()`. Then print the same loop without `strip()` and describe the difference in a comment.
-
-8. **Switch to `with`.** Rewrite every `open()` in your program as a `with` block and delete all the `close()` calls. Confirm the output is unchanged.
-
-9. **Trigger the error.** Open a file name that does not exist in mode `"r"`. Record the error Python reports. Then change only the mode so the same program runs, and explain why that mode works.
-
+3. **A small notes program.** Write a program that shows a menu with three choices: add a note, view all notes, or exit. Adding a note appends one line to `notes.txt`, and viewing reads the file line by line. Run the program twice and confirm the notes from the first run are still there.
 
 ## Reference Links
 
 - [Python Official Docs — Reading and Writing Files](https://docs.python.org/3/tutorial/inputoutput.html#reading-and-writing-files)
 - [Python Official Docs — `open()`](https://docs.python.org/3/library/functions.html#open)
-- [Python Official Docs — `pathlib`](https://docs.python.org/3/library/pathlib.html)
 - [W3Schools — Python File Handling](https://www.w3schools.com/python/python_file_handling.asp)
 - [GeeksforGeeks — File Handling in Python](https://www.geeksforgeeks.org/python/file-handling-python/)
