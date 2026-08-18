@@ -6,13 +6,13 @@ But classes have another problem. Python itself expects objects to work with com
 
 This chapter teaches how a class can define those behaviours. It then uses dataclasses to remove repetitive code when a class mainly stores data.
 
-## Python uses special methods to give objects built-in behaviour
+## Special Methods - Methods Python Calls for You
 
 A special method has a name wrapped in double underscores, like `__str__` or `__len__`. Those underscores are part of the name, not decoration.
 
 You never write `user.__str__()` yourself. You write `print(user)`, and Python finds the method on its own. Length works the same way through `__len__()`, and the equality operator through `__eq__()`.
 
-## `__str__()` controls the human-friendly form of an object
+## `__str__()` - Printing an Object in a Readable Way
 
 Start with the `User` class from the social media example.
 
@@ -22,14 +22,8 @@ class User:
         self.name = name
         self.email = email
 
-
 user = User("Rahul", "rahul@example.com")
-print(user)
-```
-
-**Output**
-```text
-<__main__.User object at 0x7f479b1ff0b0>
+print(user)  # <__main__.User object at 0x7f479b1ff0b0>
 ```
 
 The hexadecimal address changes between runs. Your address will differ.
@@ -45,19 +39,13 @@ class User:
     def __str__(self):
         return f"{self.name} ({self.email})"
 
-
 user = User("Rahul", "rahul@example.com")
-print(user)
-```
-
-**Output**
-```text
-Rahul (rahul@example.com)
+print(user)  # Rahul (rahul@example.com)
 ```
 
 `print(user)` now uses `User.__str__()`. The method must return a string, and it should stay short enough for a person to read.
 
-## `__repr__()` provides a useful developer-facing representation
+## `__repr__()` - Showing an Object's Details
 
 `__str__()` is for the person reading the screen. `__repr__()` is for you, inspecting the object while building the program, so it usually carries more detail.
 
@@ -75,24 +63,17 @@ class User:
     def __repr__(self):
         return f"User(name={self.name!r}, email={self.email!r})"
 
-
 user = User("Rahul", "rahul@example.com")
 
-print(str(user))
-print(repr(user))
-```
-
-**Output**
-```text
-Rahul (rahul@example.com)
-User(name='Rahul', email='rahul@example.com')
+print(str(user))  # Rahul (rahul@example.com)
+print(repr(user))  # User(name='Rahul', email='rahul@example.com')
 ```
 
 The `!r` inside the f-string asks Python for the `repr()` form of the value.
 
 There is also a fallback. A class that defines `__repr__()` but no `__str__()` gets that same method used whenever a string is requested, so one method covers both jobs.
 
-## `__eq__()` defines what equality means for objects
+## `__eq__()` - Checking If Two Objects Are Equal
 
 Two objects can contain the same data without being the same object.
 
@@ -102,16 +83,10 @@ class User:
         self.name = name
         self.email = email
 
-
 rahul_1 = User("Rahul", "rahul@example.com")
 rahul_2 = User("Rahul", "rahul@example.com")
 
-print(rahul_1 == rahul_2)
-```
-
-**Output**
-```text
-False
+print(rahul_1 == rahul_2)  # False
 ```
 
 The two objects hold the same data but are not the same object, and the class has never said what equality should mean. `__eq__()` says it.
@@ -125,23 +100,17 @@ class User:
     def __eq__(self, other):
         return self.name == other.name and self.email == other.email
 
-
 rahul_1 = User("Rahul", "rahul@example.com")
 rahul_2 = User("Rahul", "rahul@example.com")
 
-print(rahul_1 == rahul_2)
-```
-
-**Output**
-```text
-True
+print(rahul_1 == rahul_2)  # True
 ```
 
 Now `==` compares the two users by the rule we wrote. Its second parameter, `other`, is the object on the right of the operator.
 
 This is called operator overloading. The operator already exists, but our class gives it a meaning for its objects.
 
-## `__len__()` gives an object a meaning for `len()`
+## `__len__()` - Giving an Object a Length
 
 A `User` object has no length of its own. Our social media user can define length as the number of posts.
 
@@ -154,22 +123,16 @@ class User:
     def __len__(self):
         return len(self.posts)
 
-
 rahul = User("Rahul")
 rahul.posts.append("Hello")
 rahul.posts.append("Learning Python")
 
-print(len(rahul))
-```
-
-**Output**
-```text
-2
+print(len(rahul))  # 2
 ```
 
 `len()` calls the object's `__len__()` method, which must return an integer. What length means is the class's own decision, and here we chose the number of posts.
 
-## Special methods let operators work with your objects
+## Operator Overloading - Using Operators on Your Own Objects
 
 The same idea extends beyond the four methods above. `__add__()` gives meaning to the plus operator, and `__lt__()` to the less-than operator.
 
@@ -184,7 +147,7 @@ Do not memorise the list. Learn the connection between an operation and the meth
 | `user1 + user2` | `__add__()` | Defines addition |
 | `user1 < user2` | `__lt__()` | Defines ordering |
 
-## A data-heavy class can become repetitive
+## The Problem - Too Much Repeated Code
 
 The `User` class now needs several pieces of code.
 
@@ -202,21 +165,14 @@ class User:
         return (self.name == other.name and self.email == other.email
                 and self.followers == other.followers)
 
-
 rahul = User("Rahul", "rahul@example.com", 120)
-print(rahul)
-print(rahul == User("Rahul", "rahul@example.com", 120))
-```
-
-**Output**
-```text
-User(name='Rahul', email='rahul@example.com', followers=120)
-True
+print(rahul)  # User(name='Rahul', email='rahul@example.com', followers=120)
+print(rahul == User("Rahul", "rahul@example.com", 120))  # True
 ```
 
 The class works. But almost every line exists only to store data and provide standard representation and equality. That is where dataclasses help.
 
-## A dataclass generates common data-handling methods
+## `@dataclass` - Letting Python Generate the Methods
 
 A dataclass reduces repetitive code in classes that mainly hold data.
 
@@ -227,43 +183,34 @@ Fields are written with type hints such as `name: str`. The hint marks the name 
 ```python
 from dataclasses import dataclass
 
-
 @dataclass
 class User:
     name: str
     email: str
     followers: int
 
-
 rahul = User("Rahul", "rahul@example.com", 120)
 
-print(rahul)
-print(rahul == User("Rahul", "rahul@example.com", 120))
-```
-
-**Output**
-```text
-User(name='Rahul', email='rahul@example.com', followers=120)
-True
+print(rahul)  # User(name='Rahul', email='rahul@example.com', followers=120)
+print(rahul == User("Rahul", "rahul@example.com", 120))  # True
 ```
 
 The decorator generated `__init__()`, `__repr__()` and `__eq__()`, so none of the three had to be written. You describe the data, and the dataclass supplies the common methods for it. The generated equality compares fields between instances of the same dataclass.
 
 **Where you see it:** records such as social media profiles, payment details, student records, and API data objects.
 
-## Dataclass fields use type hints
+## Type Hints - Declaring the Fields
 
 Each line in a dataclass declares a field. `name: str` declares a name field expected to hold a string, and `followers: int` declares one expected to hold an integer.
 
 These hints do not convert values or validate them. The dataclass reads them to know which names are fields, and the generated constructor takes them in the order they are written.
 
-## Default values make some fields optional during construction
+## Default Values - Making a Field Optional
 
 A field can have a default value.
 
 ```python
 from dataclasses import dataclass
-
 
 @dataclass
 class User:
@@ -271,25 +218,18 @@ class User:
     email: str
     followers: int = 0
 
-
 rahul = User("Rahul", "rahul@example.com")
 priya = User("Priya", "priya@example.com", 250)
 
-print(rahul)
-print(priya)
-```
-
-**Output**
-```text
-User(name='Rahul', email='rahul@example.com', followers=0)
-User(name='Priya', email='priya@example.com', followers=250)
+print(rahul)  # User(name='Rahul', email='rahul@example.com', followers=0)
+print(priya)  # User(name='Priya', email='priya@example.com', followers=250)
 ```
 
 Rahul supplies no `followers`, so the default `0` is used. Priya supplies a value, so hers is kept.
 
 A field without a default must come before a field with a default.
 
-## Mutable defaults need `default_factory`
+## `default_factory` - Giving Each Object Its Own List
 
 Lists and dictionaries are mutable objects. A single list must not accidentally become the default list for every object.
 
@@ -298,26 +238,18 @@ For a dataclass, use `field(default_factory=list)` when each object needs its ow
 ```python
 from dataclasses import dataclass, field
 
-
 @dataclass
 class User:
     name: str
     posts: list = field(default_factory=list)
-
 
 rahul = User("Rahul")
 priya = User("Priya")
 
 rahul.posts.append("My first post")
 
-print(rahul.posts)
-print(priya.posts)
-```
-
-**Output**
-```text
-['My first post']
-[]
+print(rahul.posts)  # ['My first post']
+print(priya.posts)  # []
 ```
 
 `default_factory=list` tells the dataclass to call `list()` each time a new object needs its default posts value. Every object therefore gets a separate list.
@@ -326,7 +258,7 @@ Do not write `posts: list = []` when every instance needs a fresh list. Python's
 
 **Where you see it:** a social media account needs its own posts, followers, or saved items.
 
-## `frozen=True` prevents field reassignment
+## `frozen=True` - Making an Object Unchangeable
 
 Some objects should behave like a fixed record once created. `@dataclass(frozen=True)` does that.
 
@@ -336,29 +268,22 @@ This does not make the object immutable in every sense. It blocks assignment to 
 
 **Where you see it:** a payment record or configuration record may need its stored values to remain unchanged after creation.
 
-## `order=True` can generate ordering methods
+## `order=True` - Comparing and Sorting Objects
 
 Adding `order=True` generates `__lt__()`, `__le__()`, `__gt__()` and `__ge__()`. They compare fields in the order the fields are written.
 
 ```python
 from dataclasses import dataclass
 
-
 @dataclass(order=True)
 class User:
     followers: int
     name: str
 
-
 rahul = User(120, "Rahul")
 priya = User(250, "Priya")
 
-print(rahul < priya)
-```
-
-**Output**
-```text
-True
+print(rahul < priya)  # True
 ```
 
 The first field is `followers`, so the comparison uses follower counts first.
@@ -367,13 +292,12 @@ Equality is generated by default; ordering is not. Use it only when one object b
 
 **Where you see it:** a creator dashboard could order creators by a chosen numeric field such as follower count.
 
-## Dataclasses can still contain normal methods
+## Normal Methods - Adding Your Own Behaviour
 
 A dataclass does not remove normal class behaviour. It reduces repetitive data-handling code.
 
 ```python
 from dataclasses import dataclass
-
 
 @dataclass
 class User:
@@ -384,17 +308,10 @@ class User:
     def greet(self):
         return f"Hello, {self.name}"
 
-
 rahul = User("Rahul", "rahul@example.com", 120)
 
-print(rahul)
-print(rahul.greet())
-```
-
-**Output**
-```text
-User(name='Rahul', email='rahul@example.com', followers=120)
-Hello, Rahul
+print(rahul)  # User(name='Rahul', email='rahul@example.com', followers=120)
+print(rahul.greet())  # Hello, Rahul
 ```
 
 The dataclass generated the common data methods. We wrote `greet()` because it represents application behaviour. That gives a useful boundary:
@@ -403,13 +320,12 @@ The dataclass generated the common data methods. We wrote `greet()` because it r
 - Write methods when the object needs behaviour.
 - Let `@dataclass` handle common data-oriented methods when their default behaviour is correct.
 
-## The same class can combine dataclasses and special methods
+## Combining Both - A Dataclass with Your Own `__str__()`
 
 The decorator generates `__repr__()` and `__eq__()`. You can still write `__str__()` yourself when a shorter display is wanted.
 
 ```python
 from dataclasses import dataclass
-
 
 @dataclass
 class User:
@@ -420,24 +336,16 @@ class User:
     def __str__(self):
         return f"{self.name} - {self.followers} followers"
 
-
 rahul = User("Rahul", "rahul@example.com", 120)
 
-print(rahul)
-print(repr(rahul))
-print(rahul == User("Rahul", "rahul@example.com", 120))
-```
-
-**Output**
-```text
-Rahul - 120 followers
-User(name='Rahul', email='rahul@example.com', followers=120)
-True
+print(rahul)  # Rahul - 120 followers
+print(repr(rahul))  # User(name='Rahul', email='rahul@example.com', followers=120)
+print(rahul == User("Rahul", "rahul@example.com", 120))  # True
 ```
 
 The hand-written method handles the display for people. The generated ones keep working untouched.
 
-## Dataclasses are not a replacement for every class
+## Ordinary Classes - When Not to Use a Dataclass
 
 A dataclass is useful when a class mainly represents data. It is not automatically the best choice for every class.
 
@@ -445,7 +353,7 @@ A class may need a carefully controlled constructor, complex validation, or beha
 
 The key distinction is responsibility. A data record is a strong dataclass candidate. A service that performs application actions is usually an ordinary class.
 
-## Choosing between manual special methods and a dataclass
+## Manual Methods or `@dataclass` - Choosing Between Them
 
 A manual class makes you write `__init__()`, `__repr__()` and `__eq__()` yourself. A dataclass lets you declare the fields and asks Python to generate them.
 
@@ -453,38 +361,30 @@ Use manual methods when the generated behaviour is not what your class needs. Us
 
 The two ideas solve different problems and work well together. Special methods connect your class to Python's built-in operations. Dataclasses remove repetitive code from data-focused classes.
 
-## Practice
+## Practice Exercises
 
-Continue with the social media example. Complete each task in order.
+Continue with the social media example, one step at a time. Each task continues the file from the task before it.
 
-### Task 1: Add a special method
+1. **Add a special method.** Create a `User` class with a name and an email. Implement `__str__()` so printing the object shows `Rahul - rahul@example.com`.
 
-Create a `User` class with a name and an email. Implement `__str__()` so the program prints:
+2. **Define equality.** Create two users holding the same name and email. Implement `__eq__()` so comparing them with `==` prints True.
 
-```text
-Rahul - rahul@example.com
-```
+3. **Define length.** Add a posts list to the class and implement `__len__()` so `len()` returns the number of posts. Add three posts and check the result.
 
-### Task 2: Define equality
+4. **Refactor with a dataclass.** Replace the hand-written `__init__()`, `__repr__()` and `__eq__()` with `@dataclass`, keeping the same three fields. Confirm printing and comparing still work.
 
-Create two users holding the same name and email. Implement `__eq__()` so comparing them with `==` prints True.
+5. **Give every user a separate post list.** Add a posts field using `field(default_factory=list)`. Create Rahul and Priya, add a post only to Rahul, and confirm Priya's list is still empty.
 
-### Task 3: Define length
+6. **Trigger a failure deliberately.** Create a class with no `__len__()` and call `len()` on its object. Record the error Python reports. Then add the method, make the same call work, and explain why it could not before.
 
-Add a posts list to the class and implement `__len__()` so `len()` returns the number of posts. Add three posts and check the result.
+7. **Choose the right design.** Create one class that stores user data and one that performs actions on it. Decide which is the good dataclass candidate and write one sentence explaining why.
 
-### Task 4: Refactor with a dataclass
+---
 
-Replace the hand-written `__init__()`, `__repr__()` and `__eq__()` with `@dataclass`, keeping the same three fields. Confirm printing and comparing still work.
+## Reference Links
 
-### Task 5: Give every user a separate post list
-
-Add a posts field using `field(default_factory=list)`. Create Rahul and Priya, add a post only to Rahul, and confirm Priya's list is still empty.
-
-### Task 6: Trigger a failure deliberately
-
-Create a class with no `__len__()` and call `len()` on its object. Record the error Python reports. Then add the method, make the same call work, and explain why it could not before.
-
-### Task 7: Choose the right design
-
-Create one class that stores user data and one that performs actions on it. Decide which is the good dataclass candidate and write one sentence explaining why.
+- [Python Official Docs — Special Method Names](https://docs.python.org/3/reference/datamodel.html#special-method-names)
+- [Python Official Docs — `dataclasses`](https://docs.python.org/3/library/dataclasses.html)
+- [Python Official Docs — `dataclasses.field`](https://docs.python.org/3/library/dataclasses.html#dataclasses.field)
+- [GeeksforGeeks — Understanding Python Dataclasses](https://www.geeksforgeeks.org/python/understanding-python-dataclasses/)
+- [GeeksforGeeks — Data Classes Decorator Parameters](https://www.geeksforgeeks.org/python/data-classes-in-python-set-2-decorator-parameters/)
