@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" width="900" height="600" role="img" aria-label="Legend of the five standard flowchart shapes: oval for Start and End, rectangle for Action, diamond for Decision, parallelogram for Input and Output, and arrow for flow direction, each with an ATM example.">
+  <defs>
+    <marker id="arrowHead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#6366F1"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="900" height="600" rx="16" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="2"/>
+
+  <text x="40" y="52" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="24" font-weight="600" fill="#0F172A">The Standard Flowchart Shapes</text>
+  <text x="40" y="78" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" fill="#64748B">Five shapes, each with what it means and an ATM example</text>
+
+  <line x1="40" y1="98" x2="860" y2="98" stroke="#E2E8F0" stroke-width="2"/>
+
+  <!-- Row 1: Oval — Start / End -->
+  <rect x="50" y="122" width="170" height="52" rx="26" fill="#EEF2FF" stroke="#6366F1" stroke-width="2"/>
+  <text x="135" y="154" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="16" font-weight="600" fill="#1E1B4B">Start / End</text>
+  <text x="270" y="142" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="17" font-weight="600" fill="#1E293B">Oval — marks where the logic begins and finishes</text>
+  <text x="270" y="167" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" fill="#475569">ATM: "Start" of the withdrawal, "End" after the receipt</text>
+  <line x1="40" y1="196" x2="860" y2="196" stroke="#F1F5F9" stroke-width="2"/>
+
+  <!-- Row 2: Rectangle — Action -->
+  <rect x="50" y="220" width="170" height="52" rx="4" fill="#ECFDF5" stroke="#10B981" stroke-width="2"/>
+  <text x="135" y="252" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="16" font-weight="600" fill="#064E3B">Action</text>
+  <text x="270" y="240" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="17" font-weight="600" fill="#1E293B">Rectangle — one step the system carries out</text>
+  <text x="270" y="265" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" fill="#475569">ATM: "Dispense cash"</text>
+  <line x1="40" y1="294" x2="860" y2="294" stroke="#F1F5F9" stroke-width="2"/>
+
+  <!-- Row 3: Diamond — Decision -->
+  <polygon points="135,316 226,346 135,376 44,346" fill="#FEF3C7" stroke="#F59E0B" stroke-width="2"/>
+  <text x="135" y="352" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#78350F">Decision</text>
+  <text x="270" y="338" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="17" font-weight="600" fill="#1E293B">Diamond — a question with two or more exit paths</text>
+  <text x="270" y="363" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" fill="#475569">ATM: "Is the PIN correct?" — one arrow for Yes, one for No</text>
+  <line x1="40" y1="392" x2="860" y2="392" stroke="#F1F5F9" stroke-width="2"/>
+
+  <!-- Row 4: Parallelogram — Input / Output -->
+  <polygon points="74,416 236,416 202,468 40,468" fill="#F0F9FF" stroke="#0EA5E9" stroke-width="2"/>
+  <text x="138" y="448" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="16" font-weight="600" fill="#0C4A6E">Input / Output</text>
+  <text x="270" y="436" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="17" font-weight="600" fill="#1E293B">Parallelogram — data going in, or a result coming out</text>
+  <text x="270" y="461" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" fill="#475569">ATM: "User enters PIN", "Print the receipt"</text>
+  <line x1="40" y1="490" x2="860" y2="490" stroke="#F1F5F9" stroke-width="2"/>
+
+  <!-- Row 5: Arrow — Flow direction -->
+  <line x1="50" y1="540" x2="215" y2="540" stroke="#6366F1" stroke-width="3" marker-end="url(#arrowHead)"/>
+  <text x="270" y="532" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="17" font-weight="600" fill="#1E293B">Arrow — the direction the flow moves in</text>
+  <text x="270" y="557" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" fill="#475569">ATM: PIN check, then balance check, then cash</text>
+</svg>
