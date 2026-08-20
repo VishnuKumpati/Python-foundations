@@ -1,22 +1,22 @@
 # Foundations of Computation
 
-## Overview
-
-Computation is the process of taking an input, processing it using instructions, and producing an output. While all computer systems perform computation, they do not all behave the same way. Some are deterministic, giving the same output for the same input every time, while others are probabilistic, where the output can vary, as seen in AI systems. Understanding this difference is the first step toward learning how AI works and why AI can generate different responses to the same question.
+Computation is the process of taking an input, processing it using instructions, and producing an output. While all computer systems perform computation, they do not all behave the same way — some are deterministic, giving the same output for the same input every time, while others are probabilistic, where the output can vary, as seen in AI systems. Understanding this difference is the first step toward learning how AI works and why AI can generate different responses to the same question.
 
 ## What Is Computation?
 
 Computation simply means solving a problem by following steps. A computer does not "think" like a human. It takes something given to it, follows instructions, and produces a result.
 
-**Simple formula:** Given information + Steps to follow = Result
+**Given information + Steps to follow = Result**
 
-**Daily-life example:** Imagine making tea. You start with water, milk, tea powder, and sugar. You follow steps such as boiling, mixing, and filtering. The final result is a cup of tea. Computation works in a similar way: it starts with information, follows steps, and gives a result.
+Imagine making tea. You start with water, milk, tea powder, and sugar. You follow steps such as boiling, mixing, and filtering. The final result is a cup of tea. Computation works in a similar way: it starts with information, follows steps, and gives a result.
 
-**Beginner-friendly way to remember:** Computation is not magic. It is a step-by-step process. In AI, the steps are more advanced because the system learns patterns from data, but the basic idea is still the same: information is processed to produce an answer.
+The same shape sits underneath everything a computer does.
 
 - A calculator takes numbers and an operation as input, then produces an answer.
 - A search engine takes keywords as input, then returns relevant results.
 - An AI chatbot takes a question as input, then generates a response.
+
+Computation is not magic. It is a step-by-step process. In AI, the steps are more advanced because the system learns patterns from data, but the basic idea is still the same: information is processed to produce an answer.
 
 ## Deterministic Systems — Same Input Always Gives the Same Output
 
@@ -109,7 +109,7 @@ Each step made the system better at handling situations it had never been explic
 
 ## Why AI Gives Different Answers to the Same Question
 
-**Daily-life analogy:** Imagine asking three different teachers: "What is Machine Learning?"
+Imagine asking three different teachers: "What is Machine Learning?"
 
 All three know the answer — but each may explain it differently.
 
@@ -117,19 +117,13 @@ All three know the answer — but each may explain it differently.
 - One may give an example.
 - One may draw a diagram.
 
-The answer changes, but the concept remains the same. AI behaves in a similar way.
-
-**Example — Question: "Explain Artificial Intelligence."**
+The answer changes, but the concept remains the same. AI behaves in a similar way. Ask it to explain artificial intelligence twice, and you might get these two replies.
 
 Response 1: Artificial Intelligence is a technology that enables machines to perform tasks that normally require human intelligence.
 
 Response 2: Artificial Intelligence allows computers to learn from data and solve problems like humans.
 
-Both answers are correct. They simply explain the same idea in different ways.
-
-**Beginner-friendly way to remember:** AI is not broken when it gives a different answer — it is working exactly as designed. It samples from many possible correct responses, just as a teacher might pick any one of several good explanations.
-
-**How It Works — A Simple Diagram:**
+Both answers are correct. They simply explain the same idea in different ways. AI is not broken when it gives a different answer — it is working exactly as designed. It samples from many possible correct responses, just as a teacher might pick any one of several good explanations.
 
 ```mermaid
 flowchart TD
@@ -163,7 +157,7 @@ You will explore temperature and sampling in much more detail later in this prog
 
 We have seen what the machine does: it takes an input, processes it, and produces an output. That leaves an obvious question. If the machine does the processing, what is left for the human to do?
 
-**Daily-life example:** Imagine you want to travel to a new city. A maps app can find the fastest route in seconds — that is the processing. But the app did not decide that you should travel, choose the city, or decide whether "fastest" mattered more than "cheapest." You did all of that. And if the trip goes wrong, the app does not answer for it. You do.
+Imagine you want to travel to a new city. A maps app can find the fastest route in seconds — that is the processing. But the app did not decide that you should travel, choose the city, or decide whether "fastest" mattered more than "cheapest." You did all of that. And if the trip goes wrong, the app does not answer for it. You do.
 
 Solving a problem currently requires a human to do the following:
 
@@ -190,7 +184,7 @@ A machine can help with some of these steps, but not all of them.
 | Check the result | Yes | Partly, never for accountability |
 | Take responsibility | Yes | Never |
 
-**Beginner-friendly way to remember:** The machine is fast at doing. It cannot decide what is worth doing, and it cannot answer for the result afterwards. Those two ends of the list stay with the human.
+The machine is fast at doing. It cannot decide what is worth doing, and it cannot answer for the result afterwards. Those two ends of the list stay with the human.
 
 This is why the rest of this module exists. Deciding what matters and breaking a problem down are covered in Unit M1.2. Choosing an approach and stating it clearly are covered in Units M1.3 and M1.4. Checking the result and taking responsibility return later, in Module M3.
 
