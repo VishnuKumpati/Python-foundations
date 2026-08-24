@@ -93,11 +93,11 @@ Colab is a free tool from Google. It runs Python in your browser, nothing to ins
 2. Sign in with your Google account
 3. You'll land on the **Welcome to Colab** screen. Just close the popup, you don't need the example notebooks yet
 
-<img src="../../Images/image%20%289%29.png" alt="The Welcome to Colab page, showing the toolbar of an empty text cell highlighted in red" width="480">
+<img src="../../images/image%20%289%29.png" alt="The Welcome to Colab page, showing the toolbar of an empty text cell highlighted in red" width="480">
 
 4. Click **File → New notebook**
 
-<img src="../../Images/image%20%288%29.png" alt="The same File menu with New notebook highlighted (dark theme)" width="480">
+<img src="../../images/image%20%288%29.png" alt="The same File menu with New notebook highlighted (dark theme)" width="480">
 
 5. Rename it (click the default name at the top, type something like `unit-1-1-first-program`)
 6. Click into the empty cell and type your code
