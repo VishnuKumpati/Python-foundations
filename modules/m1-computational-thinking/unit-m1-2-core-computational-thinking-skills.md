@@ -86,10 +86,10 @@ When you tap "Pay ₹200" on Google Pay and see "Payment Successful ✅", a lot 
 
 ```mermaid
 flowchart TD
-    U["YOU, the user<br/>Tap Pay, see Payment Successful"]
-    A["App Layer<br/>Validates amount, calls payment API"]
-    B["Bank Layer<br/>Checks balance, debits account, updates ledger"]
-    S["Server Layer<br/>Processes millions of transactions per second"]
+    U["YOU, the user<br/>Tap Pay, see Payment \n Successful"]
+    A["App Layer<br/>Validates amount, calls\n payment API"]
+    B["Bank Layer<br/>Checks balance, debits  \n account,  updates ledger"]
+    S["Server Layer<br/>Processes millions of   \n transactions per second"]
 
     U -->|hides| A
     A -->|hides| B
@@ -129,8 +129,8 @@ flowchart LR
     subgraph ABS["ABSTRACTION"]
         direction TB
         A1["Hides complex detail,<br/>shows ONLY what matters"]
-        A2["Asks: what can I safely ignore?"]
-        A3["Like reading a car dashboard,<br/>not the engine inside"]
+        A2["Asks: what can I safely  \n ignore?"]
+        A3["Like reading a car  \n dashboard,<br/>not the engine inside"]
         A1 --- A2 --- A3
     end
     DEC -->|then| ABS
