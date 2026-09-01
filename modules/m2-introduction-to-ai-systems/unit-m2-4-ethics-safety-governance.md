@@ -86,9 +86,9 @@ The staff reading the PDF see nothing. The tool reads the text.
 ```mermaid
 flowchart LR
     A[Applicant uploads a PDF] --> B[Tool extracts all the text]
-    B --> C[Text is placed into the prompt]
-    C --> D[Model reads instructions and application as one stream]
-    D --> E[Score is influenced by the hidden line]
+    B --> C[Text is placed into the \n prompt]
+    C --> D[Model reads instructions  \n and application as \n one stream]
+    D --> E[Score is influenced by the  \n hidden line]
 
     classDef input fill:#EEF2FF,stroke:#6366F1,stroke-width:2px,color:#1E1B4B
     classDef work fill:#FEF3C7,stroke:#F59E0B,stroke-width:2px,color:#78350F
