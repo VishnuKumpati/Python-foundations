@@ -148,7 +148,7 @@ AI does roughly 70% of the implementation. You keep the 30% that decides whether
 
 ```mermaid
 flowchart LR
-    S["YOU specify<br/>action, input, output,<br/>limits, failure, done condition"] --> A["AI implements<br/>code and drafts,<br/>at speed and scale"]
+    S["YOU specify<br/>action, input, output,<br/>limits, failure,  \n done condition"] --> A["AI implements<br/>code and drafts,<br/>at speed and scale"]
     A --> V["YOU verify<br/>against the spec you wrote"]
     V -->|"meets the spec"| SHIP["Accept and move on"]
     V -->|"fails the spec"| S
