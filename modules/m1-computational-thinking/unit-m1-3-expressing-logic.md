@@ -84,7 +84,7 @@ flowchart TD
     D2 -- No --> M2[Show 'Insufficient balance']
     M2 --> End2([End])
     D2 -- Yes --> P1[Dispense cash]
-    P1 --> P2[Deduct amount from balance]
+    P1 --> P2[Deduct amount \n from balance]
     P2 --> P3[Print receipt]
     P3 --> End3([End])
 ```
