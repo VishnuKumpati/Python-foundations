@@ -127,10 +127,10 @@ Both answers are correct. They simply explain the same idea in different ways. A
 
 ```mermaid
 flowchart TD
-    A["Same question asked twice<br/>'Explain Artificial Intelligence'"] --> B["AI builds a list of possible<br/>answers, each with a likelihood"]
+    A["Same question asked twice<br/>'Explain \n Artificial Intelligence'"] --> B["AI builds a list of possible<br/>answers,  \neach with a likelihood"]
     B --> C["It picks one from that list"]
-    C --> D["Response 1<br/>a technology that enables machines..."]
-    C --> E["Response 2<br/>allows computers to learn from data..."]
+    C --> D["Response 1<br/>a technology that \n enables machines..."]
+    C --> E["Response 2<br/>allows computers  \nto learn from data..."]
 
     classDef ask fill:#EEF2FF,stroke:#6366F1,stroke-width:2px,color:#1E1B4B
     classDef think fill:#FEF3C7,stroke:#F59E0B,stroke-width:2px,color:#78350F
